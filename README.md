@@ -64,4 +64,23 @@ PI-DS – 4DS5 | 2025–2026
 ## Acknowledgments
 
 Thanks to Esprit School of Engineering for guidance and support.
+## Project Structure
+
+This project is organized into multiple repositories, each responsible for a specific layer of the system:
+
+* 🔗 **Data Pipeline**: https://github.com/manarzh1/Esprit-PI-DS-4DS5-2026-EstateMind-DataPipeline
+* 🔗 **Models (ML & DL)**: https://github.com/manarzh1/Esprit-PI-DS-4DS5-2026-EstateMind-Models
+
+### Repository Roles
+
+* **Data Pipeline**
+  Responsible for data collection, preprocessing, and storage.
+  It includes web scraping, data cleaning, and database integration (PostgreSQL).
+
+* **Models (ML & DL)**
+  Contains predictive modeling and experimentation components.
+  It includes Machine Learning and Deep Learning models for price prediction, anomaly detection, and explainable AI (XAI).
+
+This modular architecture ensures scalability, maintainability, and clear separation of concerns.
+
 
