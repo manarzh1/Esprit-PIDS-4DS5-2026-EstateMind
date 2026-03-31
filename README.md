@@ -47,6 +47,7 @@ The system is based on a multi-agent architecture:
 * Wissem Bahar
 * Yosser Ben mahmoud
 * Wissal Bahar
+* Nourhen Mraeih
 
 ## Academic Context
 
