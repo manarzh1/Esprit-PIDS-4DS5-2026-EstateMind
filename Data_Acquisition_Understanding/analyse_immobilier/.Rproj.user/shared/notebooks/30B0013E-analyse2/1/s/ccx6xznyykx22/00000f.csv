@@ -1,0 +1,6 @@
+"0","if (""prix"" %in% names(df_vis) && nrow(df_vis) > 0) {"
+"0","  ggplot(df_vis, aes(x = prix)) +"
+"0","    geom_histogram(bins = 50, fill = ""steelblue"", color = ""white"") +"
+"0","    theme_minimal() +"
+"0","    labs(title = ""Distribution des prix"", x = ""Prix"", y = ""Fréquence"")"
+"0","}"
