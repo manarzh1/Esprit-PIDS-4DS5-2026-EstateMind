@@ -1,0 +1,320 @@
+/* ══════════════════════════════════════════════════════════════════════════════
+   Estate Mind — Global Styles v3.1
+   Inclut : design tokens, composants réutilisables, responsive mobile
+══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Reset & base ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--txt);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Design tokens ────────────────────────────────────────────────────────── */
+:root {
+  /* Couleurs */
+  --bg:    #09090B;
+  --card:  #18181C;
+  --el:    #222226;
+  --bor:   rgba(255,255,255,.07);
+  --gbor:  rgba(200,169,110,.35);
+  --gdim:  rgba(200,169,110,.08);
+  --txt:   #F2F0EC;
+  --mut:   #6B6966;
+
+  /* Couleurs sémantiques */
+  --gold:  #C8A96E;
+  --ok:    #52C896;
+  --bad:   #E05C5C;
+  --warn:  #E8A84C;
+  --info:  #6B9FE8;
+
+  /* Typographie */
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Georgia', 'Times New Roman', serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Espacements layout */
+  --page-px:   28px;
+  --page-py:   28px;
+  --gap-md:    14px;
+  --gap-lg:    20px;
+}
+
+/* ── Page layout ──────────────────────────────────────────────────────────── */
+.page-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--page-py) var(--page-px);
+}
+
+/* ── Carte de base ────────────────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--bor);
+  border-radius: 12px;
+}
+
+/* ── Grilles responsives ──────────────────────────────────────────────────── */
+
+/* KPIs — 4 colonnes → 2 → 1 */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap-md);
+}
+
+/* Layout principal dashboard : contenu + sidebar */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: var(--gap-md);
+  align-items: start;
+}
+
+/* Charts côte à côte */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap-md);
+}
+
+/* Filtres de recherche */
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+/* ── Composants UI ────────────────────────────────────────────────────────── */
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--txt);
+  letter-spacing: .01em;
+}
+
+/* Barres de progression */
+.bar-bg {
+  height: 5px;
+  background: var(--el);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width .4s ease;
+}
+
+/* Tableaux de données */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.data-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 10px;
+  color: var(--mut);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  border-bottom: 1px solid var(--bor);
+  white-space: nowrap;
+  background: var(--el);
+}
+.data-table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  color: var(--txt);
+}
+.data-table tr:hover td { background: rgba(255,255,255,.02); }
+.data-table tr:last-child td { border-bottom: none; }
+
+/* ── Animations ───────────────────────────────────────────────────────────── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes fadeup {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .4; }
+}
+
+.animate-spin    { animation: spin 1s linear infinite; }
+.animate-fadeup  { animation: fadeup .25s ease; }
+.animate-pulse   { animation: pulse 2s ease-in-out infinite; }
+
+/* ── Scrollbar custom ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar              { width: 5px; height: 5px; }
+::-webkit-scrollbar-track        { background: transparent; }
+::-webkit-scrollbar-thumb        { background: rgba(255,255,255,.1); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover  { background: rgba(255,255,255,.2); }
+
+/* ── Sélection de texte ───────────────────────────────────────────────────── */
+::selection { background: rgba(200,169,110,.25); color: var(--txt); }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   RESPONSIVE MOBILE
+   Breakpoints : 768px (tablet), 480px (mobile)
+══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Tablet (≤ 1024px) ────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  :root {
+    --page-px: 20px;
+    --page-py: 20px;
+  }
+
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reco-widget {
+    position: static !important;
+  }
+}
+
+/* ── Tablet portrait (≤ 768px) ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --page-px: 16px;
+    --page-py: 16px;
+    --gap-md:  10px;
+    --gap-lg:  14px;
+  }
+
+  /* KPIs : 2 colonnes sur tablet */
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Charts : 1 colonne */
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Filtres : 2 colonnes */
+  .filter-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Tableau scrollable horizontalement */
+  .data-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .data-table {
+    min-width: 520px;
+  }
+
+  /* NavBar : réduire les labels */
+  nav span.nav-label {
+    display: none;
+  }
+  nav .nav-version {
+    display: none;
+  }
+
+  /* Cards padding réduit */
+  .card { border-radius: 10px; }
+
+  /* Carte Leaflet : hauteur réduite */
+  .leaflet-container {
+    height: 320px !important;
+    min-height: 320px !important;
+  }
+
+  /* Comparateur : fullscreen */
+  .comparator-modal {
+    padding: 8px !important;
+  }
+}
+
+/* ── Mobile (≤ 480px) ────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  :root {
+    --page-px: 12px;
+    --page-py: 14px;
+  }
+
+  /* KPIs : 1 colonne sur mobile */
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* KPI valeurs plus petites */
+  .kpi-grid .card { padding: 14px 14px !important; }
+  .kpi-grid .card .val-large { font-size: 20px !important; }
+
+  /* Filtres : 1 colonne */
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Barre de recherche : wrap */
+  .search-bar-row {
+    flex-wrap: wrap;
+  }
+  .search-bar-row input {
+    font-size: 12px !important;
+  }
+
+  /* Tableau : masquer colonnes secondaires */
+  .data-table .col-secondary {
+    display: none;
+  }
+
+  /* Boutons de résultats : empilés */
+  .result-actions {
+    flex-wrap: wrap;
+    gap: 4px !important;
+  }
+
+  /* Page territoire : 1 colonne */
+  .territoire-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Page carte : sidebar en dessous */
+  .carte-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Carte Leaflet : hauteur mobile */
+  .leaflet-container {
+    height: 260px !important;
+    min-height: 260px !important;
+  }
+
+  /* Navbar : icônes seulement */
+  nav a span { display: none; }
+  nav a { padding: 5px 8px !important; }
+
+  /* Header h1 */
+  h1[style*="font-size:24px"], h1[style*="font-size: 24px"] {
+    font-size: 18px !important;
+  }
+  h1[style*="font-size:22px"], h1[style*="font-size: 22px"] {
+    font-size: 17px !important;
+  }
+}
+
+/* ── Print (export) ───────────────────────────────────────────────────────── */
+@media print {
+  nav, button, .no-print { display: none !important; }
+  body { background: white; color: black; }
+  .card { border: 1px solid #ccc; border-radius: 4px; }
+  .kpi-grid { grid-template-columns: repeat(4,1fr); }
+}
