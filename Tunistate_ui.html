@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TuniState — See clearly, before you invest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Reset ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Palette TuniState */
+  --black:       #0e0e0e;
+  --dark:        #161616;
+  --dark2:       #1e1e1e;
+  --dark3:       #262626;
+  --dark4:       #2e2e2e;
+
+  --orange:      #F7941D;       /* orange principal */
+  --orange-lt:   #FAA94E;       /* orange clair */
+  --orange-dk:   #D4780A;       /* orange foncé */
+  --orange-bg:   rgba(247,148,29,0.08);
+  --orange-glow: rgba(247,148,29,0.20);
+  --orange-bdr:  rgba(247,148,29,0.30);
+
+  --gray:        #6B6B6B;
+  --gray2:       #9A9A9A;
+  --gray3:       #C4C4C4;
+  --white:       #F5F3EF;       /* blanc chaud */
+  --white2:      #FFFFFF;
+
+  --border:      rgba(255,255,255,0.06);
+  --border2:     rgba(255,255,255,0.10);
+  --border3:     rgba(255,255,255,0.15);
+
+  /* Statuts */
+  --red:         #E53E3E;
+  --red-bg:      rgba(229,62,62,0.08);
+  --red-bdr:     rgba(229,62,62,0.25);
+
+  --amber:       #D97706;
+  --amber-bg:    rgba(217,119,6,0.08);
+  --amber-bdr:   rgba(217,119,6,0.25);
+
+  --green:       #2D9D5D;
+  --green-bg:    rgba(45,157,93,0.08);
+  --green-bdr:   rgba(45,157,93,0.25);
+
+  --blue:        #3B82F6;
+  --blue-bg:     rgba(59,130,246,0.08);
+  --blue-bdr:    rgba(59,130,246,0.25);
+
+  /* Typo */
+  --serif:   'Playfair Display', Georgia, serif;
+  --sans:    'Barlow', sans-serif;
+  --cond:    'Barlow Condensed', sans-serif;
+  --mono:    'JetBrains Mono', monospace;
+
+  --r-sm:  8px;
+  --r-md:  12px;
+  --r-lg:  18px;
+  --r-xl:  24px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(ellipse 70% 40% at 80% -10%, rgba(247,148,29,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at -10% 80%, rgba(247,148,29,0.04) 0%, transparent 60%);
+}
+
+/* ── Layout ───────────────────────────────── */
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ── TOP NAV ──────────────────────────────── */
+.topnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0 24px;
+  border-bottom: 1px solid var(--border2);
+  margin-bottom: 52px;
+  animation: fadeDown .5s ease both;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.logo-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--orange), var(--orange-dk));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px var(--orange-glow);
+  position: relative;
+  overflow: hidden;
+}
+.logo-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.15), transparent);
+}
+.logo-icon svg { position: relative; z-index: 1; }
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.logo-name {
+  font-family: var(--cond);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--white2);
+  line-height: 1;
+}
+.logo-name span { color: var(--orange); }
+.logo-slogan {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gray);
+  line-height: 1;
+}
+
+.nav-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--gray2);
+  background: var(--dark2);
+  border: 1px solid var(--border2);
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+.api-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gray);
+  transition: background .3s, box-shadow .3s;
+}
+.api-dot.online {
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: pulse 2s ease infinite;
+}
+
+/* ── Header ───────────────────────────────── */
+.header {
+  margin-bottom: 44px;
+  animation: fadeDown .5s .05s ease both;
+}
+
+.header-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--cond);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--orange-lt);
+  background: var(--orange-bg);
+  border: 1px solid var(--orange-bdr);
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+.header-tag::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 8px var(--orange);
+  display: inline-block;
+}
+
+.header h1 {
+  font-family: var(--serif);
+  font-size: clamp(30px, 4.5vw, 44px);
+  font-weight: 700;
+  letter-spacing: -.01em;
+  line-height: 1.15;
+  color: var(--white2);
+  margin-bottom: 14px;
+}
+.header h1 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--orange-lt);
+}
+
+.header-desc {
+  font-size: 15px;
+  color: var(--gray2);
+  max-width: 540px;
+  line-height: 1.7;
+}
+
+/* ── Quick pills ──────────────────────────── */
+.quick-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+  animation: fadeUp .4s .1s ease both;
+}
+.quick-label {
+  font-family: var(--cond);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--gray);
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.quick-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.qpill {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border2);
+  background: var(--dark2);
+  color: var(--gray2);
+  cursor: pointer;
+  transition: border-color .2s, color .2s, background .2s;
+  white-space: nowrap;
+}
+.qpill:hover {
+  border-color: var(--orange-bdr);
+  color: var(--orange-lt);
+  background: var(--orange-bg);
+}
+
+/* ── Input panel ──────────────────────────── */
+.input-panel {
+  background: var(--dark);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-xl);
+  padding: 28px 28px 24px;
+  margin-bottom: 28px;
+  animation: fadeUp .5s .15s ease both;
+  position: relative;
+  overflow: hidden;
+}
+.input-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--orange) 50%, transparent 100%);
+  opacity: .6;
+}
+
+.input-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--cond);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 14px;
+}
+
+.input-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.input-wrapper { flex: 1; position: relative; }
+
+#query-input {
+  width: 100%;
+  padding: 15px 18px 15px 46px;
+  background: var(--dark3);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-md);
+  color: var(--white);
+  font-family: var(--sans);
+  font-size: 15px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+#query-input::placeholder { color: var(--gray); }
+#query-input:focus {
+  border-color: var(--orange-bdr);
+  box-shadow: 0 0 0 3px var(--orange-bg);
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray);
+  pointer-events: none;
+}
+
+.btn-analyze {
+  padding: 14px 28px;
+  background: linear-gradient(135deg, var(--orange), var(--orange-dk));
+  color: var(--white2);
+  border: none;
+  border-radius: var(--r-md);
+  font-family: var(--cond);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: opacity .2s, transform .1s, box-shadow .2s;
+  box-shadow: 0 4px 20px var(--orange-glow);
+}
+.btn-analyze:hover {
+  opacity: .9;
+  box-shadow: 0 6px 28px rgba(247,148,29,0.35);
+}
+.btn-analyze:active { transform: scale(.98); }
+.btn-analyze:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Parsed chips */
+.parsed-preview {
+  display: none;
+  margin-top: 14px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.parsed-preview.visible { display: flex; }
+
+.pchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+.pchip .k { color: var(--gray); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+.pchip .v { font-weight: 500; }
+.pchip.actor  { background: var(--orange-bg); border: 1px solid var(--orange-bdr); }
+.pchip.actor .v  { color: var(--orange-lt); }
+.pchip.action { background: var(--dark3); border: 1px solid var(--border2); }
+.pchip.action .v { color: var(--gray3); }
+.pchip.target { background: var(--dark3); border: 1px solid var(--border2); }
+.pchip.target .v { color: var(--gray3); }
+.pchip.cond   { background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.2); }
+.pchip.cond .v   { color: #fbbf24; }
+
+/* ── Loader ───────────────────────────────── */
+.loader {
+  display: none;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 28px;
+  background: var(--dark);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-lg);
+  margin-bottom: 24px;
+}
+.loader.visible { display: flex; }
+
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--orange-bg);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  flex-shrink: 0;
+}
+.loader-text { font-size: 14px; color: var(--gray2); }
+.loader-dots::after {
+  content: '';
+  animation: dots 1.2s steps(3, end) infinite;
+}
+
+/* ── Error banner ─────────────────────────── */
+.error-banner {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--red-bg);
+  border: 1px solid var(--red-bdr);
+  border-radius: var(--r-md);
+  margin-bottom: 24px;
+  color: #fca5a5;
+  font-size: 14px;
+}
+.error-banner.visible { display: flex; }
+
+/* ── Results ──────────────────────────────── */
+#results { animation: fadeUp .4s ease both; }
+
+/* Status hero */
+.status-hero {
+  border-radius: var(--r-xl);
+  padding: 30px 32px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border: 1px solid;
+  position: relative;
+  overflow: hidden;
+}
+.status-hero::before {
+  content: '';
+  position: absolute;
+  right: -60px; top: -60px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  opacity: .06;
+}
+.status-hero.violation { background: var(--red-bg); border-color: var(--red-bdr); }
+.status-hero.violation::before { background: var(--red); }
+.status-hero.warning   { background: var(--amber-bg); border-color: var(--amber-bdr); }
+.status-hero.warning::before   { background: var(--amber); }
+.status-hero.compliant { background: var(--green-bg); border-color: var(--green-bdr); }
+.status-hero.compliant::before { background: var(--green); }
+.status-hero.out-of-domain { background: var(--blue-bg); border-color: var(--blue-bdr); }
+.status-hero.out-of-domain::before { background: var(--blue); }
+.status-hero.unknown   { background: rgba(107,114,128,.06); border-color: rgba(107,114,128,.2); }
+.status-hero.unknown::before { background: #6b7280; }
+
+.status-left { flex: 1; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--cond);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+.sbdot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  animation: pulse 2s ease infinite;
+}
+.violation .status-badge { background: rgba(229,62,62,.15); color: #fc8181; }
+.violation .sbdot  { background: var(--red); box-shadow: 0 0 8px var(--red); }
+.warning   .status-badge { background: rgba(217,119,6,.15); color: #fbbf24; }
+.warning   .sbdot  { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+.compliant .status-badge { background: rgba(45,157,93,.15); color: #6ee7b7; }
+.compliant .sbdot  { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.out-of-domain .status-badge { background: var(--blue-bg); color: #93c5fd; }
+.out-of-domain .sbdot { background: var(--blue); box-shadow: 0 0 8px var(--blue); }
+.unknown .status-badge { background: rgba(107,114,128,.15); color: #d1d5db; }
+.unknown .sbdot { background: #9ca3af; }
+
+.status-title {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--white2);
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+.status-subtitle { font-size: 13px; color: var(--gray2); }
+
+/* Risk gauge */
+.risk-gauge { text-align: right; flex-shrink: 0; }
+.risk-label {
+  font-family: var(--cond);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 6px;
+}
+.risk-number {
+  font-family: var(--serif);
+  font-size: 54px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.violation   .risk-number { color: var(--red); }
+.warning     .risk-number { color: var(--amber); }
+.compliant   .risk-number { color: var(--green); }
+.out-of-domain .risk-number { color: var(--blue); }
+.unknown     .risk-number { color: var(--gray); }
+
+.risk-denom {
+  font-size: 11px;
+  color: var(--gray);
+  text-align: right;
+  margin-bottom: 8px;
+}
+.risk-bar {
+  width: 120px;
+  height: 4px;
+  background: var(--dark3);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-left: auto;
+}
+.risk-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  width: 0%;
+  transition: width .8s cubic-bezier(.4,0,.2,1);
+}
+.violation   .risk-bar-fill { background: linear-gradient(90deg, var(--red), #f97316); }
+.warning     .risk-bar-fill { background: linear-gradient(90deg, var(--amber), #eab308); }
+.compliant   .risk-bar-fill { background: linear-gradient(90deg, var(--green), #10b981); }
+.out-of-domain .risk-bar-fill { background: var(--blue); }
+.unknown     .risk-bar-fill { background: var(--gray); }
+
+/* ── Sections ─────────────────────────────── */
+.section { margin-bottom: 20px; }
+
+.section-hd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.section-icon {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.icon-red    { background: var(--red-bg);   border: 1px solid var(--red-bdr); }
+.icon-amber  { background: var(--amber-bg); border: 1px solid var(--amber-bdr); }
+.icon-green  { background: var(--green-bg); border: 1px solid var(--green-bdr); }
+.icon-orange { background: var(--orange-bg); border: 1px solid var(--orange-bdr); }
+
+.section-title-text {
+  font-family: var(--cond);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--gray2);
+}
+.section-count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--dark2);
+  color: var(--gray);
+}
+
+/* ── Item cards ───────────────────────────── */
+.items-list { display: flex; flex-direction: column; gap: 10px; }
+
+.item-card {
+  padding: 16px 18px;
+  border-radius: var(--r-md);
+  border: 1px solid;
+  position: relative;
+  animation: slideIn .3s ease both;
+}
+.item-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 3px 0 0 3px;
+}
+
+.item-card.red   { background: var(--red-bg);   border-color: var(--red-bdr); }
+.item-card.red::before   { background: var(--red); }
+.item-card.amber { background: var(--amber-bg); border-color: var(--amber-bdr); }
+.item-card.amber::before { background: var(--amber); }
+.item-card.green { background: var(--green-bg); border-color: var(--green-bdr); }
+.item-card.green::before { background: var(--green); }
+.item-card.orange { background: var(--orange-bg); border-color: var(--orange-bdr); }
+.item-card.orange::before { background: var(--orange); }
+.item-card.blue  { background: var(--blue-bg);  border-color: var(--blue-bdr); }
+.item-card.blue::before  { background: var(--blue); }
+
+.item-message { font-size: 14px; line-height: 1.55; padding-left: 10px; }
+.item-card.red   .item-message { color: #fca5a5; }
+.item-card.amber .item-message { color: #fbbf24; }
+.item-card.green .item-message { color: #6ee7b7; }
+.item-card.orange .item-message { color: var(--orange-lt); }
+.item-card.blue  .item-message { color: #93c5fd; }
+
+.item-meta { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-left: 10px; flex-wrap: wrap; }
+
+.mchip {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,.04);
+  color: var(--gray);
+  border: 1px solid var(--border);
+}
+.rchip {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+.item-card.red   .rchip { background: rgba(229,62,62,.2);  color: #fca5a5; }
+.item-card.amber .rchip { background: rgba(217,119,6,.2);  color: #fbbf24; }
+.item-card.green .rchip { background: rgba(45,157,93,.2);  color: #6ee7b7; }
+
+.missing-conds { margin-top: 10px; padding-left: 10px; }
+.missing-cond-label {
+  font-family: var(--cond);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 4px;
+}
+.missing-cond-item { font-size: 12px; color: #fbbf24; padding: 2px 0; }
+
+/* ── Suggestions ──────────────────────────── */
+.suggestions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.sugg-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--dark2);
+  border: 1px solid var(--orange-bdr);
+  border-radius: var(--r-md);
+  animation: slideIn .3s ease both;
+  transition: border-color .2s, background .2s;
+}
+.sugg-card:hover {
+  background: var(--orange-bg);
+  border-color: var(--orange);
+}
+.sugg-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--orange-bg);
+  border: 1px solid var(--orange-bdr);
+  color: var(--orange-lt);
+  font-family: var(--cond);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sugg-text { font-size: 13px; color: var(--gray2); line-height: 1.5; }
+
+/* ── Empty state ──────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  animation: fadeUp .5s .2s ease both;
+}
+.empty-icon {
+  width: 64px; height: 64px;
+  border-radius: 16px;
+  background: var(--dark2);
+  border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  margin: 0 auto 20px;
+}
+.empty-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--white2);
+  margin-bottom: 8px;
+}
+.empty-desc {
+  font-size: 14px;
+  color: var(--gray);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+.empty-hint {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--orange-lt);
+  background: var(--orange-bg);
+  border: 1px solid var(--orange-bdr);
+  padding: 6px 14px;
+  border-radius: 8px;
+}
+
+/* ── Divider ──────────────────────────────── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 32px 0;
+}
+
+/* ── Footer ───────────────────────────────── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0 0;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--gray);
+  font-family: var(--mono);
+}
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.footer-brand strong { color: var(--orange-lt); font-weight: 600; }
+
+/* ── Animations ───────────────────────────── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .4; }
+}
+@keyframes dots {
+  0%   { content: ''; }
+  33%  { content: '.'; }
+  66%  { content: '..'; }
+  100% { content: '...'; }
+}
+
+/* ── Responsive ───────────────────────────── */
+@media (max-width: 600px) {
+  .topnav { flex-wrap: wrap; gap: 12px; }
+  .input-row { flex-direction: column; }
+  .status-hero { flex-direction: column; text-align: center; }
+  .risk-gauge { text-align: center; }
+  .risk-bar { margin: 0 auto; }
+  .footer { flex-direction: column; gap: 8px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <a class="logo" href="#">
+      <div class="logo-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <div class="logo-name">Tuni<span>State</span></div>
+        <div class="logo-slogan">See clearly… before you invest</div>
+      </div>
+    </a>
+    <div class="nav-badge">
+      <span class="api-dot" id="api-dot"></span>
+      <span id="api-text">localhost:8000</span>
+    </div>
+  </nav>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-tag">Code des Droits Réels tunisien · Loi n°65-5</div>
+    <h1>Analyse de <em>conformité</em><br>juridique immobilière</h1>
+    <p class="header-desc">Vérifiez instantanément la conformité d'une situation avec le CDR tunisien. Entrez votre situation en langage naturel — acteur, action, cible.</p>
+  </header>
+
+  <!-- QUICK EXAMPLES -->
+  <div class="quick-pills">
+    <div class="quick-label">Exemples rapides</div>
+    <span class="qpill" onclick="fill('proprietaire construire immeuble')">🏗️ Construire sans permis</span>
+    <span class="qpill" onclick="fill('proprietaire demolir batiment')">🔨 Démolir un bâtiment</span>
+    <span class="qpill" onclick="fill('locataire sous-louer appartement')">🔑 Sous-louer</span>
+    <span class="qpill" onclick="fill('acquéreur vendre bien immobilier devant notaire')">📄 Vendre avec notaire</span>
+    <span class="qpill" onclick="fill('creancier inscrire hypotheque')">⚖️ Inscrire une hypothèque</span>
+  </div>
+
+  <!-- INPUT PANEL -->
+  <div class="input-panel">
+    <div class="input-label">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      Décrivez la situation juridique
+    </div>
+
+    <div class="input-row">
+      <div class="input-wrapper">
+        <span class="input-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </span>
+        <input
+          type="text"
+          id="query-input"
+          placeholder="ex : proprietaire construire immeuble avec permis de construire"
+          autocomplete="off"
+          spellcheck="false"
+        >
+      </div>
+      <button class="btn-analyze" id="btn-analyze" onclick="analyze()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+        Analyser
+      </button>
+    </div>
+
+    <div class="parsed-preview" id="parsed-preview"></div>
+  </div>
+
+  <!-- LOADER -->
+  <div class="loader" id="loader">
+    <div class="spinner"></div>
+    <div class="loader-text">Analyse en cours<span class="loader-dots"></span></div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-banner" id="error-banner">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <span id="error-text">Impossible de contacter l'API. Lancez : python main.py --step api</span>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results"></div>
+
+  <!-- EMPTY STATE -->
+  <div id="empty-state" class="empty-state">
+    <div class="empty-icon">⚖️</div>
+    <div class="empty-title">Prêt pour l'analyse</div>
+    <p class="empty-desc">Entrez une situation juridique ci-dessus<br>pour obtenir une analyse de conformité instantanée.</p>
+    <span class="empty-hint">acteur · action · cible · [conditions]</span>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span class="footer-brand"><strong>TuniState</strong> · Legal Compliance Engine · BO5</span>
+    <span>CDR — Loi n°65-5 · Code de l'Aménagement du Territoire — 2011</span>
+  </footer>
+
+</div>
+
+<script>
+/* ── Config ──────────────────────────────── */
+const API_URL = 'http://localhost:8000/analyze-text';
+const HEALTH_URL = 'http://localhost:8000/health';
+
+/* ── Helpers ─────────────────────────────── */
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function parseQuery(raw) {
+  const parts = raw.trim().split(/\s+/);
+  return {
+    actor:      parts[0] || '',
+    action:     parts[1] || '',
+    target:     parts[2] || '',
+    conditions: parts.slice(3).length ? [parts.slice(3).join(' ')] : [],
+  };
+}
+
+/* ── Quick fill ──────────────────────────── */
+function fill(q) {
+  const inp = document.getElementById('query-input');
+  inp.value = q;
+  inp.dispatchEvent(new Event('input'));
+  inp.focus();
+}
+
+/* ── Live preview ────────────────────────── */
+document.getElementById('query-input').addEventListener('input', e => {
+  const val = e.target.value.trim();
+  const prev = document.getElementById('parsed-preview');
+  if (!val) { prev.classList.remove('visible'); return; }
+  // Afficher le texte brut — Mistral parse en arrière-plan
+  prev.innerHTML = `<span class="pchip actor"><span class="k">texte libre</span><span class="v">${esc(val.substring(0,60))}${val.length>60?'…':''}</span></span><span class="pchip action"><span class="k">via</span><span class="v">Mistral NLP</span></span>`;
+  prev.classList.add('visible');
+});
+
+document.getElementById('query-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') analyze();
+});
+
+/* ── Health check ────────────────────────── */
+async function checkHealth() {
+  try {
+    const r = await fetch(HEALTH_URL, { signal: AbortSignal.timeout(3000) });
+    const dot  = document.getElementById('api-dot');
+    const text = document.getElementById('api-text');
+    if (r.ok) {
+      const d = await r.json();
+      dot.classList.add('online');
+      text.textContent = `API connectée · ${d.rules_loaded || ''} règles`;
+    } else throw new Error();
+  } catch {
+    const dot = document.getElementById('api-dot');
+    dot.classList.remove('online');
+    document.getElementById('api-text').textContent = 'API hors ligne';
+  }
+}
+checkHealth();
+setInterval(checkHealth, 15000);
+
+/* ── Analyze ─────────────────────────────── */
+async function analyze() {
+  const raw = document.getElementById('query-input').value.trim();
+  if (!raw) return;
+
+  setLoading(true);
+  hideError();
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('results').innerHTML = '';
+
+  try {
+    // Toujours envoyer le texte libre — Mistral NLP parse correctement
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: raw, use_llm: true, threshold: 0.45 }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    // Extraire le resultat de conformite
+    const compliance  = data.compliance  || data;
+    const parsed      = data.parsed      || {};
+    const ragFallback = data.rag_fallback || null;
+
+    renderResults(compliance, parsed);
+
+    // Afficher RAG fallback si present (Urbanisme ou CDR)
+    if (ragFallback && ragFallback.used) {
+      const ragBox = renderRagFallback(ragFallback);
+      if (ragBox) document.getElementById('results').appendChild(ragBox);
+    }
+
+    checkHealth();
+  } catch (err) {
+    showError(
+      err.message.includes('fetch') || err.message.includes('NetworkError')
+        ? "Impossible de contacter l'API. Lancez : python main.py --step api"
+        : `Erreur : ${err.message}`
+    );
+    document.getElementById('empty-state').style.display = 'block';
+  } finally {
+    setLoading(false);
+  }
+}
+
+/* ── Render results ──────────────────────── */
+function renderResults(data, query) {
+  const status     = (data.global_status || 'UNKNOWN').toLowerCase().replace(/_/g, '-');
+  const risk       = data.risk_score || 0;
+  const violations = data.violations || [];
+  const warnings   = data.warnings || [];
+  const compliant  = data.compliant_rules || [];
+  const suggestions = buildSuggestions(data);
+
+  const statusLabels = {
+    'violation':     '🚨 Violation détectée',
+    'warning':       '⚠️ Avertissement',
+    'compliant':     '✅ Conforme',
+    'out-of-domain': 'ℹ️ Hors domaine',
+    'unknown':       '❓ Indéterminé',
+  };
+  const statusTitles = {
+    'violation':     'Violation identifiée',
+    'warning':       'Attention requise',
+    'compliant':     'Situation conforme',
+    'out-of-domain': 'Hors domaine',
+    'unknown':       'Situation indéterminée',
+  };
+  const statusDescs = {
+    'violation':     violations.length > 0
+                       ? `${violations.length} violation${violations.length>1?'s':''} identifiée${violations.length>1?'s':''}`
+                       : 'Violation détectée via analyse juridique contextuelle',
+    'warning':       'Conditions à vérifier avant de procéder',
+    'compliant':     "L'action est conforme au Code des Droits Réels tunisien",
+    'out-of-domain': 'Cette situation ne relève pas du Code des Droits Réels',
+    'unknown':       "Aucune règle trouvée pour cette situation",
+  };
+
+  const card = (i) => `animation-delay:${i*80}ms`;
+
+  let html = `
+    <div class="status-hero ${status}">
+      <div class="status-left">
+        <div class="status-badge">
+          <span class="sbdot"></span>
+          ${esc(statusLabels[status] || status.toUpperCase())}
+        </div>
+        <div class="status-title">${esc(statusTitles[status] || 'Analyse terminée')}</div>
+        <div class="status-subtitle">${esc(statusDescs[status] || '')}</div>
+      </div>
+      <div class="risk-gauge">
+        <div class="risk-label">Risk Score</div>
+        <div class="risk-number">${risk}</div>
+        <div class="risk-denom">/ 100</div>
+        <div class="risk-bar"><div class="risk-bar-fill" id="risk-fill"></div></div>
+      </div>
+    </div>
+  `;
+
+  if (violations.length) {
+    html += `
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-icon icon-red">🚨</div>
+          <span class="section-title-text">Violations</span>
+          <span class="section-count">${violations.length}</span>
+        </div>
+        <div class="items-list">
+          ${violations.map((v,i) => `
+            <div class="item-card red" style="${card(i)}">
+              <div class="item-message">${esc(v.message||'')}</div>
+              <div class="item-meta">
+                ${v.risk_score!=null?`<span class="rchip">risk ${v.risk_score}/100</span>`:''}
+                ${v.article?`<span class="mchip">📄 art.${esc(v.article)}</span>`:''}
+                ${v.match_score?`<span class="mchip">match ${Math.round(v.match_score*100)}%</span>`:''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  if (warnings.length) {
+    html += `
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-icon icon-amber">⚠️</div>
+          <span class="section-title-text">Avertissements</span>
+          <span class="section-count">${warnings.length}</span>
+        </div>
+        <div class="items-list">
+          ${warnings.map((w,i) => `
+            <div class="item-card amber" style="${card(i)}">
+              <div class="item-message">${esc(w.message||'')}</div>
+              ${(w.missing_conditions||[]).length?`
+              <div class="missing-conds">
+                <div class="missing-cond-label">Conditions manquantes</div>
+                ${w.missing_conditions.map(c=>`<div class="missing-cond-item">• ${esc(c)}</div>`).join('')}
+              </div>`:''}
+              <div class="item-meta">
+                ${w.risk_score!=null?`<span class="rchip">risk ${w.risk_score}/100</span>`:''}
+                ${w.article?`<span class="mchip">📄 art.${esc(w.article)}</span>`:''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  if (compliant.length) {
+    html += `
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-icon icon-green">✅</div>
+          <span class="section-title-text">Règles respectées</span>
+          <span class="section-count">${compliant.length}</span>
+        </div>
+        <div class="items-list">
+          ${compliant.slice(0,3).map((c,i) => `
+            <div class="item-card green" style="${card(i)}">
+              <div class="item-message">${esc(c.message||'')}</div>
+              <div class="item-meta">
+                ${c.article?`<span class="mchip">📄 art.${esc(c.article)}</span>`:''}
+              </div>
+            </div>
+          `).join('')}
+          ${compliant.length>3?`<div style="font-size:12px;color:var(--gray);padding:4px 10px">+${compliant.length-3} autres règles conformes</div>`:''}
+        </div>
+      </div>`;
+  }
+
+  if (suggestions.length) {
+    html += `
+      <div class="section">
+        <div class="section-hd">
+          <div class="section-icon icon-orange">💡</div>
+          <span class="section-title-text">Recommandations</span>
+          <span class="section-count">${suggestions.length}</span>
+        </div>
+        <div class="suggestions-grid">
+          ${suggestions.map((s,i) => `
+            <div class="sugg-card" style="${card(i)}">
+              <span class="sugg-num">${i+1}</span>
+              <span class="sugg-text">${esc(s)}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  if (status==='out-of-domain' && data.explanations?.length) {
+    html += `<div class="item-card blue" style="margin-top:-4px">
+      <div class="item-message">${esc(data.explanations[0])}</div></div>`;
+  }
+
+  document.getElementById('results').innerHTML = html;
+
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      const fill = document.getElementById('risk-fill');
+      if (fill) fill.style.width = risk + '%';
+    }, 100);
+  });
+}
+
+/* ── Suggestions ─────────────────────────── */
+function buildSuggestions(data) {
+  const s = [];
+  const status = (data.global_status || '').toLowerCase();
+
+  if (status === 'violation') {
+    s.push("Consulter un juriste spécialisé en droit réel tunisien avant toute action");
+    if (data.violations?.some(v => /permis|autorisation/i.test(v.message)))
+      s.push("Obtenir les autorisations administratives nécessaires (permis de construire, etc.)");
+    if (data.violations?.some(v => /démoli|détruire/i.test(v.message)))
+      s.push("Toute démolition nécessite une autorisation préalable de la municipalité");
+    if (data.violations?.some(v => /locataire|bail/i.test(v.message)))
+      s.push("Vérifier les clauses du contrat de bail avant toute modification");
+    s.push("Documenter toutes les démarches entreprises pour votre dossier");
+  }
+  if (status === 'warning') {
+    const missing = (data.warnings||[]).flatMap(w=>w.missing_conditions||[]);
+    if (missing.length) s.push(`Satisfaire les conditions manquantes : ${missing.slice(0,2).join(', ')}`);
+    s.push("Vérifier que toutes les conditions légales sont remplies avant de procéder");
+    s.push("Conserver la preuve de chaque condition satisfaite (acte notarié, reçu…)");
+  }
+  if (status === 'compliant') {
+    s.push("Conserver les documents justificatifs de conformité");
+    s.push("Effectuer une vérification périodique avec les mises à jour du code");
+  }
+  if (status === 'unknown') {
+    s.push("Aucune règle spécifique trouvée pour cet acteur et cette action");
+    s.push("Reformulez avec des termes précis : propriétaire, locataire, créancier…");
+    s.push("Consultez un notaire ou juriste spécialisé en droit réel tunisien");
+  }
+  if (status === 'out-of-domain') {
+    s.push("Préciser le contexte : propriété, immeuble, hypothèque, servitude…");
+    s.push("Ce système couvre uniquement le Code des Droits Réels tunisien");
+  }
+  return s.slice(0, 4);
+}
+
+/* ── UI States ───────────────────────────── */
+function setLoading(on) {
+  document.getElementById('loader').classList.toggle('visible', on);
+  document.getElementById('btn-analyze').disabled = on;
+}
+function showError(msg) {
+  document.getElementById('error-text').textContent = msg;
+  document.getElementById('error-banner').classList.add('visible');
+}
+function hideError() {
+  document.getElementById('error-banner').classList.remove('visible');
+}
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!-- SECTION CHATBOT JURIDIQUE                                      -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<style>
+.chatbot-section {
+  max-width: 900px;
+  margin: 40px auto 20px;
+  padding: 0 20px;
+}
+.chatbot-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.chatbot-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--orange, #F7941D);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-family: var(--cond, 'Barlow Condensed', sans-serif);
+}
+.chatbot-badge {
+  background: var(--orange, #F7941D);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: .06em;
+}
+.chat-window {
+  background: var(--dark1, #1C1C1C);
+  border: 1px solid var(--border1, #2E2E2E);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.chat-messages {
+  height: 320px;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--border2, #3A3A3A); border-radius: 2px; }
+.msg {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.msg.user { flex-direction: row-reverse; }
+.msg-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.msg.bot .msg-avatar  { background: var(--orange, #F7941D); }
+.msg.user .msg-avatar { background: var(--dark3, #2C2C2C); border: 1px solid var(--border2, #3A3A3A); }
+.msg-bubble {
+  max-width: 75%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.msg.bot  .msg-bubble { background: var(--dark2, #242424); color: var(--gray1, #E0E0E0); border-radius: 4px 12px 12px 12px; }
+.msg.user .msg-bubble { background: var(--orange, #F7941D); color: #fff; border-radius: 12px 4px 12px 12px; }
+.msg-articles {
+  font-size: 11px;
+  color: var(--orange-lt, #FBCB92);
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.art-badge {
+  background: rgba(247,148,29,0.12);
+  border: 1px solid rgba(247,148,29,0.3);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 10px;
+  color: var(--orange-lt, #FBCB92);
+}
+.chat-input-row {
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border1, #2E2E2E);
+  background: var(--dark2, #242424);
+}
+.chat-input {
+  flex: 1;
+  background: var(--dark3, #2C2C2C);
+  border: 1px solid var(--border2, #3A3A3A);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--gray1, #E0E0E0);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .2s;
+}
+.chat-input:focus { border-color: var(--orange, #F7941D); }
+.chat-input::placeholder { color: var(--gray3, #666); }
+.chat-send-btn {
+  background: var(--orange, #F7941D);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .2s;
+  white-space: nowrap;
+}
+.chat-send-btn:hover { opacity: .85; }
+.chat-send-btn:disabled { opacity: .4; cursor: not-allowed; }
+.chat-typing {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 8px 0;
+}
+.chat-typing span {
+  width: 6px; height: 6px;
+  background: var(--orange, #F7941D);
+  border-radius: 50%;
+  animation: typing .8s infinite;
+}
+.chat-typing span:nth-child(2) { animation-delay: .15s; }
+.chat-typing span:nth-child(3) { animation-delay: .30s; }
+@keyframes typing { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
+.chat-rag-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--dark3, #2C2C2C);
+  border-top: 1px solid var(--border1, #2E2E2E);
+  font-size: 11px;
+  color: var(--gray2, #AAA);
+}
+.chat-rag-toggle input { cursor: pointer; accent-color: var(--orange, #F7941D); }
+.chat-separator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 40px 0 24px;
+}
+.chat-separator::before, .chat-separator::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border1, #2E2E2E);
+}
+.rag-fallback-box {
+  border: 1px solid #2E2E2E;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 14px;
+  background: #1A1A1A;
+}
+.rag-source-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  margin-bottom: 10px;
+}
+.rag-source-cdr      { background: rgba(247,148,29,.15); color: #F7941D; border: 1px solid rgba(247,148,29,.3); }
+.rag-source-urbanisme{ background: rgba(59,130,246,.15); color: #60A5FA; border: 1px solid rgba(59,130,246,.3); }
+.rag-risk-bar { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+.rag-risk-num { font-size: 28px; font-weight: 700; }
+.rag-risk-num.high   { color: #EF4444; }
+.rag-risk-num.medium { color: #F59E0B; }
+.rag-risk-num.low    { color: #22C55E; }
+.rag-explanation { font-size: 13px; color: #AAAAAA; line-height: 1.7; margin-top: 10px; }
+.rag-articles { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.rag-art-badge {
+  background: rgba(255,255,255,.06);
+  border: 1px solid #2E2E2E;
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-size: 10px;
+  color: #888;
+}
+.chat-separator span {
+  font-size: 11px;
+  color: var(--gray3, #666);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+</style>
+
+<div class="chatbot-section">
+  <div class="chat-separator">
+    <span>Chatbot Juridique</span>
+  </div>
+
+  <div class="chatbot-header">
+    <h2>⚖ Assistant Juridique CDR</h2>
+    <span class="chatbot-badge">Mistral 7B · CDR + CATU</span>
+  </div>
+
+  <div class="chat-window">
+    <!-- Messages -->
+    <div class="chat-messages" id="chatMessages">
+      <!-- Message de bienvenue -->
+      <div class="msg bot">
+        <div class="msg-avatar">⚖</div>
+        <div>
+          <div class="msg-bubble">
+            Bonjour ! Je suis votre assistant juridique spécialisé dans le Code des Droits Réels tunisien (Loi n°65-5). Posez-moi vos questions sur la propriété, les baux, les hypothèques, les servitudes ou tout autre droit réel immobilier tunisien.
+          </div>
+          <div class="msg-articles">
+            <span class="art-badge">CDR — Loi n°65-5</span>
+            <span class="art-badge">66 règles disponibles</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RAG toggle -->
+    <div class="chat-rag-toggle">
+      <input type="checkbox" id="ragToggle" checked>
+      <label for="ragToggle">Activer la recherche dans les textes juridiques (RAG)</label>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-row">
+      <input
+        type="text"
+        class="chat-input"
+        id="chatInput"
+        placeholder="Ex : Est-ce que je peux sous-louer mon appartement ?"
+        onkeydown="if(event.key==='Enter')sendChat()"
+      >
+      <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">
+        Envoyer ›
+      </button>
+    </div>
+  </div>
+
+  <!-- Suggestions rapides -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+    <button onclick="setChat('Quels sont les droits de l\'usufruitier ?')" style="background:var(--dark2,#242424);border:1px solid var(--border2,#3A3A3A);border-radius:8px;padding:6px 12px;color:var(--gray2,#AAA);font-size:12px;cursor:pointer;">
+      Droits de l'usufruitier
+    </button>
+    <button onclick="setChat('Comment fonctionne le gage en droit tunisien ?')" style="background:var(--dark2,#242424);border:1px solid var(--border2,#3A3A3A);border-radius:8px;padding:6px 12px;color:var(--gray2,#AAA);font-size:12px;cursor:pointer;">
+      Le gage
+    </button>
+    <button onclick="setChat('Puis-je vendre mon bien sans notaire ?')" style="background:var(--dark2,#242424);border:1px solid var(--border2,#3A3A3A);border-radius:8px;padding:6px 12px;color:var(--gray2,#AAA);font-size:12px;cursor:pointer;">
+      Vente sans notaire
+    </button>
+    <button onclick="setChat('Qu\'est-ce que l\'emphytéose ?')" style="background:var(--dark2,#242424);border:1px solid var(--border2,#3A3A3A);border-radius:8px;padding:6px 12px;color:var(--gray2,#AAA);font-size:12px;cursor:pointer;">
+      L'emphytéose
+    </button>
+    <button onclick="setChat('Quelles sont les conditions pour exproprier un bien ?')" style="background:var(--dark2,#242424);border:1px solid var(--border2,#3A3A3A);border-radius:8px;padding:6px 12px;color:var(--gray2,#AAA);font-size:12px;cursor:pointer;">
+      Expropriation
+    </button>
+  </div>
+</div>
+
+<script>
+// ── Chatbot JS ─────────────────────────────────────────────────────────────
+
+function setChat(q) {
+  document.getElementById('chatInput').value = q;
+  document.getElementById('chatInput').focus();
+}
+
+function addMsg(role, text, articles) {
+  const container = document.getElementById('chatMessages');
+  const isBot = role === 'bot';
+
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.textContent = isBot ? '⚖' : '👤';
+
+  const inner = document.createElement('div');
+
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.textContent = text;
+  inner.appendChild(bubble);
+
+  if (isBot && articles && articles.length > 0) {
+    const arts = document.createElement('div');
+    arts.className = 'msg-articles';
+    articles.forEach(function(a) {
+      const badge = document.createElement('span');
+      badge.className = 'art-badge';
+      badge.textContent = 'Art.' + a.article + ' — ' + a.status;
+      arts.appendChild(badge);
+    });
+    inner.appendChild(arts);
+  }
+
+  div.appendChild(avatar);
+  div.appendChild(inner);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function addTyping() {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typingIndicator';
+
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.textContent = '⚖';
+
+  const typing = document.createElement('div');
+  typing.className = 'chat-typing';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+
+  div.appendChild(avatar);
+  div.appendChild(typing);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+function renderRagFallback(rag) {
+  if (!rag || !rag.used) return null;
+
+  const box = document.createElement('div');
+  box.className = 'rag-fallback-box';
+
+  // Source badge
+  const isUrba = rag.source === 'URBANISME';
+  const badge  = document.createElement('span');
+  badge.className = 'rag-source-badge ' + (isUrba ? 'rag-source-urbanisme' : 'rag-source-cdr');
+  badge.textContent = (isUrba ? '🏗 ' : '⚖ ') + rag.law;
+  box.appendChild(badge);
+
+  // Risk score
+  if (rag.risk_score > 0) {
+    const riskRow = document.createElement('div');
+    riskRow.className = 'rag-risk-bar';
+    const num = document.createElement('span');
+    num.className = 'rag-risk-num ' + (rag.risk_level||'low').toLowerCase();
+    num.textContent = rag.risk_score;
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'font-size:12px;color:#666';
+    lbl.textContent = '/ 100 — Risque ' + (rag.risk_level || 'LOW');
+    riskRow.appendChild(num);
+    riskRow.appendChild(lbl);
+    box.appendChild(riskRow);
+  }
+
+  // Articles
+  if (rag.articles && rag.articles.length) {
+    const arts = document.createElement('div');
+    arts.className = 'rag-articles';
+    rag.articles.forEach(function(a) {
+      const b = document.createElement('span');
+      b.className = 'rag-art-badge';
+      b.textContent = a;
+      arts.appendChild(b);
+    });
+    box.appendChild(arts);
+  }
+
+  // Explication chatbot
+  if (rag.explanation) {
+    const exp = document.createElement('div');
+    exp.className = 'rag-explanation';
+    exp.textContent = rag.explanation;
+    box.appendChild(exp);
+  }
+
+  return box;
+}
+
+function sendChat() {
+  const input   = document.getElementById('chatInput');
+  const btn     = document.getElementById('chatSendBtn');
+  const useRag  = document.getElementById('ragToggle').checked;
+  const question = input.value.trim();
+
+  if (!question) return;
+
+  // Afficher la question user
+  addMsg('user', question);
+  input.value = '';
+  btn.disabled = true;
+
+  // Indicateur de frappe
+  const typing = addTyping();
+
+  fetch('http://localhost:8000/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question: question, use_rag: useRag })
+  })
+  .then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  })
+  .then(function(data) {
+    removeTyping();
+    if (data.error) {
+      addMsg('bot', 'Erreur : ' + data.error, []);
+    } else {
+      addMsg('bot', data.answer, data.rules_used || []);
+    }
+  })
+  .catch(function(err) {
+    removeTyping();
+    addMsg('bot', "Impossible de contacter l'API. Vérifiez que le serveur est lancé sur le port 8000.", []);
+  })
+  .finally(function() {
+    btn.disabled = false;
+    input.focus();
+  });
+}
+</script>
+
+</body>
+</html>

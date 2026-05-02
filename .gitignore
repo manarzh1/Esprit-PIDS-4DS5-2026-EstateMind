@@ -1,3 +1,4 @@
+
 __pycache__/
 *.pyc
 *.pyo
@@ -13,3 +14,26 @@ Thumbs.db
 *.log
 .idea/
 .vscode/
+
+venv/
+__pycache__/
+*.pyc
+logs/
+*.log
+data/*.bak
+data/rag_cdr_chunks.json
+data/rag_urbanisme_chunks.json
+pdf_francais.pdf
+pdf_urbanisme.pdf
+check.py
+clean_rules_final.py
+extract_urbanisme.py
+fix_nlp_prompt.py
+force_chunk.py
+merge_safety_rules.py
+nlp_parser_fix.py
+pipeline_backup.py
+update_concepts.py
+nlp_parser_fix.py
+test_legal_risk.py
+b3e84df (feat(bo5): Legal & Compliance Agent - CDR + CATU + RAG + Chatbot)
