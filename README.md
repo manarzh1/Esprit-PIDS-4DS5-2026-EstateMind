@@ -65,7 +65,7 @@ http://localhost:3000/Tunistate_ui.html
 | Méthode | Endpoint | Description |
 |---------|----------|-------------|
 | POST | `/analyze-text` | Analyse NLP + conformité + RAG |
-| POST | `/legal-risk` | Résumé pour Decision Copilot |
+| POST | `/legal-risk` | Score de risque juridique |
 | POST | `/chat` | Chatbot juridique |
 | POST | `/rag-search` | Recherche sémantique CDR + CATU |
 | POST | `/index-pdf` | Indexer un nouveau PDF |
@@ -92,32 +92,6 @@ Réponse :
     "articles": ["Art.23 CATU"],
     "explanation": "Toute construction nécessite une autorisation..."
   }
-}
-```
-
----
-
-## Intégration avec l'orchestrateur
-
-```bash
-curl -X POST http://localhost:8000/legal-risk \
-  -H "Content-Type: application/json" \
-  -d '{
-    "actor": "proprietaire",
-    "action": "construire",
-    "target": "immeuble",
-    "zone": "Hammamet"
-  }'
-```
-
-Réponse structurée pour le Decision Copilot :
-```json
-{
-  "legal_risk_score": 64,
-  "status": "VIOLATION",
-  "risk_level": "HIGH",
-  "copilot_summary": "Risque juridique HIGH (64/100)...",
-  "recommendation": "Obtenir un permis de construire préalable"
 }
 ```
 
