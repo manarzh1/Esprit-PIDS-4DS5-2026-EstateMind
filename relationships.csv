@@ -1,0 +1,95 @@
+actor_id,action_id,target_id,article_id,condition_ids,relation,status,article_ref,quality_score,risk_score,priority,source_version,extraction_date,cleaning_date
+dace5f0f06d4,35c1c04c96a2,dc7e92c7e21e,1645da65b16c,,CANNOT,interdit,article l. 132-5 du code de l'urbanisme,8,90,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,6990e8f54055,5f7408d3f184,6fa829fc62f4,,CANNOT,interdit,169-1 du code civil,7,89,medium,2024,2026-04-13,2026-04-13
+dace5f0f06d4,8b8d038d2bed,e94e98402e6d,6f9fea3532a4,,CANNOT,interdit,article 27,8,80,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,b06553c4aa2a,65e18b9e3245,3b7d5c371ba8,,CANNOT,interdit,145-3 du code de l'urbanisme,8,80,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,aafa00fb2f49,f5e569e46be5,87626a13112a,,CANNOT,interdit,341-1 al,8,80,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,1295fa2dceef,d5c4c9e01d04,8aac404b13d9,,CANNOT,interdit,1423 du code civil,7,79,medium,2024,2026-04-13,2026-04-13
+dace5f0f06d4,1aa2e506da7a,,e74ecd208f71,,CANNOT,interdit,article l145-1 du code général de la propriété des personnes publiques,7,79,medium,2024,2026-04-13,2026-04-13
+f5306c3a951e,35d2ad9d5f87,ff51de0608cc,c93d74909b1f,,CANNOT,interdit,1458 du code civil,8,74,high,2024,2026-04-13,2026-04-13
+f5306c3a951e,cdb7a6aeef3f,88b762f679be,e7d39878c2bc,,CANNOT,interdit,l432-6 code du droit des contrats,8,74,high,2024,2026-04-13,2026-04-13
+f5306c3a951e,6d7b19d9519c,47bdd5744afb,ebf745f47b26,,CANNOT,interdit,loi sur la location immobilière,8,74,high,2024,2026-04-13,2026-04-13
+f5306c3a951e,49d44fec955d,80ef2550e492,ba1baa7bcc9b,,CANNOT,interdit,1459 du code civil,7,73,medium,2024,2026-04-13,2026-04-13
+f5306c3a951e,27b00ed276b3,,9567150f2909,,CANNOT,interdit,1726 du code civil,7,73,medium,2024,2026-04-13,2026-04-13
+34fdd771c0b0,8834c0583de7,,bac703cf2cde,5703d3f08d37,CANNOT,interdit,article 1703 du code général des impôts,8,71,high,2024,2026-04-13,2026-04-13
+437cfbff8f38,827108ca1a0b,b5f9bbdd748c,fd999cb54dcd,,CANNOT,interdit,article l.341-2 du code de la voirie routière,8,68,high,2024,2026-04-13,2026-04-13
+1f4165f98290,eeee9196ec23,78cca963996b,9dcbcd04f528,,CANNOT,interdit,r142-3,8,68,high,2024,2026-04-13,2026-04-13
+f910755f3bbd,91df36e0f029,f7e9a37de70a,b6bb5e559448,,CANNOT,interdit,article 40-5 du code de l'urbanisme,8,68,high,2024,2026-04-13,2026-04-13
+437cfbff8f38,30d5cd2b1f9b,0bc947e8de94,809865f9faa7,,CANNOT,interdit,article r.132-7 du code forestier,8,68,high,2024,2026-04-13,2026-04-13
+1f4165f98290,37076c82c892,beb5860b1a3f,d1e9b1179832,,CANNOT,interdit,article 213-17 du code pénal,8,68,high,2024,2026-04-13,2026-04-13
+03b798deaf7a,6fca5a8d777d,91745bdafc59,3d01365e23ec,,CANNOT,interdit,article r.162-35 du code de l'urbanisme,7,67,medium,2024,2026-04-13,2026-04-13
+1f4165f98290,1295fa2dceef,c5456d3071e3,b1ad11b6c4cc,,CANNOT,interdit,540-1 du code de l'urbanisme,7,67,medium,2024,2026-04-13,2026-04-13
+1f4165f98290,6d7e986c989a,0164e2eba0e3,e73573590d9f,718ad86f48eb,CANNOT,interdit,1643 du code civil,9,66,high,2024,2026-04-13,2026-04-13
+1f4165f98290,6b05c5993119,,2167e06281fb,f76f98042567,CANNOT,interdit,article r163-2 du code de l'environnement,8,65,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,bbd224e19607,f5e569e46be5,f12050c4a861,c11291f57af4,MUST,obligation,514-2 du code de l'urbanisme,9,64,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,762910f477cf,68c59a4fab18,0682f6074b7b,,MUST,obligation,l431-7 code du droit des contrats,8,56,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,34183852e5f6,2b3b4494f24c,ddb187ca0576,,MUST,obligation,article l421-3 du code de l'environnement,8,56,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,740937171e78,9c061a13e20f,e7e34d1a1749,,MUST,obligation,article r143-1 du code de la construction et de l'habitation,8,56,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,5c48a2909f0d,2603b375c8dd,8cf1667abba8,,MUST,obligation,836 du code civil,8,56,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,ff78af719d2e,061d84ce8922,00166aa56c1c,,MUST,obligation,837-1 du code civil,8,56,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,b06553c4aa2a,ba59188ada3f,4b4ca2a59036,,MUST,obligation,513-2 du code de l'urbanisme,8,56,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,55566665fb40,a93977d9a134,63923f8e7f4f,,MUST,obligation,431-1 du code de l'urbanisme,8,56,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,ac382b78472e,a68f121beb32,d41d8cd98f00,,MUST,obligation,,7,55,medium,2024,2026-04-13,2026-04-13
+b892928ac16e,7bd016b4d5e9,d5a0ffc2f9b9,3c27f21e70a6,,CANNOT,interdit,article 159 quinquies du code général des impôts,7,55,medium,2024,2026-04-13,2026-04-13
+dace5f0f06d4,1295fa2dceef,a93977d9a134,7291b55cc1e8,,MUST,obligation,loi sur l'urbanisme,7,55,medium,2024,2026-04-13,2026-04-13
+dace5f0f06d4,c652808116ae,dc7e92c7e21e,dfc2ca169d8f,57de87b099d6,MUST,obligation,article 173-1 du code de l'urbanisme,9,54,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,c22e181ab88a,ef578cc0fce0,bd4c51fe9d29,29b2af80eee9,MUST,obligation,article 1357 du code civil,9,54,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,b32e55baae5b,b61a43e4fd4d,eddab435c349,42a134bb8f7e,MUST,obligation,article 172-4 du code de l'urbanisme,9,54,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,d700ae7839a5,a93977d9a134,e227a15b2460,108141f63f1f,MUST,obligation,article l.162-1 du code de l'urbanisme,9,54,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,64ad3295dba7,b0d0d90a50c4,ac01ef50ca6e,606afaca4de4,MUST,obligation,article 1642-1 du code de l'urbanisme,9,54,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,4f29b5df1f7b,a93977d9a134,7291b55cc1e8,3af716e321cd,MUST,obligation,loi sur l'urbanisme,9,54,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,b32e55baae5b,5b609a37995c,5c8669e29607,71c9daf3a4b7,MUST,obligation,541-1 du code de l'urbanisme,9,54,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,c78928c181b7,758a8112601d,2b56a9c263b4,3a2162a45928,MUST,obligation,143-1 al,9,54,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,1295fa2dceef,bf3930d27e30,973984429910,4b549fbedff2,MUST,obligation,article 142-6 du code de l'urbanisme,8,53,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,1295fa2dceef,682893c5f8ef,2bfb9e1625e9,ea9d273d096b,MUST,obligation,article 132-4 du code de l'urbanisme,8,53,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,1295fa2dceef,fd2955a23928,65400d6bfb78,17be9f1182e8,MUST,obligation,article 14-1 du code de l'urbanisme,8,53,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,cd40127f4a2f,1e6b59da9d35,d41d8cd98f00,5040eaacfa96,MUST,obligation,,8,53,high,2024,2026-04-13,2026-04-13
+631b545c1c99,762910f477cf,ff51de0608cc,0682f6074b7b,,MUST,obligation,l431-7 code du droit des contrats,8,52,high,2024,2026-04-13,2026-04-13
+f5306c3a951e,762910f477cf,3b236f7105ea,a22da36f357b,,MUST,obligation,l431-8 code du droit des contrats,8,52,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,9510ba0500c5,d809ac83a979,2699aea8259a,fbea2c545023|b4daf6266a10,MUST,obligation,"article 1234, code de l'urbanisme",9,51,high,2024,2026-04-13,2026-04-13
+1f4165f98290,f9d747b17dc3,9af149fb6aaf,3b6d9797a42f,,MUST,obligation,1438-2 du code général des impôts,8,48,high,2024,2026-04-13,2026-04-13
+e3044c405d15,41720909457e,2fff93b62690,37026d2d99f9,,MUST,obligation,article l. 214-1 du code général de la propriété des personnes publiques,7,47,medium,2024,2026-04-13,2026-04-13
+437cfbff8f38,1295fa2dceef,a50f19e56181,0db8a03de827,,MUST,obligation,341-1 du code de l'urbanisme,7,47,medium,2024,2026-04-13,2026-04-13
+33884bd2e24e,c71884e711bf,c1eb42e68577,4c77992d9436,,MUST,obligation,article 1624 du code civil,7,47,medium,2024,2026-04-13,2026-04-13
+1f4165f98290,c652808116ae,d58170129d6f,693b08bdd76e,55de4d0d9e0c,MUST,obligation,1627-3 du code civil,9,46,high,2024,2026-04-13,2026-04-13
+81d49ee9c05b,2e603a3606d4,77f14ef9e993,33f5db23ed82,,MUST,obligation,341-2 du code de l'urbanisme,6,46,medium,2024,2026-04-13,2026-04-13
+1f4165f98290,f9d747b17dc3,80e8e587ed67,91e73c577c78,23cd01afa4db,MUST,obligation,1430 du code civil,9,46,high,2024,2026-04-13,2026-04-13
+1f4165f98290,8834c0583de7,80e8e587ed67,91e73c577c78,23cd01afa4db,MUST,obligation,1430 du code civil,9,46,high,2024,2026-04-13,2026-04-13
+1f4165f98290,c8e553e116d3,5f1bcae08ef3,e2a188618328,23cd01afa4db,MUST,obligation,1432 du code civil,9,46,high,2024,2026-04-13,2026-04-13
+1f4165f98290,0a6c66e690e4,f27d0d64fb94,2bfb9e1625e9,bb3ec2946c26,MUST,obligation,article 132-4 du code de l'urbanisme,9,46,high,2024,2026-04-13,2026-04-13
+1f4165f98290,a306dab3db04,80e8e587ed67,1450c92b3a51,8f529d73178a,MUST,obligation,1432-1 du code civil,9,46,high,2024,2026-04-13,2026-04-13
+1f4165f98290,0555b3b8ec99,7c508cb7bf0c,5d00c2de55f6,0fa74b8e1f5f,MUST,obligation,1325 du code civil,9,46,high,2024,2026-04-13,2026-04-13
+1f4165f98290,d922d7b80c00,b4133c4749df,ccca52d1059d,30a000ddd499,MUST,obligation,article l123-1 du code de l'énergie,9,46,high,2024,2026-04-13,2026-04-13
+1f4165f98290,cd4f9b056ec8,80e8e587ed67,1ef121a28640,f9bbb3cff050,MUST,obligation,1321-1 du code civil,8,45,high,2024,2026-04-13,2026-04-13
+697175652917,38bf4f0b5d5c,30ea5b27286c,f536f3d753d3,a203d130f483,MUST,obligation,article 527 du code de procedure civile,8,45,high,2024,2026-04-13,2026-04-13
+f910755f3bbd,1295fa2dceef,ce668171876b,82165d81f55e,4b549fbedff2,MUST,obligation,article 40-1 du code de l'urbanisme,8,45,high,2024,2026-04-13,2026-04-13
+f910755f3bbd,1d3fec964380,3b014e9a4064,c79c984a79a6,02a86f181715,MUST,obligation,article 40-3 du code de l'urbanisme,8,45,high,2024,2026-04-13,2026-04-13
+437cfbff8f38,1295fa2dceef,b2294d11de47,e157bb794722,36bda9ea0e77,MUST,obligation,article 438 du code de l'urbanisme,8,45,high,2024,2026-04-13,2026-04-13
+437cfbff8f38,1295fa2dceef,49d45736d365,b98bcfd67998,4b549fbedff2,MUST,obligation,article 162-1 du code de l'urbanisme,8,45,high,2024,2026-04-13,2026-04-13
+1f4165f98290,cd4f9b056ec8,7c508cb7bf0c,e72fc139566a,8d0e17b2fb3f,MUST,obligation,1324 du code civil,8,45,high,2024,2026-04-13,2026-04-13
+1f4165f98290,8834c0583de7,d681b6ce31a8,51e54d387fd0,2f24dcc67913|aaaddf2b88d2,MUST,obligation,1328 du code civil,9,43,high,2024,2026-04-13,2026-04-13
+25faee667bb6,1295fa2dceef,35fe5891f8cd,0c39eb1ea60a,7e0a18355a28|cdfa20f9d5b7,MUST,obligation,article l. 123-1 du code de l'urbanisme,8,42,high,2024,2026-04-13,2026-04-13
+b892928ac16e,5dcbd5f05ccf,b6dc0400b817,e60379466059,,MUST,obligation,article l. 321-10 du code de l'environnement,8,40,high,2024,2026-04-13,2026-04-13
+b892928ac16e,1d154545d196,56552e735fc6,7db68e86004a,,MUST,obligation,article 226-1 du code de procédure civile,7,39,medium,2024,2026-04-13,2026-04-13
+b892928ac16e,e63a60ca2d10,9636d7dbaff9,f10e22b2de72,21dcba4bd361,MUST,obligation,article 1323 du code civil,8,37,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,685e8ea4590a,266ec2be7af2,bdb0e0bfe4fe,,CAN,permis,article 1378 du code civil,8,20,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,c6a364828b15,80ef2550e492,ba1baa7bcc9b,,CAN,permis,1459 du code civil,8,20,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,c652808116ae,022642458458,06b90fa5b9a4,,CAN,permis,"code de l'urbanisme, article l.123-25",8,20,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,cfddecfcb2ba,f531c4c1e0d3,027d4f1e93a2,3cd6cc28617e,CAN,permis,loi du patrimoine,9,18,high,2024,2026-04-13,2026-04-13
+dace5f0f06d4,d5b7f7d3f34b,33badecf119c,b0dd298afd8f,ecd300942f67,CAN,permis,article l.442-6 du code rural,9,18,high,2024,2026-04-13,2026-04-13
+1f4165f98290,6b05c5993119,d20ee1f2c06c,d41d8cd98f00,,CAN,permis,,7,17,medium,2024,2026-04-13,2026-04-13
+f5306c3a951e,b8e41c9506bf,68c59a4fab18,2b2597fc07f7,f4fabf36d957,CAN,permis,l432-5 code du droit des contrats,9,17,high,2024,2026-04-13,2026-04-13
+1f4165f98290,257a9504eea4,80e8e587ed67,3ed9f2933978,4d57174bca84,CAN,permis,1469 du code civil,9,16,high,2024,2026-04-13,2026-04-13
+1f4165f98290,5199d112b9b2,80e8e587ed67,0202494f969f,4d57174bca84,CAN,permis,1476 du code civil,9,16,high,2024,2026-04-13,2026-04-13
+2a0b3899ad5d,688637dcc198,,7c929585694e,,CAN,permis,article r.132-1 du code de l'urbanisme,6,16,medium,2024,2026-04-13,2026-04-13
+1f4165f98290,6f169c719e38,7c508cb7bf0c,82ab41bbcbc5,d8d05b64ad52,CAN,permis,1439-1 code civil,9,16,high,2024,2026-04-13,2026-04-13
+1f4165f98290,8834c0583de7,7c508cb7bf0c,390e12789825,efe6ccfb87fa,CAN,permis,1440 code civil,9,16,high,2024,2026-04-13,2026-04-13
+1f4165f98290,e286a60c0e67,8fc0cdeda179,b76e1d6de221,d8d05b64ad52,CAN,permis,1324-1 code civil,9,16,high,2024,2026-04-13,2026-04-13
+1f4165f98290,e1582c639295,1b5513ae8e83,82ab41bbcbc5,d8d05b64ad52,CAN,permis,1439-1 code civil,9,16,high,2024,2026-04-13,2026-04-13
+1f4165f98290,2581c4205a66,a31364a3877c,b76e1d6de221,d8d05b64ad52,CAN,permis,1324-1 code civil,9,16,high,2024,2026-04-13,2026-04-13
+437cfbff8f38,30d5cd2b1f9b,a50f19e56181,c1890b0b81e8,3df588767cc0,CAN,permis,article l.132-6 du code forestier,9,16,high,2024,2026-04-13,2026-04-13
+6beab53b4822,38df77a6254a,7d081e37ef61,7decd5033d36,d7a7f0656567,CAN,permis,article 19 de la loi sur l'urbanisme,8,15,high,2024,2026-04-13,2026-04-13
+b892928ac16e,38df77a6254a,9142e9289e48,640aa8d65eb8,f214bad57063,CAN,permis,article 208 bis du code général des impôts,8,13,high,2024,2026-04-13,2026-04-13
+1f4165f98290,c71884e711bf,7c508cb7bf0c,b76e1d6de221,3c1792dafb87|02bdad743b13,CAN,permis,1324-1 code civil,9,13,high,2024,2026-04-13,2026-04-13
+1f4165f98290,432618cf8438,8fc0cdeda179,b76e1d6de221,3c1792dafb87|02bdad743b13,CAN,permis,1324-1 code civil,9,13,high,2024,2026-04-13,2026-04-13
+1f4165f98290,c71884e711bf,de10a8190669,08229d9a330f,bff873a6f336|1e82cbdb24d1|18ac28eceaef,CAN,permis,1327 du code civil,9,10,high,2024,2026-04-13,2026-04-13
