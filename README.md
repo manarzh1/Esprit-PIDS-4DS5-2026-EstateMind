@@ -1,86 +1,136 @@
-# Estate Mind – Smart Real Estate Decision Platform
+# BO5 — Legal & Compliance Agent
 
-## Overview
+> **Estate Mind · Group 5 · 4 DS 5**  
+> Juriste IA pour le marché immobilier tunisien
 
-This project was developed as part of the PI-DS program at Esprit School of Engineering (Academic Year 2025–2026).
+---
 
-Estate Mind is a data-driven platform designed to optimize real estate decisions in Tunisia using Data Engineering, Machine Learning, and AI.
+## Prérequis
 
-## Features
+- Python 3.10+
+- [Ollama](https://ollama.com/) installé et lancé
+- Mistral 7B téléchargé
 
-* Real estate data collection (web scraping)
-* Data cleaning and preprocessing
-* Price prediction models
-* Investment decision support
-* Risk and anomaly detection
-* Explainable AI (SHAP)
+```bash
+ollama pull mistral
+```
 
-## Tech Stack
+---
 
-### Data Engineering
+## Installation
 
-* Python
-* Scrapy / Playwright
-* PostgreSQL
-* FastAPI
+```bash
+# 1. Créer l'environnement virtuel
+python -m venv venv
 
-### Data Science
+# Windows
+.\venv\Scripts\Activate.ps1
 
-* Scikit-learn
-* XGBoost
-* LightGBM
-* SHAP
+# 2. Installer les dépendances
+pip install -r requirements.txt
+```
 
-## Architecture
+---
 
-The system is based on a multi-agent architecture:
+## Lancer le système
 
-* Collector Agent (data scraping)
-* Orchestrator Agent (pipeline management)
-* Risk Detection Agent
-* Legal Agent
+**Terminal 1 — API :**
+```bash
+python main.py --step api
+```
 
-## Contributors
+**Terminal 2 — Interface :**
+```bash
+python -m http.server 3000
+```
 
-* Manar Zaghouani
-* Salma Alaya
-* Wissem Bahar
-* Yosser Ben mahmoud
-* Wissal Bahar
-* Nourhen Mraeih
+**Navigateur :**
+```
+http://localhost:3000/Tunistate_ui.html
+```
 
-## Academic Context
+---
 
-Developed at Esprit School of Engineering – Tunisia
-PI-DS – 4DS5 | 2025–2026
+## Sources juridiques
 
-## Getting Started
+| Code | Référence | Articles |
+|------|-----------|---------|
+| CDR | Loi n°65-5 du 12 février 1965 | 485 articles |
+| CATU | Code de l'Aménagement du Territoire — 2011 | 317 articles indexés |
 
-1. Clone the repository
-2. Install dependencies
-3. Run the pipeline
-4. Launch API
+---
 
-## Acknowledgments
+## Endpoints API
 
-Thanks to Esprit School of Engineering for guidance and support.
-## Project Structure
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/analyze-text` | Analyse NLP + conformité + RAG |
+| POST | `/legal-risk` | Résumé pour Decision Copilot |
+| POST | `/chat` | Chatbot juridique |
+| POST | `/rag-search` | Recherche sémantique CDR + CATU |
+| POST | `/index-pdf` | Indexer un nouveau PDF |
+| GET | `/health` | État du système |
 
-This project is organized into multiple repositories, each responsible for a specific layer of the system:
+---
 
-* 🔗 **Data Pipeline**: https://github.com/manarzh1/Esprit-PI-DS-4DS5-2026-EstateMind-DataPipeline
-* 🔗 **Models (ML & DL)**: https://github.com/manarzh1/Esprit-PI-DS-4DS5-2026-EstateMind-Models
+## Exemple d'utilisation
 
-### Repository Roles
+```bash
+curl -X POST http://localhost:8000/analyze-text \
+  -H "Content-Type: application/json" \
+  -d '{"text": "je veux construire sans permis"}'
+```
 
-* **Data Pipeline**
-  Responsible for data collection, preprocessing, and storage.
-  It includes web scraping, data cleaning, and database integration (PostgreSQL).
+Réponse :
+```json
+{
+  "global_status": "VIOLATION",
+  "risk_score": 64,
+  "rag_fallback": {
+    "source": "URBANISME",
+    "law": "Code de l'Aménagement du Territoire 2011",
+    "articles": ["Art.23 CATU"],
+    "explanation": "Toute construction nécessite une autorisation..."
+  }
+}
+```
 
-* **Models (ML & DL)**
-  Contains predictive modeling and experimentation components.
-  It includes Machine Learning and Deep Learning models for price prediction, anomaly detection, and explainable AI (XAI).
+---
 
-This modular architecture ensures scalability, maintainability, and clear separation of concerns.
+## Intégration avec l'orchestrateur
 
+```bash
+curl -X POST http://localhost:8000/legal-risk \
+  -H "Content-Type: application/json" \
+  -d '{
+    "actor": "proprietaire",
+    "action": "construire",
+    "target": "immeuble",
+    "zone": "Hammamet"
+  }'
+```
 
+Réponse structurée pour le Decision Copilot :
+```json
+{
+  "legal_risk_score": 64,
+  "status": "VIOLATION",
+  "risk_level": "HIGH",
+  "copilot_summary": "Risque juridique HIGH (64/100)...",
+  "recommendation": "Obtenir un permis de construire préalable"
+}
+```
+
+---
+
+## KPIs
+
+| Métrique | Valeur |
+|----------|--------|
+| Règles CDR extraites | 66 |
+| Taux d'hallucination | 0% |
+| Couverture thématique | 28/28 concepts (100%) |
+| Quality score | 8.4 / 10 |
+| Reliability score | 100/100 — Grade A |
+| Chunks RAG | 877 (560 CDR + 317 CATU) |
+| Endpoints API | 12 |
