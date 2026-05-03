@@ -283,3 +283,12 @@ ALERT_THRESHOLD      = 70     # risk ≥ 70 → alerte
 
 # ─── Webhook (optionnel) ──────────────────────────────────────────────────────
 WEBHOOK_URL = ""
+
+# ─── Email SMTP (pour envoi rapports PDF) ─────────────────────────────────────
+# Configurer avec votre compte email pour activer l'envoi
+# Pour Gmail : activer "Mots de passe d'application" dans les paramètres Google
+SMTP_HOST  = "smtp.gmail.com"   # Gmail
+SMTP_PORT  = 587                 # TLS
+SMTP_USER  = "yosserbenmahmoud45@gmail.com"                  # votre.email@gmail.com
+SMTP_PASS  = "lxyiguzdbtnmimmm"                  # mot de passe d'application Gmail
+FROM_EMAIL = SMTP_USER           # même que SMTP_USER
