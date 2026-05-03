@@ -290,5 +290,5 @@ WEBHOOK_URL = ""
 SMTP_HOST  = "smtp.gmail.com"   # Gmail
 SMTP_PORT  = 587                 # TLS
 SMTP_USER  = "yosserbenmahmoud45@gmail.com"                  # votre.email@gmail.com
-SMTP_PASS  = "lxyiguzdbtnmimmm"                  # mot de passe d'application Gmail
+SMTP_PASS  = "your_app_password"                  # mot de passe d'application Gmail
 FROM_EMAIL = SMTP_USER           # même que SMTP_USER
