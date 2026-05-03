@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Immo Tunisia — Accueil</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.hero {
+  background: var(--charcoal);
+  border-radius: var(--radius-lg);
+  padding: 48px 40px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: rgba(245,166,35,0.08);
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; right: 80px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: rgba(245,166,35,0.05);
+}
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245,166,35,0.15);
+  color: var(--orange);
+  border: 1px solid rgba(245,166,35,0.3);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+}
+.hero h1 span { color: var(--orange); }
+.hero p {
+  color: rgba(255,255,255,0.55);
+  font-size: 15px;
+  max-width: 520px;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.module-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.module-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  background: var(--border);
+  transition: background 0.2s;
+}
+.module-card:hover { border-color: var(--orange); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+.module-card:hover::before { background: var(--orange); }
+
+.module-icon {
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+.module-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.module-desc {
+  font-size: 12px;
+  color: var(--dim);
+  line-height: 1.5;
+}
+.module-tag {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--orange);
+  font-weight: 500;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.quick-info {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+.quick-info h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.info-list { list-style: none; }
+.info-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.info-list li:last-child { border-bottom: none; }
+.info-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--orange); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-brand">IMMO<span>TN</span></div>
+    <div class="logo-sub">Marché Immobilier Tunisie</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Navigation</div>
+    <a href="index.html" class="nav-link">
+      <span class="nav-icon">⊞</span> Accueil
+    </a>
+    <a href="sarima.html" class="nav-link">
+      <span class="nav-icon">📈</span> Prévision SARIMA
+    </a>
+    <a href="estimation.html" class="nav-link">
+      <span class="nav-icon">🏠</span> Estimation Prix
+    </a>
+    <a href="map.html" class="nav-link">
+      <span class="nav-icon">🗺</span> Carte Interactive
+    </a>
+    <a href="chatbot.html" class="nav-link">
+      <span class="nav-icon">💬</span> Assistant IA
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="version">v1.0 · FastAPI + ML</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-content">
+  <header class="page-header">
+    <div>
+      <div class="page-title">Tableau de <span>Bord</span></div>
+      <div class="page-subtitle">Analyse du marché immobilier tunisien</div>
+    </div>
+    <div class="status-indicator">
+      <div class="status-dot" id="apiDot"></div>
+      <span class="status-text" id="apiText">Vérification...</span>
+    </div>
+  </header>
+
+  <div class="page-body">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-tag">🤖 IA · ML · SARIMA</div>
+      <h1>Analyse Immobilière<br><span>Intelligente</span></h1>
+      <p>Prévisions de prix par gouvernorat, estimation personnalisée, carte interactive et assistant IA — tout en un.</p>
+      <div class="hero-actions">
+        <a href="sarima.html" class="btn btn-primary" style="text-decoration:none;">📈 Lancer SARIMA</a>
+        <a href="estimation.html" class="btn" style="background:rgba(255,255,255,0.1);color:white;text-decoration:none;">🏠 Estimer un bien</a>
+      </div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row" id="statsRow">
+      <div class="metric-card">
+        <div class="metric-label">Gouvernorats couverts</div>
+        <div class="metric-value" id="statGov">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Annonces ML</div>
+        <div class="metric-value" id="statAnn">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Précision modèle R²</div>
+        <div class="metric-value" id="statR2">—</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Période SARIMA</div>
+        <div class="metric-value">2015<span class="metric-unit"> – 2025</span></div>
+      </div>
+    </div>
+
+    <!-- MODULES GRID -->
+    <div class="modules-grid">
+      <a href="sarima.html" class="module-card">
+        <div class="module-icon">📈</div>
+        <div class="module-title">Prévision SARIMA</div>
+        <div class="module-desc">Modèle SARIMA/SARIMAX sur séries temporelles trimestrielles 2015–2025. Prévisions jusqu'à 12 trimestres avec intervalles de confiance.</div>
+        <div class="module-tag">→ Analyser les tendances</div>
+      </a>
+      <a href="estimation.html" class="module-card">
+        <div class="module-icon">🏠</div>
+        <div class="module-title">Estimation de Prix</div>
+        <div class="module-desc">Random Forest entraîné sur +10 000 annonces. Estimation personnalisée par ville, surface, chambres et budget disponible.</div>
+        <div class="module-tag">→ Évaluer un bien</div>
+      </a>
+      <a href="map.html" class="module-card">
+        <div class="module-icon">🗺</div>
+        <div class="module-title">Carte Interactive</div>
+        <div class="module-desc">Visualisation choroplèthe des prix médians par gouvernorat. Hover pour les détails, clic pour l'historique des prix.</div>
+        <div class="module-tag">→ Explorer la carte</div>
+      </a>
+      <a href="chatbot.html" class="module-card">
+        <div class="module-icon">💬</div>
+        <div class="module-title">Assistant IA</div>
+        <div class="module-desc">Chatbot propulsé par OpenAI. Explique les tendances SARIMA, analyse votre budget et répond à vos questions immobilières.</div>
+        <div class="module-tag">→ Poser une question</div>
+      </a>
+    </div>
+
+    <!-- QUICK INFO -->
+    <div class="quick-info">
+      <h3>📊 Données du marché — Aperçu rapide</h3>
+      <ul class="info-list" id="quickInfo">
+        <li><span>Source données SARIMA</span><span class="info-val">immobilier_tunisie_global.csv</span></li>
+        <li><span>Source données ML</span><span class="info-val">all_sources_processed_FINAL.csv</span></li>
+        <li><span>Modèle ML</span><span class="info-val">Random Forest · 200 arbres</span></li>
+        <li><span>Modèle prévision</span><span class="info-val">SARIMA(p,d,q)(P,D,Q,4)</span></li>
+        <li><span>Variables exogènes</span><span class="info-val">Taux BCT · IPC · Inflation</span></li>
+        <li><span>Backend</span><span class="info-val">FastAPI · Python</span></li>
+      </ul>
+    </div>
+
+  </div><!-- /page-body -->
+</div><!-- /main-content -->
+
+<script src="js/api.js"></script>
+<script>
+(async () => {
+  const status = await checkStatus();
+  if (status) {
+    document.getElementById("statGov").textContent = status.gouvernorats?.length || "—";
+    const m = status.ml_metrics;
+    document.getElementById("statAnn").textContent = m?.n_samples ? fmt(m.n_samples) : "—";
+    document.getElementById("statR2").textContent = m?.r2 ? m.r2.toFixed(3) : "—";
+  }
+})();
+</script>
+</body>
+</html>

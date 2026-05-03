@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Immo Tunisia — Prévision SARIMA</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+.sarima-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.control-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  position: sticky;
+  top: 80px;
+}
+.control-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.order-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.order-item label { font-size: 11px; color: var(--dim); display: block; margin-bottom: 3px; }
+.order-item input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  font-size: 13px;
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+}
+.order-item input:focus { outline: none; border-color: var(--orange); }
+
+.charts-area { display: flex; flex-direction: column; gap: 16px; }
+.chart-wrapper {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  position: relative;
+}
+.chart-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.metrics-bar {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.metric-inline { font-size: 12px; color: var(--dim); }
+.metric-inline strong { color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px; }
+
+.acf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.info-box {
+  background: var(--orange-lt);
+  border: 1px solid rgba(245,166,35,0.3);
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 12px;
+  color: var(--charcoal2);
+  line-height: 1.5;
+}
+.info-box strong { color: var(--orange-dk); }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-brand">IMMO<span>TN</span></div>
+    <div class="logo-sub">Marché Immobilier Tunisie</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Navigation</div>
+    <a href="index.html" class="nav-link"><span class="nav-icon">⊞</span> Accueil</a>
+    <a href="sarima.html" class="nav-link"><span class="nav-icon">📈</span> Prévision SARIMA</a>
+    <a href="estimation.html" class="nav-link"><span class="nav-icon">🏠</span> Estimation Prix</a>
+    <a href="map.html" class="nav-link"><span class="nav-icon">🗺</span> Carte Interactive</a>
+    <a href="chatbot.html" class="nav-link"><span class="nav-icon">💬</span> Assistant IA</a>
+  </nav>
+  <div class="sidebar-footer"><div class="version">v1.0 · FastAPI + ML</div></div>
+</aside>
+
+<div class="main-content">
+  <header class="page-header">
+    <div>
+      <div class="page-title">Prévision <span>SARIMA</span></div>
+      <div class="page-subtitle">Séries temporelles des prix au m² par gouvernorat · 2015–2025</div>
+    </div>
+    <div class="status-indicator">
+      <div class="status-dot" id="apiDot"></div>
+      <span class="status-text" id="apiText">Vérification...</span>
+    </div>
+  </header>
+
+  <div class="page-body">
+    <div class="sarima-layout">
+
+      <!-- PANNEAU DE CONTRÔLE -->
+      <div class="control-panel">
+        <div class="control-title">Paramètres</div>
+
+        <div class="form-group">
+          <label class="form-label">Gouvernorat</label>
+          <select id="gouvernorat" class="form-control"></select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Variable cible</label>
+          <select id="variable" class="form-control">
+            <option value="PRIX_M2_MEDIAN">Prix médian</option>
+            <option value="PRIX_M2_APPT">Prix appartement</option>
+            <option value="PRIX_M2_MAISON">Prix maison</option>
+            <option value="PRIX_M2_TERRAIN">Prix terrain</option>
+            <option value="IPIM_REGIONAL">IPIM régional</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Horizon (trimestres) : <strong id="horizonVal">6</strong></label>
+          <input type="range" id="horizon" min="2" max="12" value="6"
+            oninput="document.getElementById('horizonVal').textContent=this.value">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ordre non-saisonnier (p, d, q)</label>
+          <div class="order-grid">
+            <div class="order-item"><label>p</label><input type="number" id="p" value="1" min="0" max="5"></div>
+            <div class="order-item"><label>d</label><input type="number" id="d" value="1" min="0" max="2"></div>
+            <div class="order-item"><label>q</label><input type="number" id="q" value="1" min="0" max="5"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ordre saisonnier (P, D, Q) s=4</label>
+          <div class="order-grid">
+            <div class="order-item"><label>P</label><input type="number" id="P" value="1" min="0" max="2"></div>
+            <div class="order-item"><label>D</label><input type="number" id="D" value="1" min="0" max="2"></div>
+            <div class="order-item"><label>Q</label><input type="number" id="Q" value="0" min="0" max="2"></div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="runSarima()">
+          ▶ Lancer l'analyse SARIMA
+        </button>
+
+        <div style="margin-top:12px;" id="sarimaMetrics"></div>
+      </div>
+
+      <!-- ZONE GRAPHIQUES -->
+      <div class="charts-area">
+
+        <div class="chart-wrapper">
+          <div class="loading-overlay" id="loadMain">
+            <div class="spinner"></div>
+            <div class="loading-text">Ajustement SARIMA en cours...</div>
+          </div>
+          <div class="chart-title">📈 Série temporelle & Prévision</div>
+          <div class="metrics-bar" id="metricsBar"></div>
+          <div id="chartForecast" style="height:380px;"></div>
+        </div>
+
+        <div class="acf-grid">
+          <div class="chart-wrapper">
+            <div class="chart-title">📊 Résidus</div>
+            <div id="chartResiduals" style="height:220px;"></div>
+          </div>
+          <div class="chart-wrapper">
+            <div class="chart-title">📋 Tableau des prévisions</div>
+            <div id="forecastTable"></div>
+          </div>
+        </div>
+
+        <div class="info-box" id="sarimaInfo">
+          Sélectionnez un gouvernorat et cliquez sur <strong>Lancer l'analyse SARIMA</strong> pour démarrer.
+          Le modèle SARIMA(p,d,q)(P,D,Q,4) analyse les séries trimestrielles et génère des prévisions avec intervalles de confiance à 95%.
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+let lastResults = null;
+
+// Charger les gouvernorats
+async function loadGouvernorats() {
+  const status = await checkStatus();
+  if (!status) return;
+  const sel = document.getElementById("gouvernorat");
+  status.gouvernorats.forEach(g => {
+    const o = document.createElement("option");
+    o.value = g; o.textContent = g;
+    sel.appendChild(o);
+  });
+}
+
+async function runSarima() {
+  const body = {
+    gouvernorat: document.getElementById("gouvernorat").value,
+    variable:    document.getElementById("variable").value,
+    horizon:     parseInt(document.getElementById("horizon").value),
+    p: parseInt(document.getElementById("p").value),
+    d: parseInt(document.getElementById("d").value),
+    q: parseInt(document.getElementById("q").value),
+    P: parseInt(document.getElementById("P").value),
+    D: parseInt(document.getElementById("D").value),
+    Q: parseInt(document.getElementById("Q").value),
+  };
+
+  document.getElementById("loadMain").classList.add("active");
+  try {
+    const res = await apiPost("/train", body);
+    lastResults = res.data;
+    drawCharts(lastResults);
+    showToast(`Analyse SARIMA terminée — AIC: ${lastResults.aic}`, "success");
+    // Stocker pour chatbot
+    sessionStorage.setItem("sarimaResults", JSON.stringify(lastResults));
+  } catch (e) {
+    showToast("Erreur SARIMA: " + e.message, "error");
+  } finally {
+    document.getElementById("loadMain").classList.remove("active");
+  }
+}
+
+function drawCharts(d) {
+  // ── Métriques ──
+  const adfOk = d.adf_pval != null && d.adf_pval < 0.05;
+  document.getElementById("metricsBar").innerHTML = `
+    <div class="metric-inline">AIC <strong>${d.aic}</strong></div>
+    <div class="metric-inline">BIC <strong>${d.bic}</strong></div>
+    <div class="metric-inline">ADF p-val <strong style="color:${adfOk?'var(--green)':'var(--red)'}">${d.adf_pval ?? '—'}</strong></div>
+    <div class="metric-inline">Hausse prévue <strong style="color:${d.hausse_pct>0?'var(--green)':'var(--red)'}">${d.hausse_pct>0?'+':''}${d.hausse_pct}%</strong></div>
+  `;
+
+  // ── Graphique principal ──
+  const traces = [
+    {
+      x: d.historique.dates, y: d.historique.valeurs,
+      mode: "lines", name: "Historique",
+      line: { color: "#3498DB", width: 2.5 },
+    },
+    {
+      x: d.ajuste.dates, y: d.ajuste.valeurs,
+      mode: "lines", name: "Ajusté",
+      line: { color: "#9B9B98", width: 1.5, dash: "dot" },
+    },
+    {
+      x: [...d.prevision.dates, ...d.prevision.dates.slice().reverse()],
+      y: [...d.prevision.upper, ...d.prevision.lower.slice().reverse()],
+      fill: "toself", fillcolor: "rgba(245,166,35,0.12)",
+      line: { width: 0 }, name: "IC 95%", showlegend: true,
+    },
+    {
+      x: d.prevision.dates, y: d.prevision.valeurs,
+      mode: "lines+markers", name: "Prévision",
+      line: { color: "#F5A623", width: 3 },
+      marker: { size: 7, color: "#F5A623" },
+    },
+  ];
+
+  // Ligne verticale séparation
+  const splitDate = d.historique.dates[d.historique.dates.length - 1];
+  const layout = {
+    ...CHART_LAYOUT,
+    yaxis: { ...CHART_LAYOUT.yaxis, title: "TND/m²", tickformat: ",.0f" },
+    shapes: [{
+      type: "line", x0: splitDate, x1: splitDate,
+      y0: 0, y1: 1, yref: "paper",
+      line: { color: "#E74C3C", width: 1.5, dash: "dash" },
+    }],
+    annotations: [{
+      x: splitDate, y: 1, yref: "paper",
+      text: "Prévision →", showarrow: false,
+      font: { size: 10, color: "#E74C3C" }, xanchor: "left",
+    }],
+  };
+  Plotly.newPlot("chartForecast", traces, layout, CHART_CONFIG);
+
+  // ── Résidus simulés ──
+  const histVals = d.historique.valeurs;
+  const adjVals  = d.ajuste.valeurs;
+  const minLen = Math.min(histVals.length, adjVals.length);
+  const residDates = d.historique.dates.slice(-minLen);
+  const residVals  = histVals.slice(-minLen).map((v,i) => v - adjVals[adjVals.length - minLen + i]);
+  Plotly.newPlot("chartResiduals", [{
+    x: residDates, y: residVals,
+    type: "bar", marker: { color: residVals.map(v => v >= 0 ? "#F5A623" : "#E74C3C") },
+    name: "Résidu",
+  }], {
+    ...CHART_LAYOUT,
+    yaxis: { ...CHART_LAYOUT.yaxis, title: "Résidu (TND/m²)" },
+    showlegend: false,
+    margin: { t: 16, r: 10, b: 40, l: 56 },
+  }, CHART_CONFIG);
+
+  // ── Tableau prévisions ──
+  let tableHtml = `<table style="width:100%;font-size:12px;border-collapse:collapse;">
+    <thead><tr style="background:var(--bg2);">
+      <th style="padding:8px;text-align:left;border-radius:6px 0 0 6px;">Période</th>
+      <th style="padding:8px;text-align:right;">Prévision</th>
+      <th style="padding:8px;text-align:right;border-radius:0 6px 6px 0;">IC 95%</th>
+    </tr></thead><tbody>`;
+  d.prevision.dates.forEach((date, i) => {
+    const odd = i % 2 === 1;
+    tableHtml += `<tr style="background:${odd?'var(--bg)':'transparent'}">
+      <td style="padding:6px 8px;font-family:'DM Mono',monospace;font-size:11px;">${date.slice(0,7)}</td>
+      <td style="padding:6px 8px;text-align:right;font-weight:500;color:var(--orange);">${fmt(d.prevision.valeurs[i])} TND</td>
+      <td style="padding:6px 8px;text-align:right;font-size:11px;color:var(--dim);">[${fmt(d.prevision.lower[i])} – ${fmt(d.prevision.upper[i])}]</td>
+    </tr>`;
+  });
+  tableHtml += "</tbody></table>";
+  document.getElementById("forecastTable").innerHTML = tableHtml;
+
+  // ── Info box ──
+  document.getElementById("sarimaInfo").innerHTML = `
+    <strong>Résumé — ${d.gouvernorat}</strong><br>
+    Modèle SARIMA(${d.order.join(",")}) × (${d.seasonal_order.slice(0,3).join(",")})₄ · 
+    Prix actuel: <strong>${fmt(d.derniere_valeur)} TND/m²</strong> · 
+    Prévision T+${d.prevision.dates.length}: <strong>${fmt(d.prevision_finale)} TND/m²</strong> · 
+    Variation attendue: <strong style="color:${d.hausse_pct>0?'var(--green)':'var(--red)'}">${d.hausse_pct>0?'+':''}${d.hausse_pct}%</strong>
+  `;
+}
+
+loadGouvernorats();
+</script>
+</body>
+</html>
