@@ -29,9 +29,16 @@ from config import (
     RULES_CLEAN, NEO4J_DIR, LOG_DIR,
     API_HOST, API_PORT, SOURCE_NAME,
 )
-from compliance  import (check_compliance, detect_changes, check_and_alert,
-                         is_urbanisme_question, compute_urbanisme_risk)
-from nlp_parser  import parse_natural
+from compliance import (check_compliance, detect_changes, check_and_alert,
+                        is_urbanisme_question, compute_urbanisme_risk)
+from nlp_parser import parse_natural
+from chatbot    import chat as chatbot_chat
+try:
+    from generate_report import generate_pdf
+    _HAS_REPORTLAB = True
+except ImportError:
+    _HAS_REPORTLAB = False
+from alerts import load_alerts_config, save_alerts_config, get_alerts_history
 
 _fmt = logging.Formatter("%(asctime)s │ %(levelname)-7s │ %(message)s", "%H:%M:%S")
 log = logging.getLogger("api")
@@ -250,282 +257,6 @@ def _h_graph_stats(params: dict) -> tuple[int, dict]:
     }
 
 
-def _h_analyze_text(body: dict) -> tuple[int, dict]:
-    """
-    POST /analyze-text
-    ──────────────────
-    Architecture hybride CDR + Urbanisme :
-      NIVEAU 1 — CDR (66 règles structurées + risk score DS03)
-      NIVEAU 2 — Urbanisme (RAG + risk score dynamique)
-      NIVEAU 3 — Fallback RAG CDR si toujours INDÉTERMINÉ
-    """
-    text = body.get("text", "").strip()
-    if not text:
-        return 400, {"error": "Champ requis : 'text'"}
-
-    # STEP 1 : NLP Parser
-    parsed = parse_natural(text, use_llm=body.get("use_llm", True))
-    if "error" in parsed:
-        return 400, parsed
-
-    if not parsed.get("actor") or not parsed.get("action"):
-        return 200, {
-            "parsed":     parsed,
-            "compliance": {
-                "global_status": "UNPARSEABLE",
-                "explanations":  ["Précisez qui fait quoi."],
-            },
-        }
-
-    user_case = {
-        "actor":      parsed["actor"],
-        "action":     parsed["action"],
-        "target":     parsed.get("target", ""),
-        "conditions": parsed.get("conditions", []),
-    }
-
-    # STEP 2 : CDR — moteur de conformité
-    compliance = check_compliance(
-        user_case, _load_rules(),
-        threshold   = float(body.get("threshold",   0.45)),
-        max_results = int(body.get("max_results",   10)),
-    )
-    check_and_alert(compliance)
-
-    rag_fallback = None
-
-    # STEP 3 : RAG Urbanisme si mots construction détectés
-    # UNIQUEMENT si pas HORS DOMAINE et pas déjà CONFORME via CDR
-    status_needs_rag = compliance.get("global_status") == "UNKNOWN"
-    urbanisme_needed = is_urbanisme_question(user_case)
-    cdr_already_answered = compliance.get("global_status") in ("COMPLIANT", "VIOLATION", "WARNING")
-
-    # Ne pas déclencher RAG si :
-    # - Complètement hors domaine
-    # - CDR a déjà trouvé une réponse claire ET pas de conditions négatives
-    conds_str = " ".join(user_case.get("conditions", [])).lower()
-    has_negative = any(w in conds_str for w in [
-        "sans permis", "sans autorisation", "sans accord",
-        "illegalement", "non constructible"
-    ])
-    skip_rag = (
-        (compliance.get("global_status") == "OUT_OF_DOMAIN" and not urbanisme_needed)
-        or (cdr_already_answered and not has_negative)
-    )
-
-    if skip_rag:
-        pass
-    elif status_needs_rag or urbanisme_needed:
-        try:
-            from rag     import search, format_context
-            from chatbot import chat as chatbot_chat
-
-            # Détecter la source appropriée
-            if is_urbanisme_question(user_case):
-                sources   = ["URBANISME"]
-                law_label = "Code de l'Amenagement du Territoire 2011"
-            else:
-                sources   = ["CDR"]
-                law_label = "Code des Droits Reels - Loi n65-5"
-
-            # Recherche RAG
-            query       = f"{user_case['actor']} {user_case['action']} {user_case.get('target','')}"
-            rag_results = search(query, sources=sources, top_k=3)
-            rag_context = format_context(rag_results, max_chars=800)
-
-            if rag_results:
-                # Calculer risk score
-                if sources == ["URBANISME"]:
-                    risk_data = compute_urbanisme_risk(rag_results, user_case)
-                else:
-                    risk_data = {
-                        "risk_score": 0,
-                        "status":     "UNKNOWN",
-                        "articles":   [],
-                        "source":     "CDR",
-                        "law":        law_label,
-                    }
-
-                # Explication naturelle via chatbot
-                question = (
-                    f"Selon le droit tunisien, est-ce que {user_case['actor']} "
-                    f"peut {user_case['action']}"
-                    + (f" {user_case['target']}" if user_case.get('target') else "")
-                    + " ?"
-                )
-                chat_result = chatbot_chat(question, rag_context=rag_context)
-
-                # Niveau de risque
-                rs = risk_data["risk_score"]
-                if rs >= 70:   lvl, emoji = "HIGH",   "rouge"
-                elif rs >= 40: lvl, emoji = "MEDIUM", "jaune"
-                else:          lvl, emoji = "LOW",    "vert"
-
-                rag_fallback = {
-                    "used":        True,
-                    "source":      risk_data.get("source", ""),
-                    "law":         risk_data.get("law",    law_label),
-                    "risk_score":  rs,
-                    "risk_level":  lvl,
-                    "risk_emoji":  emoji,
-                    "articles":    risk_data.get("articles", []),
-                    "explanation": chat_result.get("answer", ""),
-                }
-
-                # Mettre à jour statut global
-                if risk_data["status"] == "interdit":
-                    compliance["global_status"] = "VIOLATION"
-                elif risk_data["status"] == "obligation":
-                    compliance["global_status"] = "WARNING"
-                elif risk_data["status"] == "permis":
-                    compliance["global_status"] = "COMPLIANT"
-                compliance["risk_score"] = rs
-
-        except Exception as e:
-            log.warning(f"RAG fallback echoue : {e}")
-
-    return 200, {
-        "parsed":       parsed,
-        "compliance":   compliance,
-        "rag_fallback": rag_fallback,
-    }
-
-
-def _h_legal_risk(body: dict) -> tuple[int, dict]:
-    """
-    POST /legal-risk
-    ────────────────
-    Endpoint structuré pour le Decision Copilot (Chapitre 8).
-    Retourne un résumé juridique complet consommable par les autres agents.
-
-    Input:
-        {
-            "actor":      "proprietaire",
-            "action":     "construire",
-            "target":     "immeuble",
-            "conditions": ["sans permis"],
-            "zone":       "Hammamet Nord"   ← optionnel
-        }
-
-    Output:
-        {
-            "legal_risk_score": 65,
-            "status":           "VIOLATION",
-            "risk_level":       "HIGH",
-            "main_issues":      [...],
-            "articles":         [...],
-            "recommendation":   "...",
-            "copilot_summary":  "...",
-            "details":          {...}
-        }
-    """
-    # Valider les champs
-    if not body.get("actor") or not body.get("action"):
-        return 400, {"error": "Champs requis : 'actor' et 'action'"}
-
-    # Lancer la vérification de conformité
-    rules    = _load_rules()
-    result   = check_compliance(body, rules)
-    check_and_alert(result)
-
-    status     = result.get("global_status", "UNKNOWN")
-    risk_score = result.get("risk_score", 0)
-
-    # Niveau de risque
-    if risk_score >= 70:
-        risk_level = "HIGH"
-        risk_emoji = "🔴"
-    elif risk_score >= 40:
-        risk_level = "MEDIUM"
-        risk_emoji = "🟡"
-    else:
-        risk_level = "LOW"
-        risk_emoji = "🟢"
-
-    # Extraire les problèmes principaux
-    main_issues = []
-    articles    = []
-
-    for v in result.get("violations", []):
-        main_issues.append(v.get("message", ""))
-        art = v.get("article", "")
-        if art and art not in articles:
-            articles.append(f"Art.{art} CDR")
-
-    for w in result.get("warnings", []):
-        main_issues.append(w.get("message", ""))
-        art = w.get("article", "")
-        if art and art not in articles:
-            articles.append(f"Art.{art} CDR")
-
-    # Recommandation automatique selon le statut
-    recommendations = {
-        "VIOLATION":   "Action illégale selon le CDR tunisien. Arrêtez immédiatement et consultez un notaire.",
-        "WARNING":     "Conditions incomplètes. Vérifiez les prérequis légaux avant de procéder.",
-        "COMPLIANT":   "Action conforme au CDR. Conservez les documents justificatifs.",
-        "UNKNOWN":     "Situation non couverte par nos règles. Consultez un juriste spécialisé.",
-        "OUT_OF_DOMAIN": "Hors périmètre du Code des Droits Réels tunisien.",
-    }
-    recommendation = recommendations.get(status, "Consultez un juriste spécialisé.")
-
-    # Résumé court pour le Copilot
-    actor  = body.get("actor",  "")
-    action = body.get("action", "")
-    zone   = body.get("zone",   "")
-
-    copilot_summary = (
-        f"{risk_emoji} Risque juridique {risk_level} ({risk_score}/100). "
-        f"Situation : {actor} → {action}"
-    )
-    if zone:
-        copilot_summary += f" dans la zone {zone}"
-    copilot_summary += f". Statut : {status}."
-    if main_issues:
-        copilot_summary += f" Problème principal : {main_issues[0][:100]}"
-
-    # Vérification zonage via RAG si zone fournie
-    zone_info = None
-    if zone:
-        try:
-            from rag import search, format_context
-            rag_results = search(
-                f"zone constructible {zone} autorisation",
-                sources=["URBANISME"],
-                top_k=2
-            )
-            if rag_results:
-                zone_info = {
-                    "zone":    zone,
-                    "context": format_context(rag_results, max_chars=400),
-                    "articles": [f"Art.{r['article']} CATU" for r in rag_results],
-                }
-                # Ajouter les articles urbanisme
-                for r in rag_results:
-                    art_ref = f"Art.{r['article']} CATU"
-                    if art_ref not in articles:
-                        articles.append(art_ref)
-        except Exception:
-            pass
-
-    return 200, {
-        "legal_risk_score": risk_score,
-        "status":           status,
-        "risk_level":       risk_level,
-        "risk_emoji":       risk_emoji,
-        "main_issues":      main_issues[:3],
-        "articles":         articles[:5],
-        "recommendation":   recommendation,
-        "copilot_summary":  copilot_summary,
-        "zone_info":        zone_info,
-        "details": {
-            "violations":      len(result.get("violations", [])),
-            "warnings":        len(result.get("warnings",   [])),
-            "compliant_rules": len(result.get("compliant_rules", [])),
-            "user_case":       body,
-        },
-    }
-
-
 def _h_health(params: dict) -> tuple[int, dict]:
     """GET /health"""
     rules = _load_rules()
@@ -547,74 +278,234 @@ def _h_health(params: dict) -> tuple[int, dict]:
 # ROUTEUR HTTP
 # ══════════════════════════════════════════════════════════════════════════════
 
-def _h_chat(body: dict) -> tuple[int, dict]:
-    """POST /chat — Chatbot juridique via Mistral + RAG."""
-    question = body.get("question", "").strip()
-    if not question:
-        return 400, {"error": "Champ requis : 'question'"}
+
+def _h_analyze_text(body: dict) -> tuple[int, dict]:
+    """POST /analyze-text — NLP + conformite + RAG hybride"""
+    text = body.get("text", "").strip()
+    if not text:
+        return 400, {"error": "Champ requis : text"}
+    use_llm   = body.get("use_llm", True)
+    threshold = float(body.get("threshold", 0.45))
+    parsed = parse_natural(text, use_llm=use_llm)
+    user_case = {
+        "actor":      parsed.get("actor", ""),
+        "action":     parsed.get("action", ""),
+        "target":     parsed.get("target", ""),
+        "conditions": parsed.get("conditions", []),
+    }
+    compliance = check_compliance(user_case, _load_rules(), threshold=threshold)
+    rag_fallback = None
+    status_needs_rag = compliance.get("global_status") == "UNKNOWN"
+    urbanisme_needed = is_urbanisme_question(user_case)
+    cdr_answered = compliance.get("global_status") in ("COMPLIANT","VIOLATION","WARNING")
+    conds_str = " ".join(user_case.get("conditions", [])).lower()
+    has_negative = any(w in conds_str for w in ["sans permis","sans autorisation","non constructible"])
+    skip_rag = (compliance.get("global_status") == "OUT_OF_DOMAIN" and not urbanisme_needed)                or (cdr_answered and not has_negative)
+    if not skip_rag and (status_needs_rag or urbanisme_needed):
+        try:
+            from rag import search, format_context
+            sources = ["URBANISME"] if urbanisme_needed else ["CDR"]
+            rag_res = search(f"{user_case['actor']} {user_case['action']} {user_case['target']}", sources=sources, top_k=3)
+            if rag_res:
+                risk_data = compute_urbanisme_risk(rag_res, user_case)
+                expl = format_context(rag_res, max_chars=500)
+                rag_fallback = {
+                    "used": True, "source": risk_data.get("source","URBANISME"),
+                    "law": risk_data.get("law",""), "articles": risk_data.get("articles",[]),
+                    "risk_score": risk_data.get("risk_score",0), "explanation": expl,
+                }
+                if risk_data.get("risk_score",0) > compliance.get("risk_score",0):
+                    compliance["risk_score"]    = risk_data["risk_score"]
+                    compliance["global_status"] = (
+                        "VIOLATION" if risk_data["status"]=="interdit"
+                        else "WARNING" if risk_data["status"]=="obligation"
+                        else compliance["global_status"])
+        except Exception as e:
+            log.warning(f"RAG erreur : {e}")
+    check_and_alert(compliance)
     try:
-        from chatbot import chat as chatbot_chat
-        from rag     import search, format_context
-        use_rag  = body.get("use_rag", True)
-        rag_ctx  = ""
-        if use_rag:
-            sources = body.get("sources", None)
-            results = search(question, sources=sources, top_k=3)
-            rag_ctx = format_context(results)
-        result = chatbot_chat(question, rag_context=rag_ctx)
-        return 200, result
-    except Exception as e:
-        return 500, {"error": str(e)}
+        answer = chatbot_chat(text, rag_context=rag_fallback.get("explanation","") if rag_fallback else "")
+        expl = answer.get("answer","")
+    except Exception:
+        expl = ""
+    return 200, {
+        "parsed": parsed, "compliance": compliance,
+        "rag_fallback": rag_fallback, "explanations": [expl] if expl else [],
+    }
+
+
+def _h_legal_risk(body: dict) -> tuple[int, dict]:
+    """POST /legal-risk — score pour Decision Copilot"""
+    text = body.get("text","")
+    if not text:
+        actor  = body.get("actor","")
+        action = body.get("action","")
+        target = body.get("target","")
+        text   = f"{actor} {action} {target}".strip()
+    if not text:
+        return 400, {"error": "Champ requis : text ou actor+action+target"}
+    _, result = _h_analyze_text({"text": text, "use_llm": True})
+    c    = result.get("compliance", {})
+    risk = c.get("risk_score", 0)
+    st   = c.get("global_status","UNKNOWN")
+    level = "HIGH" if risk>=70 else "MEDIUM" if risk>=40 else "LOW"
+    return 200, {
+        "legal_risk_score": risk, "status": st, "risk_level": level,
+        "copilot_summary": f"Risque juridique {level} ({risk}/100) — {st}",
+        "articles": [v.get("article","") for v in c.get("violations",[])],
+        "recommendation": "Consultez un notaire." if risk>=70 else "Situation à surveiller." if risk>=40 else "Situation conforme.",
+    }
+
+
+def _h_chat(body: dict) -> tuple[int, dict]:
+    """POST /chat — chatbot juridique"""
+    question = body.get("question","").strip()
+    if not question:
+        return 400, {"error": "Champ requis : question"}
+    rag_ctx = ""
+    if body.get("use_rag", True):
+        try:
+            from rag import search, format_context
+            res = search(question, sources=["CDR","URBANISME"], top_k=3)
+            if res: rag_ctx = format_context(res, max_chars=600)
+        except Exception:
+            pass
+    result = chatbot_chat(question, rag_context=rag_ctx)
+    return 200, result
 
 
 def _h_rag_search(body: dict) -> tuple[int, dict]:
-    """POST /rag-search — Recherche sémantique dans les textes juridiques."""
-    query = body.get("query", "").strip()
-    if not query:
-        return 400, {"error": "Champ requis : 'query'"}
+    """POST /rag-search"""
+    query = body.get("query","").strip()
+    if not query: return 400, {"error": "Champ requis : query"}
     try:
-        from rag import search, available_sources
-        sources = body.get("sources", None)
-        top_k   = int(body.get("top_k", 3))
+        from rag import search, format_context
+        sources = body.get("sources", ["CDR","URBANISME"])
+        top_k   = int(body.get("top_k", 5))
         results = search(query, sources=sources, top_k=top_k)
-        return 200, {
-            "results":           results,
-            "sources_available": available_sources(),
-            "count":             len(results),
-        }
+        return 200, {"query": query, "results": results, "context": format_context(results)}
     except Exception as e:
         return 500, {"error": str(e)}
 
 
-def _h_index_pdf(body: dict) -> tuple[int, dict]:
-    """POST /index-pdf — Indexe un nouveau PDF pour le RAG."""
-    pdf_path   = body.get("pdf_path",   "").strip()
-    source_key = body.get("source_key", "").strip().upper()
-    if not pdf_path or not source_key:
-        return 400, {"error": "Champs requis : 'pdf_path' et 'source_key'"}
+def _h_generate_report(body: dict) -> tuple[int, dict]:
+    """POST /generate-report"""
+    situation    = body.get("situation","").strip()
+    destinataire = body.get("destinataire","Usage personnel")
+    email        = body.get("email","")
+    if not situation: return 400, {"error": "Champ requis : situation"}
+    if not _HAS_REPORTLAB: return 500, {"error": "pip install reportlab"}
     try:
-        from rag import index_pdf
-        result = index_pdf(pdf_path, source_key)
-        if "error" in result:
-            return 500, result
-        return 200, result
+        _, res = _h_analyze_text({"text": situation, "use_llm": True})
+        compliance = res.get("compliance", {"global_status":"UNKNOWN","risk_score":0,"violations":[],"warnings":[]})
+        rag = res.get("rag_fallback")
+        if rag: compliance["rag_fallback"] = rag
+        pdf_path = generate_pdf(situation=situation, compliance_result=compliance, destinataire=destinataire)
+        if isinstance(pdf_path, list): pdf_path = pdf_path[0] if pdf_path else "reports/rapport.pdf"
+        pdf_path = str(pdf_path)
+        filename = Path(pdf_path).name
+        return 200, {"success": True, "pdf_path": pdf_path, "filename": filename,
+                     "status": compliance.get("global_status"), "risk": compliance.get("risk_score",0)}
     except Exception as e:
+        log.exception(f"generate_report: {e}")
         return 500, {"error": str(e)}
+
+
+def _h_send_email(body: dict) -> tuple[int, dict]:
+    """POST /send-email"""
+    import smtplib, ssl
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text      import MIMEText
+    from email.mime.base      import MIMEBase
+    from email                import encoders
+    to      = body.get("to","").strip()
+    subject = body.get("subject","Rapport juridique Estate Mind")
+    txt     = body.get("body","Votre rapport est disponible.")
+    fname   = body.get("attachment","")
+    if not to or "@" not in to: return 400, {"error": "Email invalide"}
+    try:
+        import config as cfg
+        SMTP_HOST  = getattr(cfg,"SMTP_HOST","smtp.gmail.com")
+        SMTP_PORT  = getattr(cfg,"SMTP_PORT",587)
+        SMTP_USER  = getattr(cfg,"SMTP_USER","")
+        SMTP_PASS  = getattr(cfg,"SMTP_PASS","")
+        FROM_EMAIL = getattr(cfg,"FROM_EMAIL",SMTP_USER)
+    except Exception:
+        return 500, {"error": "config.py manquant"}
+    if not SMTP_USER or not SMTP_PASS:
+        return 200, {"success": True, "simulated": True, "to": to}
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = FROM_EMAIL; msg["To"] = to; msg["Subject"] = subject
+        msg.attach(MIMEText(txt, "plain", "utf-8"))
+        if fname:
+            p = Path("reports") / Path(fname).name
+            if p.exists():
+                with open(p,"rb") as f:
+                    part = MIMEBase("application","octet-stream")
+                    part.set_payload(f.read())
+                    encoders.encode_base64(part)
+                    part.add_header("Content-Disposition", f"attachment; filename={p.name}")
+                    msg.attach(part)
+        ctx = ssl.create_default_context()
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as s:
+            s.starttls(context=ctx); s.login(SMTP_USER, SMTP_PASS)
+            s.sendmail(FROM_EMAIL, to, msg.as_string())
+        log.info(f"Email envoyé à {to}")
+        return 200, {"success": True, "to": to}
+    except Exception as e:
+        log.warning(f"SMTP erreur : {e}")
+        return 500, {"error": str(e)}
+
+
+def _h_configure_alerts(body: dict) -> tuple[int, dict]:
+    """POST /configure-alerts"""
+    email = body.get("email","").strip()
+    if not email: return 400, {"error": "Champ requis : email"}
+    config = load_alerts_config()
+    config["email"]        = email
+    config["cdr_changes"]  = bool(body.get("cdr_changes",True))
+    config["catu_changes"] = bool(body.get("catu_changes",True))
+    config["high_risk"]    = bool(body.get("high_risk",True))
+    config["new_rules"]    = bool(body.get("new_rules",False))
+    saved = save_alerts_config(config)
+    return 200, {"success": True, "config": saved}
+
+
+def _h_get_alerts(params: dict) -> tuple[int, dict]:
+    """GET /alerts"""
+    return 200, {"config": load_alerts_config(), "history": get_alerts_history()}
+
+
+def _h_download_report(params: dict) -> tuple[int, dict]:
+    """GET /download-report"""
+    import os
+    raw = params.get("file","")
+    if isinstance(raw, list): raw = raw[0] if raw else ""
+    filename = os.path.basename(str(raw).strip())
+    if not filename: return 400, {"error": "Parametre requis : file"}
+    path = Path("reports") / filename
+    if not path.exists(): return 404, {"error": f"Fichier non trouve : {filename}"}
+    return 200, {"success": True, "filename": filename, "size": path.stat().st_size}
 
 
 _ROUTES = {
     ("POST", "/check-compliance"): _h_check_compliance,
-    ("POST", "/analyze-text"):     _h_analyze_text,
-    ("POST", "/legal-risk"):       _h_legal_risk,
-    ("POST", "/chat"):             _h_chat,
-    ("POST", "/rag-search"):       _h_rag_search,
-    ("POST", "/index-pdf"):        _h_index_pdf,
     ("POST", "/diff"):             _h_diff,
     ("GET",  "/risk-summary"):     _h_risk_summary,
     ("GET",  "/top-risks"):        _h_top_risks,
     ("GET",  "/rules"):            _h_rules,
     ("GET",  "/graph-stats"):      _h_graph_stats,
     ("GET",  "/health"):           _h_health,
+    ("POST", "/analyze-text"):     _h_analyze_text,
+    ("POST", "/legal-risk"):       _h_legal_risk,
+    ("POST", "/chat"):             _h_chat,
+    ("POST", "/rag-search"):       _h_rag_search,
+    ("POST", "/generate-report"):  _h_generate_report,
+    ("POST", "/send-email"):       _h_send_email,
+    ("POST", "/configure-alerts"): _h_configure_alerts,
+    ("GET",  "/alerts"):           _h_get_alerts,
+    ("GET",  "/download-report"):  _h_download_report,
 }
 
 
@@ -683,13 +574,15 @@ def start(host: str = API_HOST, port: int = API_PORT) -> None:
     log.info("║  BO5 API — Code des Droits Réels tunisien        ║")
     log.info(f"║  http://{host}:{port:<39} ║")
     log.info("╠══════════════════════════════════════════════════╣")
+    log.info("║  POST /analyze-text                              ║")
+    log.info("║  POST /legal-risk                                ║")
+    log.info("║  POST /chat                                      ║")
+    log.info("║  POST /generate-report                           ║")
+    log.info("║  POST /configure-alerts                          ║")
     log.info("║  POST /check-compliance                          ║")
-    log.info("║  POST /diff                                      ║")
-    log.info("║  GET  /risk-summary                              ║")
-    log.info("║  GET  /top-risks?n=10&status=interdit            ║")
-    log.info("║  GET  /rules?actor=proprietaire&limit=20         ║")
-    log.info("║  GET  /graph-stats                               ║")
     log.info("║  GET  /health                                    ║")
+    log.info("║  GET  /alerts                                    ║")
+    log.info("║  GET  /download-report                           ║")
     log.info("╚══════════════════════════════════════════════════╝")
     try:
         server.serve_forever()

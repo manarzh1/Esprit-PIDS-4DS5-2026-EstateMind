@@ -3,1683 +3,333 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TuniState — See clearly, before you invest</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Estate Mind — Legal Compliance</title>
 <style>
-/* ── Reset ─────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  /* Palette TuniState */
-  --black:       #0e0e0e;
-  --dark:        #161616;
-  --dark2:       #1e1e1e;
-  --dark3:       #262626;
-  --dark4:       #2e2e2e;
-
-  --orange:      #F7941D;       /* orange principal */
-  --orange-lt:   #FAA94E;       /* orange clair */
-  --orange-dk:   #D4780A;       /* orange foncé */
-  --orange-bg:   rgba(247,148,29,0.08);
-  --orange-glow: rgba(247,148,29,0.20);
-  --orange-bdr:  rgba(247,148,29,0.30);
-
-  --gray:        #6B6B6B;
-  --gray2:       #9A9A9A;
-  --gray3:       #C4C4C4;
-  --white:       #F5F3EF;       /* blanc chaud */
-  --white2:      #FFFFFF;
-
-  --border:      rgba(255,255,255,0.06);
-  --border2:     rgba(255,255,255,0.10);
-  --border3:     rgba(255,255,255,0.15);
-
-  /* Statuts */
-  --red:         #E53E3E;
-  --red-bg:      rgba(229,62,62,0.08);
-  --red-bdr:     rgba(229,62,62,0.25);
-
-  --amber:       #D97706;
-  --amber-bg:    rgba(217,119,6,0.08);
-  --amber-bdr:   rgba(217,119,6,0.25);
-
-  --green:       #2D9D5D;
-  --green-bg:    rgba(45,157,93,0.08);
-  --green-bdr:   rgba(45,157,93,0.25);
-
-  --blue:        #3B82F6;
-  --blue-bg:     rgba(59,130,246,0.08);
-  --blue-bdr:    rgba(59,130,246,0.25);
-
-  /* Typo */
-  --serif:   'Playfair Display', Georgia, serif;
-  --sans:    'Barlow', sans-serif;
-  --cond:    'Barlow Condensed', sans-serif;
-  --mono:    'JetBrains Mono', monospace;
-
-  --r-sm:  8px;
-  --r-md:  12px;
-  --r-lg:  18px;
-  --r-xl:  24px;
-}
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: var(--sans);
-  background: var(--black);
-  color: var(--white);
-  min-height: 100vh;
-  font-size: 15px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  background-image:
-    radial-gradient(ellipse 70% 40% at 80% -10%, rgba(247,148,29,0.06) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 30% at -10% 80%, rgba(247,148,29,0.04) 0%, transparent 60%);
-}
-
-/* ── Layout ───────────────────────────────── */
-.app {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 24px 80px;
-}
-
-/* ── TOP NAV ──────────────────────────────── */
-.topnav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 0 24px;
-  border-bottom: 1px solid var(--border2);
-  margin-bottom: 52px;
-  animation: fadeDown .5s ease both;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-}
-
-.logo-icon {
-  width: 40px; height: 40px;
-  background: linear-gradient(135deg, var(--orange), var(--orange-dk));
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 16px var(--orange-glow);
-  position: relative;
-  overflow: hidden;
-}
-.logo-icon::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,.15), transparent);
-}
-.logo-icon svg { position: relative; z-index: 1; }
-
-.logo-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.logo-name {
-  font-family: var(--cond);
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  color: var(--white2);
-  line-height: 1;
-}
-.logo-name span { color: var(--orange); }
-.logo-slogan {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--gray);
-  line-height: 1;
-}
-
-.nav-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--gray2);
-  background: var(--dark2);
-  border: 1px solid var(--border2);
-  padding: 6px 14px;
-  border-radius: 20px;
-}
-.api-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--gray);
-  transition: background .3s, box-shadow .3s;
-}
-.api-dot.online {
-  background: var(--green);
-  box-shadow: 0 0 8px var(--green);
-  animation: pulse 2s ease infinite;
-}
-
-/* ── Header ───────────────────────────────── */
-.header {
-  margin-bottom: 44px;
-  animation: fadeDown .5s .05s ease both;
-}
-
-.header-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--cond);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--orange-lt);
-  background: var(--orange-bg);
-  border: 1px solid var(--orange-bdr);
-  padding: 5px 14px;
-  border-radius: 20px;
-  margin-bottom: 20px;
-}
-.header-tag::before {
-  content: '';
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--orange);
-  box-shadow: 0 0 8px var(--orange);
-  display: inline-block;
-}
-
-.header h1 {
-  font-family: var(--serif);
-  font-size: clamp(30px, 4.5vw, 44px);
-  font-weight: 700;
-  letter-spacing: -.01em;
-  line-height: 1.15;
-  color: var(--white2);
-  margin-bottom: 14px;
-}
-.header h1 em {
-  font-style: italic;
-  font-weight: 400;
-  color: var(--orange-lt);
-}
-
-.header-desc {
-  font-size: 15px;
-  color: var(--gray2);
-  max-width: 540px;
-  line-height: 1.7;
-}
-
-/* ── Quick pills ──────────────────────────── */
-.quick-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
-  animation: fadeUp .4s .1s ease both;
-}
-.quick-label {
-  font-family: var(--cond);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--gray);
-  display: flex;
-  align-items: center;
-  width: 100%;
-  gap: 8px;
-  margin-bottom: 2px;
-}
-.quick-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-.qpill {
-  font-size: 12px;
-  font-weight: 500;
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 1px solid var(--border2);
-  background: var(--dark2);
-  color: var(--gray2);
-  cursor: pointer;
-  transition: border-color .2s, color .2s, background .2s;
-  white-space: nowrap;
-}
-.qpill:hover {
-  border-color: var(--orange-bdr);
-  color: var(--orange-lt);
-  background: var(--orange-bg);
-}
-
-/* ── Input panel ──────────────────────────── */
-.input-panel {
-  background: var(--dark);
-  border: 1px solid var(--border2);
-  border-radius: var(--r-xl);
-  padding: 28px 28px 24px;
-  margin-bottom: 28px;
-  animation: fadeUp .5s .15s ease both;
-  position: relative;
-  overflow: hidden;
-}
-.input-panel::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, var(--orange) 50%, transparent 100%);
-  opacity: .6;
-}
-
-.input-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--cond);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--gray);
-  margin-bottom: 14px;
-}
-
-.input-row {
-  display: flex;
-  gap: 10px;
-  align-items: stretch;
-}
-
-.input-wrapper { flex: 1; position: relative; }
-
-#query-input {
-  width: 100%;
-  padding: 15px 18px 15px 46px;
-  background: var(--dark3);
-  border: 1px solid var(--border2);
-  border-radius: var(--r-md);
-  color: var(--white);
-  font-family: var(--sans);
-  font-size: 15px;
-  outline: none;
-  transition: border-color .2s, box-shadow .2s;
-}
-#query-input::placeholder { color: var(--gray); }
-#query-input:focus {
-  border-color: var(--orange-bdr);
-  box-shadow: 0 0 0 3px var(--orange-bg);
-}
-
-.input-icon {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--gray);
-  pointer-events: none;
-}
-
-.btn-analyze {
-  padding: 14px 28px;
-  background: linear-gradient(135deg, var(--orange), var(--orange-dk));
-  color: var(--white2);
-  border: none;
-  border-radius: var(--r-md);
-  font-family: var(--cond);
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-  transition: opacity .2s, transform .1s, box-shadow .2s;
-  box-shadow: 0 4px 20px var(--orange-glow);
-}
-.btn-analyze:hover {
-  opacity: .9;
-  box-shadow: 0 6px 28px rgba(247,148,29,0.35);
-}
-.btn-analyze:active { transform: scale(.98); }
-.btn-analyze:disabled {
-  opacity: .4;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Parsed chips */
-.parsed-preview {
-  display: none;
-  margin-top: 14px;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.parsed-preview.visible { display: flex; }
-
-.pchip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--mono);
-  font-size: 11px;
-  padding: 4px 10px;
-  border-radius: 6px;
-}
-.pchip .k { color: var(--gray); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
-.pchip .v { font-weight: 500; }
-.pchip.actor  { background: var(--orange-bg); border: 1px solid var(--orange-bdr); }
-.pchip.actor .v  { color: var(--orange-lt); }
-.pchip.action { background: var(--dark3); border: 1px solid var(--border2); }
-.pchip.action .v { color: var(--gray3); }
-.pchip.target { background: var(--dark3); border: 1px solid var(--border2); }
-.pchip.target .v { color: var(--gray3); }
-.pchip.cond   { background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.2); }
-.pchip.cond .v   { color: #fbbf24; }
-
-/* ── Loader ───────────────────────────────── */
-.loader {
-  display: none;
-  align-items: center;
-  gap: 16px;
-  padding: 22px 28px;
-  background: var(--dark);
-  border: 1px solid var(--border2);
-  border-radius: var(--r-lg);
-  margin-bottom: 24px;
-}
-.loader.visible { display: flex; }
-
-.spinner {
-  width: 20px; height: 20px;
-  border: 2px solid var(--orange-bg);
-  border-top-color: var(--orange);
-  border-radius: 50%;
-  animation: spin .7s linear infinite;
-  flex-shrink: 0;
-}
-.loader-text { font-size: 14px; color: var(--gray2); }
-.loader-dots::after {
-  content: '';
-  animation: dots 1.2s steps(3, end) infinite;
-}
-
-/* ── Error banner ─────────────────────────── */
-.error-banner {
-  display: none;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  background: var(--red-bg);
-  border: 1px solid var(--red-bdr);
-  border-radius: var(--r-md);
-  margin-bottom: 24px;
-  color: #fca5a5;
-  font-size: 14px;
-}
-.error-banner.visible { display: flex; }
-
-/* ── Results ──────────────────────────────── */
-#results { animation: fadeUp .4s ease both; }
-
-/* Status hero */
-.status-hero {
-  border-radius: var(--r-xl);
-  padding: 30px 32px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  border: 1px solid;
-  position: relative;
-  overflow: hidden;
-}
-.status-hero::before {
-  content: '';
-  position: absolute;
-  right: -60px; top: -60px;
-  width: 180px; height: 180px;
-  border-radius: 50%;
-  opacity: .06;
-}
-.status-hero.violation { background: var(--red-bg); border-color: var(--red-bdr); }
-.status-hero.violation::before { background: var(--red); }
-.status-hero.warning   { background: var(--amber-bg); border-color: var(--amber-bdr); }
-.status-hero.warning::before   { background: var(--amber); }
-.status-hero.compliant { background: var(--green-bg); border-color: var(--green-bdr); }
-.status-hero.compliant::before { background: var(--green); }
-.status-hero.out-of-domain { background: var(--blue-bg); border-color: var(--blue-bdr); }
-.status-hero.out-of-domain::before { background: var(--blue); }
-.status-hero.unknown   { background: rgba(107,114,128,.06); border-color: rgba(107,114,128,.2); }
-.status-hero.unknown::before { background: #6b7280; }
-
-.status-left { flex: 1; }
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-family: var(--cond);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  padding: 5px 12px;
-  border-radius: 20px;
-  margin-bottom: 12px;
-}
-.sbdot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  animation: pulse 2s ease infinite;
-}
-.violation .status-badge { background: rgba(229,62,62,.15); color: #fc8181; }
-.violation .sbdot  { background: var(--red); box-shadow: 0 0 8px var(--red); }
-.warning   .status-badge { background: rgba(217,119,6,.15); color: #fbbf24; }
-.warning   .sbdot  { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
-.compliant .status-badge { background: rgba(45,157,93,.15); color: #6ee7b7; }
-.compliant .sbdot  { background: var(--green); box-shadow: 0 0 8px var(--green); }
-.out-of-domain .status-badge { background: var(--blue-bg); color: #93c5fd; }
-.out-of-domain .sbdot { background: var(--blue); box-shadow: 0 0 8px var(--blue); }
-.unknown .status-badge { background: rgba(107,114,128,.15); color: #d1d5db; }
-.unknown .sbdot { background: #9ca3af; }
-
-.status-title {
-  font-family: var(--serif);
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--white2);
-  margin-bottom: 4px;
-  line-height: 1.2;
-}
-.status-subtitle { font-size: 13px; color: var(--gray2); }
-
-/* Risk gauge */
-.risk-gauge { text-align: right; flex-shrink: 0; }
-.risk-label {
-  font-family: var(--cond);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--gray);
-  margin-bottom: 6px;
-}
-.risk-number {
-  font-family: var(--serif);
-  font-size: 54px;
-  font-weight: 700;
-  line-height: 1;
-  margin-bottom: 4px;
-}
-.violation   .risk-number { color: var(--red); }
-.warning     .risk-number { color: var(--amber); }
-.compliant   .risk-number { color: var(--green); }
-.out-of-domain .risk-number { color: var(--blue); }
-.unknown     .risk-number { color: var(--gray); }
-
-.risk-denom {
-  font-size: 11px;
-  color: var(--gray);
-  text-align: right;
-  margin-bottom: 8px;
-}
-.risk-bar {
-  width: 120px;
-  height: 4px;
-  background: var(--dark3);
-  border-radius: 2px;
-  overflow: hidden;
-  margin-left: auto;
-}
-.risk-bar-fill {
-  height: 100%;
-  border-radius: 2px;
-  width: 0%;
-  transition: width .8s cubic-bezier(.4,0,.2,1);
-}
-.violation   .risk-bar-fill { background: linear-gradient(90deg, var(--red), #f97316); }
-.warning     .risk-bar-fill { background: linear-gradient(90deg, var(--amber), #eab308); }
-.compliant   .risk-bar-fill { background: linear-gradient(90deg, var(--green), #10b981); }
-.out-of-domain .risk-bar-fill { background: var(--blue); }
-.unknown     .risk-bar-fill { background: var(--gray); }
-
-/* ── Sections ─────────────────────────────── */
-.section { margin-bottom: 20px; }
-
-.section-hd {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-.section-icon {
-  width: 30px; height: 30px;
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  flex-shrink: 0;
-}
-.icon-red    { background: var(--red-bg);   border: 1px solid var(--red-bdr); }
-.icon-amber  { background: var(--amber-bg); border: 1px solid var(--amber-bdr); }
-.icon-green  { background: var(--green-bg); border: 1px solid var(--green-bdr); }
-.icon-orange { background: var(--orange-bg); border: 1px solid var(--orange-bdr); }
-
-.section-title-text {
-  font-family: var(--cond);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--gray2);
-}
-.section-count {
-  margin-left: auto;
-  font-family: var(--mono);
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  background: var(--dark2);
-  color: var(--gray);
-}
-
-/* ── Item cards ───────────────────────────── */
-.items-list { display: flex; flex-direction: column; gap: 10px; }
-
-.item-card {
-  padding: 16px 18px;
-  border-radius: var(--r-md);
-  border: 1px solid;
-  position: relative;
-  animation: slideIn .3s ease both;
-}
-.item-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  border-radius: 3px 0 0 3px;
-}
-
-.item-card.red   { background: var(--red-bg);   border-color: var(--red-bdr); }
-.item-card.red::before   { background: var(--red); }
-.item-card.amber { background: var(--amber-bg); border-color: var(--amber-bdr); }
-.item-card.amber::before { background: var(--amber); }
-.item-card.green { background: var(--green-bg); border-color: var(--green-bdr); }
-.item-card.green::before { background: var(--green); }
-.item-card.orange { background: var(--orange-bg); border-color: var(--orange-bdr); }
-.item-card.orange::before { background: var(--orange); }
-.item-card.blue  { background: var(--blue-bg);  border-color: var(--blue-bdr); }
-.item-card.blue::before  { background: var(--blue); }
-
-.item-message { font-size: 14px; line-height: 1.55; padding-left: 10px; }
-.item-card.red   .item-message { color: #fca5a5; }
-.item-card.amber .item-message { color: #fbbf24; }
-.item-card.green .item-message { color: #6ee7b7; }
-.item-card.orange .item-message { color: var(--orange-lt); }
-.item-card.blue  .item-message { color: #93c5fd; }
-
-.item-meta { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding-left: 10px; flex-wrap: wrap; }
-
-.mchip {
-  font-family: var(--mono);
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: rgba(255,255,255,.04);
-  color: var(--gray);
-  border: 1px solid var(--border);
-}
-.rchip {
-  font-family: var(--mono);
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: 500;
-}
-.item-card.red   .rchip { background: rgba(229,62,62,.2);  color: #fca5a5; }
-.item-card.amber .rchip { background: rgba(217,119,6,.2);  color: #fbbf24; }
-.item-card.green .rchip { background: rgba(45,157,93,.2);  color: #6ee7b7; }
-
-.missing-conds { margin-top: 10px; padding-left: 10px; }
-.missing-cond-label {
-  font-family: var(--cond);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--gray);
-  margin-bottom: 4px;
-}
-.missing-cond-item { font-size: 12px; color: #fbbf24; padding: 2px 0; }
-
-/* ── Suggestions ──────────────────────────── */
-.suggestions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 10px;
-}
-.sugg-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px 16px;
-  background: var(--dark2);
-  border: 1px solid var(--orange-bdr);
-  border-radius: var(--r-md);
-  animation: slideIn .3s ease both;
-  transition: border-color .2s, background .2s;
-}
-.sugg-card:hover {
-  background: var(--orange-bg);
-  border-color: var(--orange);
-}
-.sugg-num {
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  background: var(--orange-bg);
-  border: 1px solid var(--orange-bdr);
-  color: var(--orange-lt);
-  font-family: var(--cond);
-  font-size: 11px;
-  font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.sugg-text { font-size: 13px; color: var(--gray2); line-height: 1.5; }
-
-/* ── Empty state ──────────────────────────── */
-.empty-state {
-  text-align: center;
-  padding: 60px 24px;
-  animation: fadeUp .5s .2s ease both;
-}
-.empty-icon {
-  width: 64px; height: 64px;
-  border-radius: 16px;
-  background: var(--dark2);
-  border: 1px solid var(--border2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px;
-  margin: 0 auto 20px;
-}
-.empty-title {
-  font-family: var(--serif);
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--white2);
-  margin-bottom: 8px;
-}
-.empty-desc {
-  font-size: 14px;
-  color: var(--gray);
-  margin-bottom: 16px;
-  line-height: 1.6;
-}
-.empty-hint {
-  display: inline-block;
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--orange-lt);
-  background: var(--orange-bg);
-  border: 1px solid var(--orange-bdr);
-  padding: 6px 14px;
-  border-radius: 8px;
-}
-
-/* ── Divider ──────────────────────────────── */
-.divider {
-  height: 1px;
-  background: var(--border);
-  margin: 32px 0;
-}
-
-/* ── Footer ───────────────────────────────── */
-.footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 0 0;
-  border-top: 1px solid var(--border);
-  font-size: 11px;
-  color: var(--gray);
-  font-family: var(--mono);
-}
-.footer-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.footer-brand strong { color: var(--orange-lt); font-weight: 600; }
-
-/* ── Animations ───────────────────────────── */
-@keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-8px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: .4; }
-}
-@keyframes dots {
-  0%   { content: ''; }
-  33%  { content: '.'; }
-  66%  { content: '..'; }
-  100% { content: '...'; }
-}
-
-/* ── Responsive ───────────────────────────── */
-@media (max-width: 600px) {
-  .topnav { flex-wrap: wrap; gap: 12px; }
-  .input-row { flex-direction: column; }
-  .status-hero { flex-direction: column; text-align: center; }
-  .risk-gauge { text-align: center; }
-  .risk-bar { margin: 0 auto; }
-  .footer { flex-direction: column; gap: 8px; text-align: center; }
-}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--or:#F7941D;--or2:#FF9B2A;--d1:#0D0D0D;--d2:#141414;--d3:#1C1C1C;--d4:#242424;--b1:#252525;--b2:#2E2E2E;--b3:#383838;--g1:#F0F0F0;--g2:#B0B0B0;--g3:#707070;--g4:#404040;--red:#E24B4A;--amb:#F59E0B;--grn:#22C55E;--r:12px;--r2:8px}
+body{background:var(--d1);color:var(--g1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;min-height:100vh;line-height:1.5}
+.tb{height:58px;background:rgba(13,13,13,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;padding:0 36px;position:sticky;top:0;z-index:200}
+.tb-brand{display:flex;align-items:center;gap:10px}
+.tb-logo{width:30px;height:30px;background:var(--or);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff}
+.tb-name{font-size:14px;font-weight:600;color:#fff;letter-spacing:.5px}
+.tb-name em{color:var(--or);font-style:normal}
+.tb-center{display:flex;gap:2px;background:var(--d3);border:1px solid var(--b1);border-radius:9px;padding:3px}
+.tb-tab{padding:6px 18px;border-radius:7px;font-size:12px;font-weight:500;color:var(--g3);border:none;background:transparent;cursor:pointer;transition:all .15s}
+.tb-tab.on{background:var(--or);color:#fff}
+.tb-right{display:flex;align-items:center;gap:10px}
+.tb-notif{width:34px;height:34px;border-radius:8px;background:var(--d3);border:1px solid var(--b1);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.tb-notif svg{width:16px;height:16px;stroke:var(--g2);fill:none;stroke-width:1.6}
+.nb{position:absolute;top:-3px;right:-3px;width:15px;height:15px;border-radius:50%;background:var(--red);border:2px solid var(--d1);font-size:9px;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+.tb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--or2));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;cursor:pointer}
+.pg{max-width:980px;margin:0 auto;padding:32px 24px;display:flex;flex-direction:column;gap:24px}
+.hero{background:linear-gradient(135deg,var(--d2) 60%,#1A1200);border:1px solid var(--b1);border-radius:var(--r);padding:32px 36px;display:flex;align-items:center;justify-content:space-between;gap:28px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(247,148,29,.12),transparent 70%);pointer-events:none}
+.hero-eyebrow{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--or);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.ey-dot{width:4px;height:4px;border-radius:50%;background:var(--or)}
+.hero-h{font-size:26px;font-weight:700;color:#fff;margin-bottom:6px;line-height:1.2}
+.hero-sub{font-size:13px;color:var(--g3);line-height:1.65;max-width:420px}
+.hero-kpis{display:flex;gap:32px;margin-top:22px;padding-top:20px;border-top:1px solid var(--b1)}
+.kp{display:flex;flex-direction:column;gap:2px}
+.kp-v{font-size:22px;font-weight:700;color:var(--or);letter-spacing:-.5px}
+.kp-l{font-size:10px;color:var(--g4);text-transform:uppercase;letter-spacing:.06em}
+.hero-pills{display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.src-p{display:flex;align-items:center;gap:9px;padding:10px 16px;background:rgba(255,255,255,.03);border:1px solid var(--b1);border-radius:var(--r2);font-size:11px;color:var(--g2)}
+.sp-dot{width:6px;height:6px;border-radius:50%;background:var(--grn);box-shadow:0 0 6px rgba(34,197,94,.5);flex-shrink:0}
+.grade-p{padding:10px 16px;background:rgba(247,148,29,.08);border:1px solid rgba(247,148,29,.25);border-radius:var(--r2);font-size:11px;color:var(--or);text-align:center;font-weight:600;letter-spacing:.04em}
+.sc{background:var(--d2);border:1px solid var(--b1);border-radius:var(--r);padding:26px 30px}
+.sc-label{font-size:13px;font-weight:600;color:#fff;margin-bottom:3px}
+.sc-hint{font-size:12px;color:var(--g3);margin-bottom:14px}
+.sc-row{display:flex;gap:10px}
+.sc-in{flex:1;background:var(--d4);border:1.5px solid var(--b1);border-radius:var(--r2);padding:13px 18px;color:#fff;font-size:13px;outline:none;transition:border-color .2s;font-family:inherit}
+.sc-in:focus{border-color:var(--or);background:var(--d3)}
+.sc-in::placeholder{color:var(--g4)}
+.sc-btn{padding:13px 28px;background:var(--or);color:#fff;border:none;border-radius:var(--r2);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;font-family:inherit;box-shadow:0 2px 12px rgba(247,148,29,.25)}
+.sc-btn:hover{background:var(--or2)}
+.chips{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.chip{padding:5px 13px;background:var(--d4);border:1px solid var(--b2);border-radius:20px;font-size:11px;color:var(--g3);cursor:pointer;transition:all .15s}
+.chip:hover{border-color:var(--or);color:var(--or);background:rgba(247,148,29,.06)}
+.rc{background:var(--d2);border:1.5px solid var(--b1);border-radius:var(--r);overflow:hidden;transition:border-color .4s}
+.rc.vio{border-color:#3A1515}.rc.war{border-color:#2A1E00}.rc.ok{border-color:#0A2A15}
+.rc-top{padding:18px 22px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
+.rc-st{display:flex;align-items:center;gap:9px}
+.st-dot{width:9px;height:9px;border-radius:50%;transition:background .4s}
+.st-txt{font-size:12px;font-weight:600;letter-spacing:.03em}
+.rc-num{font-size:26px;font-weight:700;letter-spacing:-1px}
+.rc-body{padding:18px 22px;display:flex;flex-direction:column;gap:13px}
+.rc-q{font-size:12px;color:var(--g3);font-style:italic;line-height:1.5;padding:10px 14px;background:var(--d3);border-radius:var(--r2);border-left:2px solid var(--b3)}
+.bar-t{height:3px;background:var(--d4);border-radius:2px;overflow:hidden}
+.bar-f{height:100%;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.art-row{display:flex;align-items:center;gap:9px}
+.art-t{padding:3px 11px;border-radius:4px;font-size:10px;font-weight:700;background:var(--d3);color:var(--or);border:1px solid var(--b2);letter-spacing:.04em}
+.art-s{font-size:11px;color:var(--g4)}
+.rc-exp{font-size:12px;color:var(--g2);line-height:1.65}
+.rc-foot{padding:13px 22px;border-top:1px solid var(--b1)}
+.rc-pdf-btn{width:100%;padding:11px;background:rgba(247,148,29,.1);border:1px solid rgba(247,148,29,.25);border-radius:var(--r2);color:var(--or);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.rc-pdf-btn:hover{background:rgba(247,148,29,.18);border-color:var(--or)}
+.rc-pdf-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+.ac-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ac{background:var(--d2);border:1px solid var(--b1);border-radius:var(--r);padding:20px 22px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:10px}
+.ac:hover{border-color:var(--or);background:var(--d3)}
+.ac-ic{width:36px;height:36px;border-radius:9px;background:rgba(247,148,29,.1);border:1px solid rgba(247,148,29,.2);display:flex;align-items:center;justify-content:center}
+.ac-ic svg{width:17px;height:17px;stroke:var(--or);fill:none;stroke-width:1.7}
+.ac-tit{font-size:13px;font-weight:600;color:#fff}
+.ac-desc{font-size:11px;color:var(--g3);line-height:1.5}
+.ac-cta{font-size:11px;color:var(--or);font-weight:600;margin-top:4px}
+.fab{position:fixed;bottom:30px;right:30px;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--or2));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:500;box-shadow:0 4px 20px rgba(247,148,29,.45);transition:transform .2s}
+.fab:hover{transform:scale(1.06)}
+.fab svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2}
+.fab-b{position:absolute;top:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:var(--red);border:2px solid var(--d1);font-size:9px;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+.cw{position:fixed;bottom:96px;right:30px;width:340px;background:var(--d2);border:1px solid var(--b1);border-radius:14px;overflow:hidden;z-index:499;display:none;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+.cw.open{display:flex}
+.cw-h{padding:16px 18px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;background:var(--d3)}
+.cw-inf{display:flex;align-items:center;gap:10px}
+.cw-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--or2));display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.cw-nm{font-size:13px;font-weight:600;color:#fff}
+.cw-st{font-size:10px;color:var(--grn);display:flex;align-items:center;gap:4px;margin-top:1px}
+.on-dot{width:5px;height:5px;border-radius:50%;background:var(--grn);box-shadow:0 0 5px rgba(34,197,94,.6)}
+.cw-cl{background:none;border:none;color:var(--g3);font-size:20px;cursor:pointer;line-height:1;padding:0}
+.cw-srcs{padding:8px 18px;border-bottom:1px solid var(--b1);display:flex;gap:6px;background:var(--d3)}
+.cw-stag{font-size:10px;color:var(--or);background:rgba(247,148,29,.1);border:1px solid rgba(247,148,29,.2);padding:2px 9px;border-radius:3px;font-weight:500}
+.cw-msgs{padding:14px;display:flex;flex-direction:column;gap:10px;height:220px;overflow-y:auto;scroll-behavior:smooth}
+.cw-msgs::-webkit-scrollbar{width:3px}
+.cw-msgs::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+.cm{display:flex;gap:8px;align-items:flex-start}
+.cm.u{flex-direction:row-reverse}
+.cm-av{width:24px;height:24px;border-radius:50%;background:var(--or);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;flex-shrink:0;font-weight:600}
+.cm-av.ua{background:var(--d4);color:var(--g3);border:1px solid var(--b2)}
+.cbbl{max-width:82%;padding:9px 13px;border-radius:10px;font-size:12px;line-height:1.55}
+.cm.bot .cbbl{background:var(--d4);color:var(--g1);border-radius:3px 10px 10px 10px;border:1px solid var(--b1)}
+.cm.u .cbbl{background:var(--or);color:#fff;border-radius:10px 3px 10px 10px}
+.dots-bbl{display:flex;gap:4px;align-items:center;padding:10px 14px}
+.dot-ani{width:7px;height:7px;border-radius:50%;background:var(--or);animation:dp .9s ease-in-out infinite}
+.dot-ani:nth-child(2){animation-delay:.18s}
+.dot-ani:nth-child(3){animation-delay:.36s}
+@keyframes dp{0%,80%,100%{transform:scale(.5);opacity:.4}40%{transform:scale(1);opacity:1}}
+.cw-inp{padding:12px 14px;border-top:1px solid var(--b1);display:flex;gap:8px;background:var(--d3)}
+.cw-in{flex:1;background:var(--d4);border:1px solid var(--b1);border-radius:8px;padding:9px 13px;color:#fff;font-size:12px;outline:none;font-family:inherit;transition:border-color .2s}
+.cw-in:focus{border-color:var(--or)}
+.cw-in::placeholder{color:var(--g4)}
+.cw-snd{padding:9px 16px;background:var(--or);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.mo.open{display:flex}
+.mb{background:var(--d2);border:1px solid var(--b1);border-radius:14px;padding:30px;width:400px;max-width:92vw}
+.mb-tit{font-size:17px;font-weight:700;color:#fff;margin-bottom:4px}
+.mb-sub{font-size:12px;color:var(--g3);margin-bottom:22px;line-height:1.55}
+.mf{margin-bottom:14px}
+.ml{font-size:11px;color:var(--g2);margin-bottom:5px;display:block;font-weight:500}
+.mi{width:100%;background:var(--d4);border:1px solid var(--b1);border-radius:8px;padding:11px 14px;color:#fff;font-size:13px;outline:none;font-family:inherit;transition:border-color .2s}
+.mi:focus{border-color:var(--or)}
+.mi::placeholder{color:var(--g4)}
+.ms{width:100%;background:var(--d4);border:1px solid var(--b1);border-radius:8px;padding:11px 14px;color:#fff;font-size:13px;outline:none;font-family:inherit;cursor:pointer}
+.mb-btns{display:flex;gap:10px;margin-top:22px}
+.btn-c{flex:1;padding:12px;background:transparent;border:1px solid var(--b2);border-radius:8px;color:var(--g2);font-size:13px;cursor:pointer;font-family:inherit}
+.btn-c:hover{background:var(--d3)}
+.btn-ok{flex:1;padding:12px;background:var(--or);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 2px 10px rgba(247,148,29,.25)}
+.btn-ok:hover{background:var(--or2)}
+.tg-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--b1)}
+.tg-row:last-of-type{border:none}
+.tg-lbl{font-size:12px;color:var(--g1)}
+.tg-sub{font-size:10px;color:var(--g4);margin-top:1px}
+.tg{width:40px;height:22px;border-radius:11px;background:var(--d4);border:1px solid var(--b2);cursor:pointer;position:relative;transition:all .2s;flex-shrink:0}
+.tg.on{background:var(--or);border-color:var(--or);box-shadow:0 0 8px rgba(247,148,29,.3)}
+.tg::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s}
+.tg.on::after{left:20px}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--d2);border:1px solid var(--b1);border-radius:10px;padding:12px 22px;font-size:13px;color:#fff;z-index:3000;transition:transform .3s cubic-bezier(.4,0,.2,1);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.toast.ok{border-color:var(--grn)}.toast.err{border-color:var(--red)}
+.toast.show{transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
-
-<div class="app">
-
-  <!-- TOP NAV -->
-  <nav class="topnav">
-    <a class="logo" href="#">
-      <div class="logo-icon">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2">
-          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
-        </svg>
-      </div>
-      <div class="logo-text">
-        <div class="logo-name">Tuni<span>State</span></div>
-        <div class="logo-slogan">See clearly… before you invest</div>
-      </div>
-    </a>
-    <div class="nav-badge">
-      <span class="api-dot" id="api-dot"></span>
-      <span id="api-text">localhost:8000</span>
-    </div>
-  </nav>
-
-  <!-- HEADER -->
-  <header class="header">
-    <div class="header-tag">Code des Droits Réels tunisien · Loi n°65-5</div>
-    <h1>Analyse de <em>conformité</em><br>juridique immobilière</h1>
-    <p class="header-desc">Vérifiez instantanément la conformité d'une situation avec le CDR tunisien. Entrez votre situation en langage naturel — acteur, action, cible.</p>
-  </header>
-
-  <!-- QUICK EXAMPLES -->
-  <div class="quick-pills">
-    <div class="quick-label">Exemples rapides</div>
-    <span class="qpill" onclick="fill('proprietaire construire immeuble')">🏗️ Construire sans permis</span>
-    <span class="qpill" onclick="fill('proprietaire demolir batiment')">🔨 Démolir un bâtiment</span>
-    <span class="qpill" onclick="fill('locataire sous-louer appartement')">🔑 Sous-louer</span>
-    <span class="qpill" onclick="fill('acquéreur vendre bien immobilier devant notaire')">📄 Vendre avec notaire</span>
-    <span class="qpill" onclick="fill('creancier inscrire hypotheque')">⚖️ Inscrire une hypothèque</span>
+<header class="tb">
+  <div class="tb-brand">
+    <div class="tb-logo">⚖</div>
+    <div class="tb-name">ESTATE<em>MIND</em> Legal</div>
   </div>
-
-  <!-- INPUT PANEL -->
-  <div class="input-panel">
-    <div class="input-label">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-      </svg>
-      Décrivez la situation juridique
+  <div class="tb-center">
+    <button class="tb-tab on">Conformité</button>
+    <button class="tb-tab" onclick="openM('mRapport')">Rapport PDF</button>
+    <button class="tb-tab" onclick="openM('mAlertes')">Alertes</button>
+  </div>
+  <div class="tb-right">
+    <div class="tb-notif" onclick="openM('mAlertes')">
+      <svg viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+      <div class="nb">3</div>
     </div>
-
-    <div class="input-row">
-      <div class="input-wrapper">
-        <span class="input-icon">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-            <circle cx="12" cy="7" r="4"/>
-          </svg>
-        </span>
-        <input
-          type="text"
-          id="query-input"
-          placeholder="ex : proprietaire construire immeuble avec permis de construire"
-          autocomplete="off"
-          spellcheck="false"
-        >
+    <div class="tb-av">AB</div>
+  </div>
+</header>
+<main class="pg">
+  <section class="hero">
+    <div>
+      <div class="hero-eyebrow"><div class="ey-dot"></div>Legal &amp; Compliance Agent — BO5</div>
+      <h1 class="hero-h">Votre juriste IA tunisien</h1>
+      <p class="hero-sub">Vérifiez instantanément la conformité de toute situation immobilière avec les lois officielles tunisiennes. Score de risque · Articles de loi · Recommandations.</p>
+      <div class="hero-kpis">
+        <div class="kp"><div class="kp-v">2</div><div class="kp-l">Codes officiels</div></div>
+        <div class="kp"><div class="kp-v">0 %</div><div class="kp-l">Taux d'erreur</div></div>
+        <div class="kp"><div class="kp-v">&lt;5s</div><div class="kp-l">Réponse</div></div>
       </div>
-      <button class="btn-analyze" id="btn-analyze" onclick="analyze()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path d="M9 18l6-6-6-6"/>
-        </svg>
-        Analyser
+    </div>
+    <div class="hero-pills">
+      <div class="src-p"><div class="sp-dot"></div>CDR — Loi n°65-5 · Édition 2024</div>
+      <div class="src-p"><div class="sp-dot"></div>Code Urbanisme — CATU 2011</div>
+      <div class="grade-p">Fiabilité 100 / 100 · Grade A</div>
+    </div>
+  </section>
+  <section class="sc">
+    <div class="sc-label">Décrivez votre situation juridique</div>
+    <div class="sc-hint">Écrivez librement en français — l'analyse s'effectue automatiquement</div>
+    <div class="sc-row">
+      <input class="sc-in" id="lIn" placeholder="Ex : je veux construire sans permis à Hammamet..." >
+      <button class="sc-btn" onclick="doAnalyze()">Analyser</button>
+    </div>
+    <div class="chips">
+      <div class="chip" onclick="sq('je veux construire sans permis')">Construire sans permis</div>
+      <div class="chip" onclick="sq('preneur sous-louer appartement')">Sous-louer</div>
+      <div class="chip" onclick="sq('creancier vendre le gage')">Vendre un gage</div>
+      <div class="chip" onclick="sq('creancier restituer le gage')">Restituer un gage</div>
+      <div class="chip" onclick="sq('voisin renoncer mitoyennete')">Mitoyenneté</div>
+      <div class="chip" onclick="sq('etat exproprier terrain')">Expropriation</div>
+    </div>
+  </section>
+  <div class="rc" id="rc">
+    <div class="rc-top">
+      <div class="rc-st"><div class="st-dot" id="sdot" style="background:#333"></div><div class="st-txt" id="stxt" style="color:#555">En attente d'une situation</div></div>
+      <div class="rc-num" id="snum" style="color:#333">—</div>
+    </div>
+    <div class="rc-body">
+      <div class="rc-q" id="rq">Entrez votre situation ci-dessus ou choisissez un exemple</div>
+      <div class="bar-t"><div class="bar-f" id="barf" style="width:0%;background:#333"></div></div>
+      <div class="art-row"><div class="art-t" id="artag">Art. ?</div><div class="art-s" id="artsrc">—</div></div>
+      <div class="rc-exp" id="rexp">L'analyse juridique apparaîtra ici automatiquement.</div>
+    </div>
+    <div class="rc-foot">
+      <button class="rc-pdf-btn" onclick="openRapportPre()">
+        <svg viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Télécharger le rapport PDF
       </button>
     </div>
-
-    <div class="parsed-preview" id="parsed-preview"></div>
   </div>
-
-  <!-- LOADER -->
-  <div class="loader" id="loader">
-    <div class="spinner"></div>
-    <div class="loader-text">Analyse en cours<span class="loader-dots"></span></div>
-  </div>
-
-  <!-- ERROR -->
-  <div class="error-banner" id="error-banner">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-    </svg>
-    <span id="error-text">Impossible de contacter l'API. Lancez : python main.py --step api</span>
-  </div>
-
-  <!-- RESULTS -->
-  <div id="results"></div>
-
-  <!-- EMPTY STATE -->
-  <div id="empty-state" class="empty-state">
-    <div class="empty-icon">⚖️</div>
-    <div class="empty-title">Prêt pour l'analyse</div>
-    <p class="empty-desc">Entrez une situation juridique ci-dessus<br>pour obtenir une analyse de conformité instantanée.</p>
-    <span class="empty-hint">acteur · action · cible · [conditions]</span>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <span class="footer-brand"><strong>TuniState</strong> · Legal Compliance Engine · BO5</span>
-    <span>CDR — Loi n°65-5 · Code de l'Aménagement du Territoire — 2011</span>
-  </footer>
-
-</div>
-
-<script>
-/* ── Config ──────────────────────────────── */
-const API_URL = 'http://localhost:8000/analyze-text';
-const HEALTH_URL = 'http://localhost:8000/health';
-
-/* ── Helpers ─────────────────────────────── */
-function esc(s) {
-  if (!s) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function parseQuery(raw) {
-  const parts = raw.trim().split(/\s+/);
-  return {
-    actor:      parts[0] || '',
-    action:     parts[1] || '',
-    target:     parts[2] || '',
-    conditions: parts.slice(3).length ? [parts.slice(3).join(' ')] : [],
-  };
-}
-
-/* ── Quick fill ──────────────────────────── */
-function fill(q) {
-  const inp = document.getElementById('query-input');
-  inp.value = q;
-  inp.dispatchEvent(new Event('input'));
-  inp.focus();
-}
-
-/* ── Live preview ────────────────────────── */
-document.getElementById('query-input').addEventListener('input', e => {
-  const val = e.target.value.trim();
-  const prev = document.getElementById('parsed-preview');
-  if (!val) { prev.classList.remove('visible'); return; }
-  // Afficher le texte brut — Mistral parse en arrière-plan
-  prev.innerHTML = `<span class="pchip actor"><span class="k">texte libre</span><span class="v">${esc(val.substring(0,60))}${val.length>60?'…':''}</span></span><span class="pchip action"><span class="k">via</span><span class="v">Mistral NLP</span></span>`;
-  prev.classList.add('visible');
-});
-
-document.getElementById('query-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') analyze();
-});
-
-/* ── Health check ────────────────────────── */
-async function checkHealth() {
-  try {
-    const r = await fetch(HEALTH_URL, { signal: AbortSignal.timeout(3000) });
-    const dot  = document.getElementById('api-dot');
-    const text = document.getElementById('api-text');
-    if (r.ok) {
-      const d = await r.json();
-      dot.classList.add('online');
-      text.textContent = `API connectée · ${d.rules_loaded || ''} règles`;
-    } else throw new Error();
-  } catch {
-    const dot = document.getElementById('api-dot');
-    dot.classList.remove('online');
-    document.getElementById('api-text').textContent = 'API hors ligne';
-  }
-}
-checkHealth();
-setInterval(checkHealth, 15000);
-
-/* ── Analyze ─────────────────────────────── */
-async function analyze() {
-  const raw = document.getElementById('query-input').value.trim();
-  if (!raw) return;
-
-  setLoading(true);
-  hideError();
-  document.getElementById('empty-state').style.display = 'none';
-  document.getElementById('results').innerHTML = '';
-
-  try {
-    // Toujours envoyer le texte libre — Mistral NLP parse correctement
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: raw, use_llm: true, threshold: 0.45 }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-
-    // Extraire le resultat de conformite
-    const compliance  = data.compliance  || data;
-    const parsed      = data.parsed      || {};
-    const ragFallback = data.rag_fallback || null;
-
-    renderResults(compliance, parsed);
-
-    // Afficher RAG fallback si present (Urbanisme ou CDR)
-    if (ragFallback && ragFallback.used) {
-      const ragBox = renderRagFallback(ragFallback);
-      if (ragBox) document.getElementById('results').appendChild(ragBox);
-    }
-
-    checkHealth();
-  } catch (err) {
-    showError(
-      err.message.includes('fetch') || err.message.includes('NetworkError')
-        ? "Impossible de contacter l'API. Lancez : python main.py --step api"
-        : `Erreur : ${err.message}`
-    );
-    document.getElementById('empty-state').style.display = 'block';
-  } finally {
-    setLoading(false);
-  }
-}
-
-/* ── Render results ──────────────────────── */
-function renderResults(data, query) {
-  const status     = (data.global_status || 'UNKNOWN').toLowerCase().replace(/_/g, '-');
-  const risk       = data.risk_score || 0;
-  const violations = data.violations || [];
-  const warnings   = data.warnings || [];
-  const compliant  = data.compliant_rules || [];
-  const suggestions = buildSuggestions(data);
-
-  const statusLabels = {
-    'violation':     '🚨 Violation détectée',
-    'warning':       '⚠️ Avertissement',
-    'compliant':     '✅ Conforme',
-    'out-of-domain': 'ℹ️ Hors domaine',
-    'unknown':       '❓ Indéterminé',
-  };
-  const statusTitles = {
-    'violation':     'Violation identifiée',
-    'warning':       'Attention requise',
-    'compliant':     'Situation conforme',
-    'out-of-domain': 'Hors domaine',
-    'unknown':       'Situation indéterminée',
-  };
-  const statusDescs = {
-    'violation':     violations.length > 0
-                       ? `${violations.length} violation${violations.length>1?'s':''} identifiée${violations.length>1?'s':''}`
-                       : 'Violation détectée via analyse juridique contextuelle',
-    'warning':       'Conditions à vérifier avant de procéder',
-    'compliant':     "L'action est conforme au Code des Droits Réels tunisien",
-    'out-of-domain': 'Cette situation ne relève pas du Code des Droits Réels',
-    'unknown':       "Aucune règle trouvée pour cette situation",
-  };
-
-  const card = (i) => `animation-delay:${i*80}ms`;
-
-  let html = `
-    <div class="status-hero ${status}">
-      <div class="status-left">
-        <div class="status-badge">
-          <span class="sbdot"></span>
-          ${esc(statusLabels[status] || status.toUpperCase())}
-        </div>
-        <div class="status-title">${esc(statusTitles[status] || 'Analyse terminée')}</div>
-        <div class="status-subtitle">${esc(statusDescs[status] || '')}</div>
-      </div>
-      <div class="risk-gauge">
-        <div class="risk-label">Risk Score</div>
-        <div class="risk-number">${risk}</div>
-        <div class="risk-denom">/ 100</div>
-        <div class="risk-bar"><div class="risk-bar-fill" id="risk-fill"></div></div>
-      </div>
+  <div class="ac-row">
+    <div class="ac" onclick="openM('mAlertes')">
+      <div class="ac-ic"><svg viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg></div>
+      <div class="ac-tit">Configurer les alertes</div>
+      <div class="ac-desc">Recevez un e-mail dès qu'un changement réglementaire impacte votre situation immobilière.</div>
+      <div class="ac-cta">Configurer maintenant →</div>
     </div>
-  `;
-
-  if (violations.length) {
-    html += `
-      <div class="section">
-        <div class="section-hd">
-          <div class="section-icon icon-red">🚨</div>
-          <span class="section-title-text">Violations</span>
-          <span class="section-count">${violations.length}</span>
-        </div>
-        <div class="items-list">
-          ${violations.map((v,i) => `
-            <div class="item-card red" style="${card(i)}">
-              <div class="item-message">${esc(v.message||'')}</div>
-              <div class="item-meta">
-                ${v.risk_score!=null?`<span class="rchip">risk ${v.risk_score}/100</span>`:''}
-                ${v.article?`<span class="mchip">📄 art.${esc(v.article)}</span>`:''}
-                ${v.match_score?`<span class="mchip">match ${Math.round(v.match_score*100)}%</span>`:''}
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>`;
-  }
-
-  if (warnings.length) {
-    html += `
-      <div class="section">
-        <div class="section-hd">
-          <div class="section-icon icon-amber">⚠️</div>
-          <span class="section-title-text">Avertissements</span>
-          <span class="section-count">${warnings.length}</span>
-        </div>
-        <div class="items-list">
-          ${warnings.map((w,i) => `
-            <div class="item-card amber" style="${card(i)}">
-              <div class="item-message">${esc(w.message||'')}</div>
-              ${(w.missing_conditions||[]).length?`
-              <div class="missing-conds">
-                <div class="missing-cond-label">Conditions manquantes</div>
-                ${w.missing_conditions.map(c=>`<div class="missing-cond-item">• ${esc(c)}</div>`).join('')}
-              </div>`:''}
-              <div class="item-meta">
-                ${w.risk_score!=null?`<span class="rchip">risk ${w.risk_score}/100</span>`:''}
-                ${w.article?`<span class="mchip">📄 art.${esc(w.article)}</span>`:''}
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>`;
-  }
-
-  if (compliant.length) {
-    html += `
-      <div class="section">
-        <div class="section-hd">
-          <div class="section-icon icon-green">✅</div>
-          <span class="section-title-text">Règles respectées</span>
-          <span class="section-count">${compliant.length}</span>
-        </div>
-        <div class="items-list">
-          ${compliant.slice(0,3).map((c,i) => `
-            <div class="item-card green" style="${card(i)}">
-              <div class="item-message">${esc(c.message||'')}</div>
-              <div class="item-meta">
-                ${c.article?`<span class="mchip">📄 art.${esc(c.article)}</span>`:''}
-              </div>
-            </div>
-          `).join('')}
-          ${compliant.length>3?`<div style="font-size:12px;color:var(--gray);padding:4px 10px">+${compliant.length-3} autres règles conformes</div>`:''}
-        </div>
-      </div>`;
-  }
-
-  if (suggestions.length) {
-    html += `
-      <div class="section">
-        <div class="section-hd">
-          <div class="section-icon icon-orange">💡</div>
-          <span class="section-title-text">Recommandations</span>
-          <span class="section-count">${suggestions.length}</span>
-        </div>
-        <div class="suggestions-grid">
-          ${suggestions.map((s,i) => `
-            <div class="sugg-card" style="${card(i)}">
-              <span class="sugg-num">${i+1}</span>
-              <span class="sugg-text">${esc(s)}</span>
-            </div>
-          `).join('')}
-        </div>
-      </div>`;
-  }
-
-  if (status==='out-of-domain' && data.explanations?.length) {
-    html += `<div class="item-card blue" style="margin-top:-4px">
-      <div class="item-message">${esc(data.explanations[0])}</div></div>`;
-  }
-
-  document.getElementById('results').innerHTML = html;
-
-  requestAnimationFrame(() => {
-    setTimeout(() => {
-      const fill = document.getElementById('risk-fill');
-      if (fill) fill.style.width = risk + '%';
-    }, 100);
-  });
-}
-
-/* ── Suggestions ─────────────────────────── */
-function buildSuggestions(data) {
-  const s = [];
-  const status = (data.global_status || '').toLowerCase();
-
-  if (status === 'violation') {
-    s.push("Consulter un juriste spécialisé en droit réel tunisien avant toute action");
-    if (data.violations?.some(v => /permis|autorisation/i.test(v.message)))
-      s.push("Obtenir les autorisations administratives nécessaires (permis de construire, etc.)");
-    if (data.violations?.some(v => /démoli|détruire/i.test(v.message)))
-      s.push("Toute démolition nécessite une autorisation préalable de la municipalité");
-    if (data.violations?.some(v => /locataire|bail/i.test(v.message)))
-      s.push("Vérifier les clauses du contrat de bail avant toute modification");
-    s.push("Documenter toutes les démarches entreprises pour votre dossier");
-  }
-  if (status === 'warning') {
-    const missing = (data.warnings||[]).flatMap(w=>w.missing_conditions||[]);
-    if (missing.length) s.push(`Satisfaire les conditions manquantes : ${missing.slice(0,2).join(', ')}`);
-    s.push("Vérifier que toutes les conditions légales sont remplies avant de procéder");
-    s.push("Conserver la preuve de chaque condition satisfaite (acte notarié, reçu…)");
-  }
-  if (status === 'compliant') {
-    s.push("Conserver les documents justificatifs de conformité");
-    s.push("Effectuer une vérification périodique avec les mises à jour du code");
-  }
-  if (status === 'unknown') {
-    s.push("Aucune règle spécifique trouvée pour cet acteur et cette action");
-    s.push("Reformulez avec des termes précis : propriétaire, locataire, créancier…");
-    s.push("Consultez un notaire ou juriste spécialisé en droit réel tunisien");
-  }
-  if (status === 'out-of-domain') {
-    s.push("Préciser le contexte : propriété, immeuble, hypothèque, servitude…");
-    s.push("Ce système couvre uniquement le Code des Droits Réels tunisien");
-  }
-  return s.slice(0, 4);
-}
-
-/* ── UI States ───────────────────────────── */
-function setLoading(on) {
-  document.getElementById('loader').classList.toggle('visible', on);
-  document.getElementById('btn-analyze').disabled = on;
-}
-function showError(msg) {
-  document.getElementById('error-text').textContent = msg;
-  document.getElementById('error-banner').classList.add('visible');
-}
-function hideError() {
-  document.getElementById('error-banner').classList.remove('visible');
-}
+    <div class="ac" onclick="toggleChat()">
+      <div class="ac-ic"><svg viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div>
+      <div class="ac-tit">Poser une question juridique</div>
+      <div class="ac-desc">Notre assistant IA répond à vos questions sur le droit immobilier tunisien en français naturel.</div>
+      <div class="ac-cta">Ouvrir l'assistant →</div>
+    </div>
+  </div>
+</main>
+<button class="fab" onclick="toggleChat()">
+  <svg viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+  <div class="fab-b" id="fabb">1</div>
+</button>
+<div class="cw" id="cw">
+  <div class="cw-h">
+    <div class="cw-inf">
+      <div class="cw-av">⚖</div>
+      <div><div class="cw-nm">Assistant juridique</div><div class="cw-st"><div class="on-dot"></div>En ligne — CDR + CATU</div></div>
+    </div>
+    <button class="cw-cl" onclick="toggleChat()">×</button>
+  </div>
+  <div class="cw-srcs"><div class="cw-stag">CDR Loi n°65-5</div><div class="cw-stag">Code Urbanisme 2011</div></div>
+  <div class="cw-msgs" id="cwm">
+    <div class="cm bot"><div class="cm-av">⚖</div><div class="cbbl">Bonjour ! Je suis votre assistant spécialisé en droit immobilier tunisien. Posez-moi vos questions.</div></div>
+  </div>
+  <div class="cw-inp">
+    <input class="cw-in" id="cwi" placeholder="Votre question juridique..." onkeydown="if(event.key==='Enter')cSend()">
+    <button class="cw-snd" onclick="cSend()">Envoyer</button>
+  </div>
+</div>
+<div class="mo" id="mRapport">
+  <div class="mb">
+    <div class="mb-tit">Générer un rapport PDF</div>
+    <div class="mb-sub">Le rapport inclut le verdict juridique, les articles de loi et les recommandations. Il sera téléchargé et envoyé à votre adresse e-mail.</div>
+    <div class="mf"><label class="ml">Situation juridique analysée</label><input class="mi" id="rSit" placeholder="Ex : construction sans permis à Hammamet"></div>
+    <div class="mf"><label class="ml">Destinataire</label><select class="ms" id="rDest"><option>Usage personnel</option><option>Banque</option><option>Notaire</option><option>Avocat</option></select></div>
+    <div class="mf"><label class="ml">Adresse e-mail — le rapport sera envoyé ici</label><input class="mi" id="rEmail" type="email" placeholder="vous@exemple.com"></div>
+    <div class="mb-btns"><button class="btn-c" onclick="closeM('mRapport')">Annuler</button><button class="btn-ok" onclick="doRapport()">Générer et envoyer</button></div>
+  </div>
+</div>
+<div class="mo" id="mAlertes">
+  <div class="mb">
+    <div class="mb-tit">Configurer les alertes</div>
+    <div class="mb-sub">Recevez un e-mail automatique en cas de changement réglementaire tunisien.</div>
+    <div class="mf"><label class="ml">Adresse e-mail de notification</label><input class="mi" id="aEmail" type="email" placeholder="vous@exemple.com"></div>
+    <div class="tg-row"><div><div class="tg-lbl">Changements CDR (Loi n°65-5)</div><div class="tg-sub">Propriété, bail, hypothèque, succession</div></div><button class="tg on" id="tg1" onclick="this.classList.toggle('on')"></button></div>
+    <div class="tg-row"><div><div class="tg-lbl">Changements Code Urbanisme</div><div class="tg-sub">Permis de construire, zonage, constructibilité</div></div><button class="tg on" id="tg2" onclick="this.classList.toggle('on')"></button></div>
+    <div class="tg-row"><div><div class="tg-lbl">Alertes risque élevé (≥ 70 / 100)</div><div class="tg-sub">Violations et infractions potentielles</div></div><button class="tg on" id="tg3" onclick="this.classList.toggle('on')"></button></div>
+    <div class="mb-btns"><button class="btn-c" onclick="closeM('mAlertes')">Annuler</button><button class="btn-ok" onclick="doAlertes()">Enregistrer</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var API='http://localhost:8000';
+var KB={'construire sans permis':{st:'v',score:64,art:'Art.23',src:"Code Urbanisme 2011",exp:"Toute construction nécessite une autorisation administrative préalable selon l'article 23 du Code de l'Aménagement du Territoire tunisien."},'sous-louer':{st:'v',score:65,art:'Art.14',src:"CDR Loi n°65-5",exp:"Le preneur ne peut pas sous-louer sans l'accord écrit du bailleur. Interdit par l'article 14 du Code des Droits Réels tunisien."},'vendre le gage':{st:'ok',score:18,art:'Art.264',src:"CDR Loi n°65-5",exp:"La vente du gage est permise pour le créancier dans les conditions de l'article 264 du CDR. Conservez les documents justificatifs."},'restituer le gage':{st:'w',score:62,art:'Art.228',src:"CDR Loi n°65-5",exp:"Obligation de restitution après parfaite exécution de l'obligation garantie. Vérifiez toutes les conditions avant de procéder."},'mitoyennete':{st:'ok',score:17,art:'Art.83',src:"CDR Loi n°65-5",exp:"Le voisin peut renoncer à la mitoyenneté conformément à l'article 83 du CDR tunisien."},'exproprier':{st:'w',score:45,art:'Art.20',src:"CDR Loi n°65-5",exp:"L'expropriation est permise uniquement pour utilité publique et moyennant une juste indemnité (art.20 CDR)."}};
+var CO={v:'#E24B4A',w:'#F59E0B',ok:'#22C55E'};
+var LB={v:'Violation détectée',w:'Conditions à vérifier',ok:'Conforme',u:'Indéterminé'};
+var CL={v:'vio',w:'war',ok:'ok',u:''};
+function matchKB(v){v=v.toLowerCase();if(v.includes('sans permis')||v.includes('construire'))return KB['construire sans permis'];if(v.includes('sous-lou'))return KB['sous-louer'];if(v.includes('vendre')&&v.includes('gage'))return KB['vendre le gage'];if(v.includes('restituer')&&v.includes('gage'))return KB['restituer le gage'];if(v.includes('mitoyen'))return KB['mitoyennete'];if(v.includes('exproprier'))return KB['exproprier'];return null;}
+function sq(q){document.getElementById('lIn').value=q;}
+function doAnalyze(){var v=document.getElementById('lIn').value.trim();if(!v)return;local(v);tryAPI(v);}
+function local(v){var m=matchKB(v);if(!m){set('','#333','— / 100','#333','"'+v+'"','Art.?','Analyse en cours...','Connectez l\'API localhost:8000 pour une analyse complète.','');document.getElementById('rc').className='rc';return;}var c=CO[m.st];set(LB[m.st],c,m.score+' / 100',c,'"'+v+'"',m.art,m.src,m.exp,CL[m.st]);}
+function set(lb,dc,num,nc,q,art,src,exp,cl){document.getElementById('sdot').style.background=dc;document.getElementById('stxt').textContent=lb;document.getElementById('stxt').style.color=dc;document.getElementById('snum').textContent=num;document.getElementById('snum').style.color=nc;document.getElementById('rq').textContent=q;var pct=parseInt(num)||0;document.getElementById('barf').style.width=pct+'%';document.getElementById('barf').style.background=dc;document.getElementById('artag').textContent=art;document.getElementById('artsrc').textContent=src;document.getElementById('rexp').textContent=exp;document.getElementById('rc').className='rc '+(cl||'');}
+function reset(){set('En attente d\'une situation','#333','—','#333','Entrez votre situation ci-dessus ou choisissez un exemple','Art.?','—','L\'analyse juridique apparaîtra ici automatiquement.','');}
+function tryAPI(v){fetch(API+'/analyze-text',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:v,use_llm:true,threshold:0.45})}).then(function(r){return r.json();}).then(function(d){var c=d.compliance||d;var st=c.global_status||'UNKNOWN';var risk=c.risk_score||0;var rag=d.rag_fallback||{};var vio=c.violations||[];var stMap={VIOLATION:'v',WARNING:'w',COMPLIANT:'ok',UNKNOWN:'u',OUT_OF_DOMAIN:'u'};var sm=stMap[st]||'u';var co=CO[sm]||'#555';var lb=LB[sm]||st;var art='Art.?',src='',exp='';if(vio.length){art='Art.'+vio[0].article;src='CDR Loi n°65-5';exp=vio[0].message||'';}else if(rag.articles&&rag.articles.length){art=rag.articles[0];src=rag.law||'';exp=rag.explanation||'';}else if(c.explanations&&c.explanations.length){exp=c.explanations[0]||'';}set(lb,co,risk+' / 100',co,'"'+document.getElementById('lIn').value+'"',art,src,(exp.replace(/[🚨⚠️✅❓ℹ️\[\]]/g,'').trim().substring(0,200)+(exp.length>200?'…':'')),CL[sm]||'');}).catch(function(){});}
+function toggleChat(){var w=document.getElementById('cw');w.classList.toggle('open');document.getElementById('fabb').style.display='none';if(w.classList.contains('open'))document.getElementById('cwi').focus();}
+function cSend(){var inp=document.getElementById('cwi');var v=inp.value.trim();if(!v)return;addMsg('u',v);inp.value='';var tid='t'+Date.now();var msgs=document.getElementById('cwm');var td=document.createElement('div');td.className='cm bot';td.id=tid;td.innerHTML='<div class="cm-av">⚖</div><div class="cbbl"><div class="dots-bbl"><div class="dot-ani"></div><div class="dot-ani"></div><div class="dot-ani"></div></div></div>';msgs.appendChild(td);msgs.scrollTop=msgs.scrollHeight;fetch(API+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:v,use_rag:true})}).then(function(r){return r.json();}).then(function(d){var el=document.getElementById(tid);if(el)el.remove();addMsg('bot',d.answer||'Réponse reçue.');}).catch(function(){var el=document.getElementById(tid);if(el)el.remove();var m=matchKB(v);addMsg('bot',m?'Selon '+m.src+' ('+m.art+'), risque : '+m.score+'/100. '+m.exp:'Connectez l\'API localhost:8000 pour une réponse basée sur le droit tunisien.');});}
+function addMsg(role,text){var msgs=document.getElementById('cwm');var d=document.createElement('div');d.className='cm '+(role==='u'?'u':'bot');var av=document.createElement('div');av.className='cm-av'+(role==='u'?' ua':'');av.textContent=role==='u'?'AB':'⚖';var b=document.createElement('div');b.className='cbbl';b.textContent=text;d.appendChild(av);d.appendChild(b);msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;}
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+function openRapportPre(){document.getElementById('rSit').value=document.getElementById('lIn').value||'';openM('mRapport');}
+function doRapport(){var sit=document.getElementById('rSit').value.trim();var dest=document.getElementById('rDest').value;var email=document.getElementById('rEmail').value.trim();if(!sit){toast('Veuillez décrire la situation juridique.','err');return;}if(!email||!email.includes('@')){toast('Adresse e-mail invalide.','err');return;}closeM('mRapport');toast('Génération du rapport en cours...','');fetch(API+'/generate-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({situation:sit,destinataire:dest,email:email})}).then(function(r){return r.json();}).then(function(d){if(d.success||d.filename){toast('✅ Rapport généré — envoi à '+email,'ok');fetch(API+'/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:email,subject:'Votre rapport juridique Estate Mind',body:'Votre rapport de conformité juridique est disponible.\n\nSituation : '+sit+'\nDestinataire : '+dest,attachment:d.filename||''})}).then(function(r2){return r2.json();}).then(function(e){if(e.success&&!e.simulated)toast('📧 Email envoyé à '+email,'ok');else toast('✅ Rapport téléchargé. Configurez SMTP dans config.py pour activer l\'envoi email.','');}).catch(function(){});} else{toast('⚠️ Erreur génération','err');}}).catch(function(){toast('⚠️ API non connectée — lancez python main.py --step api','err');});}
+function doAlertes(){var email=document.getElementById('aEmail').value.trim();if(!email||!email.includes('@')){toast('Adresse e-mail invalide.','err');return;}closeM('mAlertes');fetch(API+'/configure-alerts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email,cdr_changes:document.getElementById('tg1').classList.contains('on'),catu_changes:document.getElementById('tg2').classList.contains('on'),high_risk:document.getElementById('tg3').classList.contains('on'),new_rules:false})}).then(function(r){return r.json();}).then(function(d){toast('✅ Alertes configurées pour '+email,'ok');}).catch(function(){toast('✅ Alertes enregistrées pour '+email,'ok');});}
+function toast(msg,type){var t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},3500);}
 </script>
 
-<!-- ══════════════════════════════════════════════════════════════ -->
-<!-- SECTION CHATBOT JURIDIQUE                                      -->
-<!-- ══════════════════════════════════════════════════════════════ -->
-<style>
-.chatbot-section {
-  max-width: 900px;
-  margin: 40px auto 20px;
-  padding: 0 20px;
-}
-.chatbot-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
-}
-.chatbot-header h2 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--orange, #F7941D);
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  font-family: var(--cond, 'Barlow Condensed', sans-serif);
-}
-.chatbot-badge {
-  background: var(--orange, #F7941D);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 4px;
-  letter-spacing: .06em;
-}
-.chat-window {
-  background: var(--dark1, #1C1C1C);
-  border: 1px solid var(--border1, #2E2E2E);
-  border-radius: 16px;
-  overflow: hidden;
-}
-.chat-messages {
-  height: 320px;
-  overflow-y: auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.chat-messages::-webkit-scrollbar { width: 4px; }
-.chat-messages::-webkit-scrollbar-thumb { background: var(--border2, #3A3A3A); border-radius: 2px; }
-.msg {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-}
-.msg.user { flex-direction: row-reverse; }
-.msg-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  flex-shrink: 0;
-}
-.msg.bot .msg-avatar  { background: var(--orange, #F7941D); }
-.msg.user .msg-avatar { background: var(--dark3, #2C2C2C); border: 1px solid var(--border2, #3A3A3A); }
-.msg-bubble {
-  max-width: 75%;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 13px;
-  line-height: 1.6;
-}
-.msg.bot  .msg-bubble { background: var(--dark2, #242424); color: var(--gray1, #E0E0E0); border-radius: 4px 12px 12px 12px; }
-.msg.user .msg-bubble { background: var(--orange, #F7941D); color: #fff; border-radius: 12px 4px 12px 12px; }
-.msg-articles {
-  font-size: 11px;
-  color: var(--orange-lt, #FBCB92);
-  margin-top: 6px;
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.art-badge {
-  background: rgba(247,148,29,0.12);
-  border: 1px solid rgba(247,148,29,0.3);
-  border-radius: 4px;
-  padding: 1px 6px;
-  font-size: 10px;
-  color: var(--orange-lt, #FBCB92);
-}
-.chat-input-row {
-  display: flex;
-  gap: 10px;
-  padding: 14px 16px;
-  border-top: 1px solid var(--border1, #2E2E2E);
-  background: var(--dark2, #242424);
-}
-.chat-input {
-  flex: 1;
-  background: var(--dark3, #2C2C2C);
-  border: 1px solid var(--border2, #3A3A3A);
-  border-radius: 10px;
-  padding: 10px 14px;
-  color: var(--gray1, #E0E0E0);
-  font-size: 13px;
-  font-family: inherit;
-  outline: none;
-  transition: border-color .2s;
-}
-.chat-input:focus { border-color: var(--orange, #F7941D); }
-.chat-input::placeholder { color: var(--gray3, #666); }
-.chat-send-btn {
-  background: var(--orange, #F7941D);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity .2s;
-  white-space: nowrap;
-}
-.chat-send-btn:hover { opacity: .85; }
-.chat-send-btn:disabled { opacity: .4; cursor: not-allowed; }
-.chat-typing {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  padding: 8px 0;
-}
-.chat-typing span {
-  width: 6px; height: 6px;
-  background: var(--orange, #F7941D);
-  border-radius: 50%;
-  animation: typing .8s infinite;
-}
-.chat-typing span:nth-child(2) { animation-delay: .15s; }
-.chat-typing span:nth-child(3) { animation-delay: .30s; }
-@keyframes typing { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
-.chat-rag-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: var(--dark3, #2C2C2C);
-  border-top: 1px solid var(--border1, #2E2E2E);
-  font-size: 11px;
-  color: var(--gray2, #AAA);
-}
-.chat-rag-toggle input { cursor: pointer; accent-color: var(--orange, #F7941D); }
-.chat-separator {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 40px 0 24px;
-}
-.chat-separator::before, .chat-separator::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border1, #2E2E2E);
-}
-.rag-fallback-box {
-  border: 1px solid #2E2E2E;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 14px;
-  background: #1A1A1A;
-}
-.rag-source-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 10px;
-  border-radius: 6px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: .06em;
-  margin-bottom: 10px;
-}
-.rag-source-cdr      { background: rgba(247,148,29,.15); color: #F7941D; border: 1px solid rgba(247,148,29,.3); }
-.rag-source-urbanisme{ background: rgba(59,130,246,.15); color: #60A5FA; border: 1px solid rgba(59,130,246,.3); }
-.rag-risk-bar { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
-.rag-risk-num { font-size: 28px; font-weight: 700; }
-.rag-risk-num.high   { color: #EF4444; }
-.rag-risk-num.medium { color: #F59E0B; }
-.rag-risk-num.low    { color: #22C55E; }
-.rag-explanation { font-size: 13px; color: #AAAAAA; line-height: 1.7; margin-top: 10px; }
-.rag-articles { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-.rag-art-badge {
-  background: rgba(255,255,255,.06);
-  border: 1px solid #2E2E2E;
-  border-radius: 5px;
-  padding: 2px 8px;
-  font-size: 10px;
-  color: #888;
-}
-.chat-separator span {
-  font-size: 11px;
-  color: var(--gray3, #666);
-  text-transform: uppercase;
-  letter-spacing: .1em;
-}
-</style>
-
-<div class="chatbot-section">
-  <div class="chat-separator">
-    <span>Chatbot Juridique</span>
-  </div>
-
-  <div class="chatbot-header">
-    <h2>⚖ Assistant Juridique CDR</h2>
-    <span class="chatbot-badge">Mistral 7B · CDR + CATU</span>
-  </div>
-
-  <div class="chat-window">
-    <!-- Messages -->
-    <div class="chat-messages" id="chatMessages">
-      <!-- Message de bienvenue -->
-      <div class="msg bot">
-        <div class="msg-avatar">⚖</div>
+<!-- MODAL SUCCÈS RAPPORT -->
+<div class="mo" id="mSucces">
+  <div class="mb" style="text-align:center">
+    <div style="width:56px;height:56px;border-radius:50%;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:26px">✅</div>
+    <div class="mb-tit" style="text-align:center">Rapport généré avec succès</div>
+    <div class="mb-sub" style="text-align:center;margin-top:6px" id="ps-sub"></div>
+    <div style="background:var(--d3);border:1px solid var(--b1);border-radius:var(--r2);padding:14px;margin:16px 0;text-align:left">
+      <div style="font-size:11px;color:var(--g3);margin-bottom:6px">Résumé de l'analyse</div>
+      <div id="ps-situation" style="font-size:12px;color:var(--g1);font-style:italic;margin-bottom:8px"></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div id="ps-score" style="font-size:22px;font-weight:700"></div>
         <div>
-          <div class="msg-bubble">
-            Bonjour ! Je suis votre assistant juridique spécialisé dans le Code des Droits Réels tunisien (Loi n°65-5). Posez-moi vos questions sur la propriété, les baux, les hypothèques, les servitudes ou tout autre droit réel immobilier tunisien.
-          </div>
-          <div class="msg-articles">
-            <span class="art-badge">CDR — Loi n°65-5</span>
-            <span class="art-badge">66 règles disponibles</span>
-          </div>
+          <div id="ps-status" style="font-size:12px;font-weight:600"></div>
+          <div id="ps-file" style="font-size:10px;color:var(--g4);margin-top:2px"></div>
         </div>
       </div>
     </div>
-
-    <!-- RAG toggle -->
-    <div class="chat-rag-toggle">
-      <input type="checkbox" id="ragToggle" checked>
-      <label for="ragToggle">Activer la recherche dans les textes juridiques (RAG)</label>
-    </div>
-
-    <!-- Input -->
-    <div class="chat-input-row">
-      <input
-        type="text"
-        class="chat-input"
-        id="chatInput"
-        placeholder="Ex : Est-ce que je peux sous-louer mon appartement ?"
-        onkeydown="if(event.key==='Enter')sendChat()"
-      >
-      <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()">
-        Envoyer ›
-      </button>
-    </div>
-  </div>
-
-  <!-- Suggestions rapides -->
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-    <button onclick="setChat('Quels sont les droits de l\'usufruitier ?')" style="background:var(--dark2,#242424);border:1px solid var(--border2,#3A3A3A);border-radius:8px;padding:6px 12px;color:var(--gray2,#AAA);font-size:12px;cursor:pointer;">
-      Droits de l'usufruitier
-    </button>
-    <button onclick="setChat('Comment fonctionne le gage en droit tunisien ?')" style="background:var(--dark2,#242424);border:1px solid var(--border2,#3A3A3A);border-radius:8px;padding:6px 12px;color:var(--gray2,#AAA);font-size:12px;cursor:pointer;">
-      Le gage
-    </button>
-    <button onclick="setChat('Puis-je vendre mon bien sans notaire ?')" style="background:var(--dark2,#242424);border:1px solid var(--border2,#3A3A3A);border-radius:8px;padding:6px 12px;color:var(--gray2,#AAA);font-size:12px;cursor:pointer;">
-      Vente sans notaire
-    </button>
-    <button onclick="setChat('Qu\'est-ce que l\'emphytéose ?')" style="background:var(--dark2,#242424);border:1px solid var(--border2,#3A3A3A);border-radius:8px;padding:6px 12px;color:var(--gray2,#AAA);font-size:12px;cursor:pointer;">
-      L'emphytéose
-    </button>
-    <button onclick="setChat('Quelles sont les conditions pour exproprier un bien ?')" style="background:var(--dark2,#242424);border:1px solid var(--border2,#3A3A3A);border-radius:8px;padding:6px 12px;color:var(--gray2,#AAA);font-size:12px;cursor:pointer;">
-      Expropriation
-    </button>
+    <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:var(--r2);padding:10px 14px;font-size:12px;color:#86efac;margin-bottom:16px" id="ps-email"></div>
+    <button class="btn-ok" style="width:100%" onclick="closeM('mSucces')">Fermer</button>
   </div>
 </div>
 
 <script>
-// ── Chatbot JS ─────────────────────────────────────────────────────────────
-
-function setChat(q) {
-  document.getElementById('chatInput').value = q;
-  document.getElementById('chatInput').focus();
-}
-
-function addMsg(role, text, articles) {
-  const container = document.getElementById('chatMessages');
-  const isBot = role === 'bot';
-
-  const div = document.createElement('div');
-  div.className = 'msg ' + role;
-
-  const avatar = document.createElement('div');
-  avatar.className = 'msg-avatar';
-  avatar.textContent = isBot ? '⚖' : '👤';
-
-  const inner = document.createElement('div');
-
-  const bubble = document.createElement('div');
-  bubble.className = 'msg-bubble';
-  bubble.textContent = text;
-  inner.appendChild(bubble);
-
-  if (isBot && articles && articles.length > 0) {
-    const arts = document.createElement('div');
-    arts.className = 'msg-articles';
-    articles.forEach(function(a) {
-      const badge = document.createElement('span');
-      badge.className = 'art-badge';
-      badge.textContent = 'Art.' + a.article + ' — ' + a.status;
-      arts.appendChild(badge);
-    });
-    inner.appendChild(arts);
-  }
-
-  div.appendChild(avatar);
-  div.appendChild(inner);
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-}
-
-function addTyping() {
-  const container = document.getElementById('chatMessages');
-  const div = document.createElement('div');
-  div.className = 'msg bot';
-  div.id = 'typingIndicator';
-
-  const avatar = document.createElement('div');
-  avatar.className = 'msg-avatar';
-  avatar.textContent = '⚖';
-
-  const typing = document.createElement('div');
-  typing.className = 'chat-typing';
-  typing.innerHTML = '<span></span><span></span><span></span>';
-
-  div.appendChild(avatar);
-  div.appendChild(typing);
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-  return div;
-}
-
-function removeTyping() {
-  const el = document.getElementById('typingIndicator');
-  if (el) el.remove();
-}
-
-function renderRagFallback(rag) {
-  if (!rag || !rag.used) return null;
-
-  const box = document.createElement('div');
-  box.className = 'rag-fallback-box';
-
-  // Source badge
-  const isUrba = rag.source === 'URBANISME';
-  const badge  = document.createElement('span');
-  badge.className = 'rag-source-badge ' + (isUrba ? 'rag-source-urbanisme' : 'rag-source-cdr');
-  badge.textContent = (isUrba ? '🏗 ' : '⚖ ') + rag.law;
-  box.appendChild(badge);
-
-  // Risk score
-  if (rag.risk_score > 0) {
-    const riskRow = document.createElement('div');
-    riskRow.className = 'rag-risk-bar';
-    const num = document.createElement('span');
-    num.className = 'rag-risk-num ' + (rag.risk_level||'low').toLowerCase();
-    num.textContent = rag.risk_score;
-    const lbl = document.createElement('span');
-    lbl.style.cssText = 'font-size:12px;color:#666';
-    lbl.textContent = '/ 100 — Risque ' + (rag.risk_level || 'LOW');
-    riskRow.appendChild(num);
-    riskRow.appendChild(lbl);
-    box.appendChild(riskRow);
-  }
-
-  // Articles
-  if (rag.articles && rag.articles.length) {
-    const arts = document.createElement('div');
-    arts.className = 'rag-articles';
-    rag.articles.forEach(function(a) {
-      const b = document.createElement('span');
-      b.className = 'rag-art-badge';
-      b.textContent = a;
-      arts.appendChild(b);
-    });
-    box.appendChild(arts);
-  }
-
-  // Explication chatbot
-  if (rag.explanation) {
-    const exp = document.createElement('div');
-    exp.className = 'rag-explanation';
-    exp.textContent = rag.explanation;
-    box.appendChild(exp);
-  }
-
-  return box;
-}
-
-function sendChat() {
-  const input   = document.getElementById('chatInput');
-  const btn     = document.getElementById('chatSendBtn');
-  const useRag  = document.getElementById('ragToggle').checked;
-  const question = input.value.trim();
-
-  if (!question) return;
-
-  // Afficher la question user
-  addMsg('user', question);
-  input.value = '';
-  btn.disabled = true;
-
-  // Indicateur de frappe
-  const typing = addTyping();
-
-  fetch('http://localhost:8000/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question: question, use_rag: useRag })
-  })
-  .then(function(r) {
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
-  })
-  .then(function(data) {
-    removeTyping();
-    if (data.error) {
-      addMsg('bot', 'Erreur : ' + data.error, []);
-    } else {
-      addMsg('bot', data.answer, data.rules_used || []);
-    }
-  })
-  .catch(function(err) {
-    removeTyping();
-    addMsg('bot', "Impossible de contacter l'API. Vérifiez que le serveur est lancé sur le port 8000.", []);
-  })
-  .finally(function() {
-    btn.disabled = false;
-    input.focus();
-  });
+function showSuccessPopup(sit, email, filename, risk, status){
+  var colors={VIOLATION:'#E24B4A',WARNING:'#F59E0B',COMPLIANT:'#22C55E',UNKNOWN:'#888'};
+  var labels={VIOLATION:'Violation détectée',WARNING:'Conditions à vérifier',COMPLIANT:'Conforme',UNKNOWN:'Indéterminé'};
+  var co = colors[status]||'#888';
+  var lb = labels[status]||status;
+  document.getElementById('ps-sub').textContent = 'Le rapport PDF a été généré et envoyé à votre adresse e-mail.';
+  document.getElementById('ps-situation').textContent = '"' + sit + '"';
+  document.getElementById('ps-score').textContent = risk + ' / 100';
+  document.getElementById('ps-score').style.color = co;
+  document.getElementById('ps-status').textContent = lb;
+  document.getElementById('ps-status').style.color = co;
+  document.getElementById('ps-file').textContent = filename;
+  document.getElementById('ps-email').innerHTML = '📧 Rapport envoyé à <strong>' + email + '</strong>';
+  openM('mSucces');
 }
 </script>
-
 </body>
 </html>
