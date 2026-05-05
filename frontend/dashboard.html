@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Estate Mind</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <style>
+    /* ── BO3 layout ───────────────────────────────────── */
+    .bo3-kpis {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 18px;
+    }
+    .bo3-layout {
+      display: grid; grid-template-columns: 310px 1fr; gap: 18px; align-items: start;
+    }
+    .bo3-controls { display: flex; flex-direction: column; gap: 14px; }
+    .bo3-panel { min-height: unset !important; padding: 20px; }
+    .bo3-panel .panel-head { margin-bottom: 14px; }
+    .bo3-panel .panel-head h3 { font-size: 15px; }
+
+    /* ── Form elements ─────────────────────────────────── */
+    .bo3-label {
+      font-size: 11px; font-weight: 800; color: #6e7a8a;
+      text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: 5px;
+    }
+    .bo3-field { margin-bottom: 11px; }
+    .bo3-input, .bo3-select {
+      width: 100%; height: 40px; border: 1px solid #e6eaf0; border-radius: 12px;
+      padding: 0 12px; font-size: 13px; font-weight: 700;
+      background: #fbf8f2; color: #0b1d33; outline: none;
+      font-family: Inter, sans-serif; appearance: none; transition: border-color .2s;
+    }
+    .bo3-input:focus, .bo3-select:focus { border-color: #ff9a4b; }
+    .bo3-order-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 11px; }
+    .bo3-order-item label { font-size: 10px; color: #8390a0; font-weight: 800; display: block; margin-bottom: 3px; }
+    .bo3-order-item input {
+      width: 100%; height: 34px; border: 1px solid #e6eaf0; border-radius: 10px;
+      text-align: center; font-size: 13px; font-weight: 700;
+      background: #fbf8f2; font-family: 'Courier New', monospace; outline: none;
+    }
+    .bo3-order-item input:focus { border-color: #ff9a4b; }
+    .bo3-range-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .bo3-range { width: 100%; accent-color: #ff9a4b; margin-bottom: 11px; cursor: pointer; }
+    .bo3-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* ── Buttons ───────────────────────────────────────── */
+    .bo3-btn {
+      width: 100%; height: 46px; border: 0; border-radius: 14px;
+      background: linear-gradient(135deg, #ff9a4b, #ff7b35);
+      color: white; font-size: 14px; font-weight: 900; cursor: pointer;
+      transition: .2s; box-shadow: 0 10px 25px rgba(255,154,75,.22);
+    }
+    .bo3-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(255,154,75,.3); }
+    .bo3-btn:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+    .bo3-btn-green { background: linear-gradient(135deg, #2f9c7e, #1e7a60); box-shadow: 0 10px 25px rgba(47,156,126,.22); }
+    .bo3-btn-sm { height: 34px; padding: 0 14px; font-size: 12px; width: auto; }
+
+    /* ── Results area ─────────────────────────────────── */
+    .bo3-results { display: flex; flex-direction: column; gap: 16px; }
+    .bo3-chart-wrapper { position: relative; }
+    .bo3-load {
+      display: none; position: absolute; inset: 0; z-index: 5;
+      background: rgba(251,248,242,.92); backdrop-filter: blur(4px);
+      border-radius: 26px; align-items: center; justify-content: center; flex-direction: column; gap: 14px;
+    }
+    .bo3-load.active { display: flex; }
+    .bo3-spinner {
+      width: 30px; height: 30px; border: 3px solid #e6eaf0;
+      border-top-color: #ff9a4b; border-radius: 50%; animation: bo3spin .7s linear infinite;
+    }
+    @keyframes bo3spin { to { transform: rotate(360deg); } }
+
+    /* ── Metrics / table / info ───────────────────────── */
+    .bo3-metrics { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 12px; }
+    .bo3-metric { font-size: 12px; color: #6e7a8a; font-weight: 700; }
+    .bo3-metric strong { color: #0b1d33; font-family: 'Courier New', monospace; font-size: 12px; }
+    .bo3-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .bo3-table th { padding: 9px 10px; text-align: left; color: #6e7a8a; font-weight: 800; font-size: 11px; border-bottom: 2px solid #e6eaf0; }
+    .bo3-table td { padding: 8px 10px; border-bottom: 1px solid #f0f3f7; font-weight: 700; }
+    .bo3-table td.mono { font-family: 'Courier New', monospace; font-size: 11px; color: #4d5868; }
+    .bo3-table td.dim { font-size: 11px; color: #8390a0; }
+    .bo3-table tr:last-child td { border-bottom: 0; }
+    .bo3-info {
+      background: linear-gradient(135deg, rgba(47,156,126,.07), rgba(255,154,75,.05));
+      border: 1px solid rgba(47,156,126,.18); border-radius: 14px;
+      padding: 13px 15px; font-size: 13px; font-weight: 700; color: #264153; line-height: 1.6;
+    }
+    .bo3-sub-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ── Placeholder ─────────────────────────────────── */
+    .bo3-placeholder {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 300px; text-align: center; gap: 12px; color: #8390a0;
+    }
+    .bo3-placeholder .icon { font-size: 44px; }
+    .bo3-placeholder strong { font-size: 17px; color: #0b1d33; font-weight: 900; }
+    .bo3-placeholder p { font-size: 13px; font-weight: 700; max-width: 290px; line-height: 1.6; }
+
+    /* ── Train notice ────────────────────────────────── */
+    .bo3-train-notice {
+      background: rgba(255,154,75,.08); border: 1px solid rgba(255,154,75,.25);
+      border-radius: 13px; padding: 12px 14px;
+      display: none; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 700; color: #7a4010; margin-bottom: 11px;
+    }
+    .bo3-train-notice.visible { display: flex; }
+
+    /* ── Estimation result ────────────────────────────── */
+    .bo3-estim-hero {
+      background: #071d33; border-radius: 22px; padding: 22px 24px; color: white; margin-bottom: 14px;
+    }
+    .bo3-estim-price { font-size: 38px; font-weight: 900; color: #ff9a4b; letter-spacing: -.03em; line-height: 1; }
+    .bo3-conf-bg { height: 5px; background: rgba(255,255,255,.12); border-radius: 3px; margin-top: 6px; }
+    .bo3-conf-fill { height: 5px; border-radius: 3px; background: #ff9a4b; transition: width .5s; }
+    .bo3-mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+    .bo3-mini-stat {
+      background: rgba(255,255,255,.82); backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,.95); border-radius: 16px; padding: 13px 14px;
+      box-shadow: 0 8px 24px rgba(7,29,51,.06);
+    }
+    .bo3-mini-stat .ms-label { font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: #6e7a8a; font-weight: 800; }
+    .bo3-mini-stat .ms-value { font-size: 18px; font-weight: 900; margin-top: 4px; color: #0b1d33; }
+
+    /* ── BO3 conseils IA ─────────────────────────────── */
+    .bo3-tips-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px;
+    }
+    .bo3-tip {
+      background: rgba(255,255,255,.82); backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,.95); border-radius: 18px;
+      border-left: 4px solid #ff9a4b;
+      padding: 16px 18px;
+      box-shadow: 0 8px 24px rgba(7,29,51,.06);
+    }
+    .bo3-tip-title { font-size: 13px; font-weight: 900; color: #0b1d33; margin-bottom: 6px; }
+    .bo3-tip-body  { font-size: 12px; color: #4d5868; line-height: 1.6; font-weight: 600; }
+    @media(max-width:1100px) { .bo3-tips-grid { grid-template-columns: 1fr; } }
+
+    /* ── BO3 description box ─────────────────────────── */
+    .bo3-desc {
+      margin-top: 16px;
+      background: linear-gradient(135deg, rgba(47,156,126,.06), rgba(255,154,75,.04));
+      border: 1px solid rgba(47,156,126,.15);
+      border-radius: 16px;
+      padding: 16px 18px;
+    }
+    .bo3-desc-title {
+      font-size: 13px; font-weight: 900; color: #0b1d33; margin-bottom: 8px;
+    }
+    .bo3-desc p {
+      font-size: 12px; color: #4d5868; line-height: 1.6; margin-bottom: 10px; font-weight: 600;
+    }
+    .bo3-desc ul {
+      list-style: none; display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px;
+    }
+    .bo3-desc ul li {
+      font-size: 12px; color: #4d5868; line-height: 1.5; font-weight: 600;
+    }
+    .bo3-desc-result {
+      font-size: 12px; font-weight: 800; color: #1e7a60;
+      background: rgba(47,156,126,.1); border-radius: 10px; padding: 9px 12px;
+    }
+
+    /* ── BO3 internal navbar ─────────────────────────── */
+    .bo3-nav {
+      display: flex; gap: 10px; margin-bottom: 20px; padding: 7px;
+      background: rgba(255,255,255,.68); border: 1px solid rgba(255,255,255,.9);
+      border-radius: 20px; width: max-content;
+    }
+    .bo3-nav button {
+      border: 0; border-radius: 14px; padding: 11px 22px;
+      background: transparent; font-weight: 900; color: #6e7a8a;
+      cursor: pointer; font-size: 14px; transition: .2s; font-family: Inter, sans-serif;
+    }
+    .bo3-nav button.active {
+      background: #071d33; color: white; box-shadow: 0 8px 22px rgba(7,29,51,.18);
+    }
+    .bo3-nav button:not(.active):hover { background: rgba(7,29,51,.06); color: #0b1d33; }
+
+    /* ── Other BOs placeholder ───────────────────────── */
+    .page-coming {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 480px; text-align: center; gap: 16px;
+    }
+    .page-coming .icon { font-size: 52px; }
+    .page-coming .tag {
+      background: rgba(47,156,126,.1); color: #1e7a60; border-radius: 999px;
+      padding: 7px 16px; font-size: 12px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase;
+    }
+    .page-coming h2 { font-size: 28px; font-weight: 900; letter-spacing: -.04em; }
+    .page-coming p { color: #6e7a8a; font-weight: 700; max-width: 380px; line-height: 1.7; font-size: 14px; }
+
+    /* ── Toast ───────────────────────────────────────── */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 9999; }
+    .toast {
+      background: #071d33; color: white; padding: 12px 18px; border-radius: 14px;
+      font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 8px 28px rgba(7,29,51,.2); animation: toastSlide .3s ease; max-width: 320px;
+    }
+    .toast.success { border-left: 3px solid #2f9c7e; }
+    .toast.error   { border-left: 3px solid #cc3b25; }
+    .toast.info    { border-left: 3px solid #ff9a4b; }
+    @keyframes toastSlide { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* ── Responsive ──────────────────────────────────── */
+    @media(max-width:1280px) {
+      .bo3-layout { grid-template-columns: 280px 1fr; }
+    }
+    @media(max-width:1100px) {
+      .bo3-kpis  { grid-template-columns: repeat(2, 1fr); }
+      .bo3-layout { grid-template-columns: 1fr; }
+      .bo3-sub-grid { grid-template-columns: 1fr; }
+      .bo3-mini-stats { grid-template-columns: 1fr 1fr; }
+    }
+    @media(max-width:720px) {
+      .bo3-mini-stats { grid-template-columns: 1fr; }
+      .bo3-grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="dash-body">
+  <aside class="dash-sidebar" id="sidebar">
+    <div class="dash-brand">
+      <span class="logo-mark">⌂</span>
+      <strong>Estate Mind</strong>
+    </div>
+
+    <button class="collapse-btn" onclick="document.body.classList.toggle('sidebar-collapsed')">☰</button>
+
+    <nav class="dash-nav">
+      <a class="active" onclick="setPage('BO 1 — Intelligence des annonces', this, 'page-bo1')">🔎 <span>BO 1 · Annonces</span></a>
+      <a onclick="setPage('BO 2 — Intelligence territoriale', this, 'page-other')">🗺️ <span>BO 2 · Territoires</span></a>
+      <a onclick="setPage('BO 3 — Prévision marché', this, 'page-bo3')">📈 <span>Prévisions</span></a>
+      <a onclick="setPage('BO 4 — Réglementaire', this, 'page-other')">⚖️ <span>BO 4 · Réglementaire</span></a>
+      <a onclick="setPage('BO 5 — Clients & vendeurs', this, 'page-other')">👥 <span>BO 5 · CRM</span></a>
+      <a onclick="setPage('BO 6 — Rapports IA', this, 'page-other')">📊 <span>BO 6 · Rapports</span></a>
+    </nav>
+
+    <div class="sidebar-card">
+      <img src="assets/avatar-advisor.png" alt="">
+      <p>Besoin d'un insight rapide ?</p>
+      <button>Demander à l'IA</button>
+    </div>
+  </aside>
+
+  <main class="dash-main">
+    <header class="dash-header">
+      <div>
+        <span class="eyebrow">Dashboard intelligent</span>
+        <h1 id="pageTitle">BO 1 — Intelligence des annonces</h1>
+      </div>
+      <div class="header-actions">
+        <div class="dash-search">🔍 <input placeholder="Rechercher une annonce, ville, score..." /></div>
+        <button class="icon-btn">🔔</button>
+        <div class="profile">
+          <img src="assets/avatar-director.png" alt="">
+          <span>Admin</span>
+          <b>⌄</b>
+        </div>
+      </div>
+    </header>
+
+    <!-- ══════════════════════════════════════════
+         BO 1 — Intelligence des annonces
+    ══════════════════════════════════════════ -->
+    <div id="page-bo1" class="dash-content">
+      <section class="dash-tabs">
+        <button class="active" onclick="setTab(this, 'overview')">Vue globale</button>
+        <button onclick="setTab(this, 'map')">Carte</button>
+        <button onclick="setTab(this, 'models')">Modèles IA</button>
+        <button onclick="setTab(this, 'data')">Données</button>
+        <button onclick="setTab(this, 'alerts')">Alertes</button>
+      </section>
+
+      <section class="dash-grid" id="tabContent">
+        <article class="kpi-card">
+          <span>Score moyen</span>
+          <strong>87%</strong>
+          <small>+8.4% cette semaine</small>
+        </article>
+        <article class="kpi-card">
+          <span>Annonces analysées</span>
+          <strong>8,240</strong>
+          <small>4 sources connectées</small>
+        </article>
+        <article class="kpi-card">
+          <span>Doublons détectés</span>
+          <strong>312</strong>
+          <small>Exact + fuzzy + sémantique</small>
+        </article>
+        <article class="kpi-card">
+          <span>Zones émergentes</span>
+          <strong>8</strong>
+          <small>Signal fort marché</small>
+        </article>
+
+        <article class="panel big">
+          <div class="panel-head">
+            <h3>Carte intelligente du marché</h3>
+            <select><option>Tunis</option><option>Sousse</option><option>Ariana</option></select>
+          </div>
+          <div class="map-mock">
+            <span class="pin p1"></span><span class="pin p2"></span><span class="pin p3"></span><span class="pin p4"></span>
+            <div class="map-card"><strong>Lac 2</strong><br>Prix +14% · Forte demande</div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head"><h3>Évolution des prix</h3><button>Exporter</button></div>
+          <div class="line-chart"><i></i></div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head"><h3>Répartition des sources</h3></div>
+          <div class="donut"></div>
+          <ul class="legend"><li>Tayara</li><li>Mubawab</li><li>Remax</li><li>Tecnocasa</li></ul>
+        </article>
+
+        <article class="panel table-panel">
+          <div class="panel-head">
+            <h3>Dernières annonces suspectes</h3>
+            <button>Voir tout</button>
+          </div>
+          <table>
+            <thead><tr><th>Bien</th><th>Ville</th><th>Score</th><th>Risque</th></tr></thead>
+            <tbody>
+              <tr><td>Appartement S+2</td><td>Ariana</td><td>42%</td><td><span class="risk high">Élevé</span></td></tr>
+              <tr><td>Villa moderne</td><td>La Marsa</td><td>58%</td><td><span class="risk mid">Moyen</span></td></tr>
+              <tr><td>Studio centre</td><td>Tunis</td><td>76%</td><td><span class="risk low">Faible</span></td></tr>
+            </tbody>
+          </table>
+        </article>
+      </section>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         BO 3 — Prévision marché
+    ══════════════════════════════════════════ -->
+    <div id="page-bo3" class="dash-content" style="display:none">
+
+      <!-- KPI row -->
+      <div class="bo3-kpis">
+        <article class="kpi-card">
+          <span>Horizon prévision</span>
+          <strong id="bo3KpiHorizon">6 trim.</strong>
+          <small>Configurable 2–12</small>
+        </article>
+        <article class="kpi-card">
+          <span>R² Random Forest</span>
+          <strong id="bo3KpiR2">—</strong>
+          <small id="bo3KpiR2Hint">Chargement API…</small>
+        </article>
+        <article class="kpi-card">
+          <span>Croissance prévue</span>
+          <strong id="bo3KpiGrowth" style="color:#2f9c7e">—</strong>
+          <small id="bo3KpiGovt">Lancez l'analyse SARIMA</small>
+        </article>
+        <article class="kpi-card">
+          <span>Données historiques</span>
+          <strong>2015–2025</strong>
+          <small>40 trimestres · 24 gouv.</small>
+        </article>
+      </div>
+
+      <!-- Internal navbar -->
+      <div class="bo3-nav">
+        <button type="button" class="active" onclick="setBo3Tab('sarima', this)">📈 Prévision SARIMA</button>
+        <button type="button" onclick="setBo3Tab('estim', this)">🏠 Estimation de prix</button>
+      </div>
+
+      <!-- ── VIEW: Prévision SARIMA ── -->
+      <div id="bo3-view-sarima" class="bo3-view">
+        <div class="bo3-layout">
+
+          <!-- Controls -->
+          <div class="bo3-controls">
+            <article class="panel bo3-panel">
+              <div class="bo3-field">
+                <label class="bo3-label">Gouvernorat</label>
+                <select id="bo3Gouvernorat" class="bo3-select">
+                  <option value="">Chargement…</option>
+                </select>
+              </div>
+              <div class="bo3-field">
+                <label class="bo3-label">Variable cible</label>
+                <select id="bo3Variable" class="bo3-select">
+                  <option value="PRIX_M2_MEDIAN">Prix médian</option>
+                  <option value="PRIX_M2_APPT">Prix appartement</option>
+                  <option value="PRIX_M2_MAISON">Prix maison</option>
+                  <option value="PRIX_M2_TERRAIN">Prix terrain</option>
+                  <option value="IPIM_REGIONAL">IPIM régional</option>
+                </select>
+              </div>
+              <div class="bo3-field">
+                <div class="bo3-range-row">
+                  <label class="bo3-label" style="margin:0">Horizon (trimestres)</label>
+                  <strong id="bo3HorizonVal" style="color:#ff9a4b;font-size:15px">6</strong>
+                </div>
+                <input type="range" id="bo3Horizon" class="bo3-range" min="2" max="12" value="6"
+                  oninput="document.getElementById('bo3HorizonVal').textContent=this.value;document.getElementById('bo3KpiHorizon').textContent=this.value+' trim.'">
+              </div>
+              <div class="bo3-field">
+                <label class="bo3-label">Ordre non-saisonnier (p, d, q)</label>
+                <div class="bo3-order-grid">
+                  <div class="bo3-order-item"><label>p</label><input type="number" id="bo3p" value="1" min="0" max="5"></div>
+                  <div class="bo3-order-item"><label>d</label><input type="number" id="bo3d" value="1" min="0" max="2"></div>
+                  <div class="bo3-order-item"><label>q</label><input type="number" id="bo3q" value="1" min="0" max="5"></div>
+                </div>
+              </div>
+              <div class="bo3-field">
+                <label class="bo3-label">Ordre saisonnier (P, D, Q) s=4</label>
+                <div class="bo3-order-grid">
+                  <div class="bo3-order-item"><label>P</label><input type="number" id="bo3P" value="1" min="0" max="2"></div>
+                  <div class="bo3-order-item"><label>D</label><input type="number" id="bo3D" value="1" min="0" max="2"></div>
+                  <div class="bo3-order-item"><label>Q</label><input type="number" id="bo3Q" value="0" min="0" max="2"></div>
+                </div>
+              </div>
+              <button id="bo3BtnSarima" class="bo3-btn" onclick="runBO3Sarima()">▶ Lancer l'analyse SARIMA</button>
+
+              <div class="bo3-desc">
+                <div class="bo3-desc-title">💡 Comment ça fonctionne ?</div>
+                <p>Ce modèle analyse <strong>10 ans de données trimestrielles</strong> sur les prix immobiliers en Tunisie et prédit leur évolution future.</p>
+                <ul>
+                  <li>📍 <strong>Gouvernorat</strong> : la région que vous voulez analyser</li>
+                  <li>🏷️ <strong>Variable</strong> : le type de bien (appartement, maison…)</li>
+                  <li>📅 <strong>Horizon</strong> : combien de trimestres dans le futur</li>
+                  <li>⚙️ <strong>Ordres</strong> : laissez les valeurs par défaut si vous n'êtes pas sûr</li>
+                </ul>
+                <div class="bo3-desc-result">Le graphique montrera la tendance passée et une prévision avec une fourchette de confiance à 95%.</div>
+              </div>
+            </article>
+          </div>
+
+          <!-- SARIMA results -->
+          <div class="bo3-results">
+            <article class="panel bo3-chart-wrapper">
+              <div class="bo3-load" id="bo3ChartLoad">
+                <div class="bo3-spinner"></div>
+                <span style="font-size:13px;color:#6e7a8a;font-weight:700">Ajustement SARIMA en cours…</span>
+              </div>
+              <div class="bo3-placeholder" id="bo3SarimaPlaceholder">
+                <span class="icon">📈</span>
+                <strong>Prévision SARIMA</strong>
+                <p>Sélectionnez un gouvernorat et cliquez sur <em>Lancer l'analyse</em> pour visualiser la prévision des prix au m².</p>
+              </div>
+              <div id="bo3ChartArea" style="display:none">
+                <h3 style="font-size:17px;font-weight:900;margin-bottom:10px">Série temporelle &amp; Prévision</h3>
+                <div class="bo3-metrics" id="bo3MetricsBar"></div>
+                <div id="bo3ChartForecast" style="height:360px"></div>
+              </div>
+            </article>
+            <div class="bo3-sub-grid" id="bo3SubGrid" style="display:none">
+              <article class="panel">
+                <div class="panel-head"><h3>Résidus du modèle</h3></div>
+                <div id="bo3ChartResiduals" style="height:200px"></div>
+              </article>
+              <article class="panel" style="overflow:auto;max-height:285px">
+                <div class="panel-head"><h3>Tableau des prévisions</h3></div>
+                <div id="bo3ForecastTable"></div>
+              </article>
+            </div>
+            <div class="bo3-info" id="bo3SarimaInfo" style="display:none"></div>
+          </div>
+
+        </div>
+      </div><!-- #bo3-view-sarima -->
+
+      <!-- ── VIEW: Estimation de prix ── -->
+      <div id="bo3-view-estim" class="bo3-view" style="display:none">
+        <div class="bo3-layout">
+
+          <!-- Form -->
+          <div class="bo3-controls">
+            <article class="panel bo3-panel">
+              <div id="bo3TrainNotice" class="bo3-train-notice">
+                ⚙️ Modèle ML non entraîné.
+                <button class="bo3-btn bo3-btn-green bo3-btn-sm" onclick="trainMLBO3(this)">Entraîner</button>
+              </div>
+              <div class="bo3-field">
+                <label class="bo3-label">Ville</label>
+                <select id="bo3City" class="bo3-select">
+                  <option value="">Chargement…</option>
+                </select>
+              </div>
+              <div class="bo3-grid-2">
+                <div class="bo3-field">
+                  <label class="bo3-label">Surface (m²)</label>
+                  <input type="number" id="bo3Surface" class="bo3-input" value="110" min="20" max="800">
+                </div>
+                <div class="bo3-field">
+                  <label class="bo3-label">Chambres</label>
+                  <input type="number" id="bo3Bedrooms" class="bo3-input" value="2" min="0" max="10">
+                </div>
+                <div class="bo3-field">
+                  <label class="bo3-label">Salles de bain</label>
+                  <input type="number" id="bo3Bathrooms" class="bo3-input" value="1" min="0" max="10">
+                </div>
+                <div class="bo3-field">
+                  <label class="bo3-label">Étage (0 = RDC)</label>
+                  <input type="number" id="bo3Etage" class="bo3-input" value="2" min="0" max="20">
+                </div>
+              </div>
+              <div class="bo3-field">
+                <div class="bo3-range-row">
+                  <label class="bo3-label" style="margin:0">Équipements</label>
+                  <span><strong id="bo3EqVal" style="color:#ff9a4b;font-size:15px">5</strong><span style="font-size:11px;color:#8390a0">/10</span></span>
+                </div>
+                <input type="range" id="bo3Equipment" class="bo3-range" min="0" max="10" value="5"
+                  oninput="document.getElementById('bo3EqVal').textContent=this.value">
+              </div>
+              <div class="bo3-field">
+                <label class="bo3-label">Budget max (TND) — optionnel</label>
+                <input type="number" id="bo3Budget" class="bo3-input" value="400000">
+              </div>
+              <button id="bo3BtnEstim" class="bo3-btn bo3-btn-green" onclick="runBO3Estimation()">🔍 Estimer le prix</button>
+
+              <div class="bo3-desc">
+                <div class="bo3-desc-title">💡 Comment ça fonctionne ?</div>
+                <p>Un modèle d'<strong>intelligence artificielle</strong> entraîné sur plus de <strong>10 000 annonces</strong> tunisiennes calcule le prix juste de votre bien.</p>
+                <ul>
+                  <li>🏙️ <strong>Ville</strong> : où se situe le bien</li>
+                  <li>📐 <strong>Surface & pièces</strong> : les caractéristiques physiques</li>
+                  <li>⭐ <strong>Équipements</strong> : 0 = aucun équipement, 10 = tout inclus (clim, parking…)</li>
+                  <li>💰 <strong>Budget</strong> : optionnel, pour savoir si le prix est dans votre fourchette</li>
+                </ul>
+                <div class="bo3-desc-result">Vous obtiendrez un prix estimé, une fourchette de confiance et une comparaison avec le marché local.</div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Estimation results -->
+          <div class="bo3-results">
+            <div id="bo3EstimPlaceholder" class="panel">
+              <div class="bo3-placeholder">
+                <span class="icon">🏠</span>
+                <strong>Estimation de prix</strong>
+                <p>Remplissez le formulaire et cliquez sur <em>Estimer le prix</em> pour obtenir une estimation IA.</p>
+              </div>
+            </div>
+            <div id="bo3EstimPanel" style="display:none">
+              <div class="bo3-estim-hero">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px">
+                  <div>
+                    <div style="font-size:11px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Estimation IA · Random Forest</div>
+                    <div class="bo3-estim-price" id="bo3RPrice">—</div>
+                    <div style="font-size:13px;color:rgba(255,255,255,.35);margin-top:3px">TND</div>
+                    <div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:7px" id="bo3RCI">—</div>
+                  </div>
+                  <div style="text-align:right">
+                    <div style="font-size:18px;font-weight:900;color:rgba(255,154,75,.75)" id="bo3RPPM2">—</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:3px">prix au m²</div>
+                    <div style="margin-top:10px"><span id="bo3RBadge" style="padding:5px 10px;border-radius:999px;font-size:12px;font-weight:900"></span></div>
+                  </div>
+                </div>
+                <div style="margin-top:14px">
+                  <div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.4);margin-bottom:4px">
+                    <span>Confiance</span><span id="bo3RConf">—</span>
+                  </div>
+                  <div class="bo3-conf-bg"><div class="bo3-conf-fill" id="bo3RConfBar" style="width:0%"></div></div>
+                </div>
+              </div>
+              <div class="bo3-mini-stats">
+                <div class="bo3-mini-stat">
+                  <div class="ms-label">Médiane ville</div>
+                  <div class="ms-value" id="bo3MMediane">—</div>
+                </div>
+                <div class="bo3-mini-stat">
+                  <div class="ms-label">Écart marché</div>
+                  <div class="ms-value" id="bo3MEcart">—</div>
+                </div>
+                <div class="bo3-mini-stat">
+                  <div class="ms-label">Surface / budget</div>
+                  <div class="ms-value" id="bo3MSurface">—</div>
+                </div>
+              </div>
+              <article class="panel">
+                <div class="panel-head"><h3>Distribution des prix — <span id="bo3ChartCity"></span></h3></div>
+                <div id="bo3ChartDistrib" style="height:240px"></div>
+              </article>
+              <div id="bo3TipsGrid" class="bo3-tips-grid"></div>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- #bo3-view-estim -->
+
+    </div><!-- #page-bo3 -->
+
+    <!-- ══════════════════════════════════════════
+         Other BOs — placeholder
+    ══════════════════════════════════════════ -->
+    <div id="page-other" class="dash-content" style="display:none">
+      <div class="page-coming">
+        <div class="icon">🚧</div>
+        <div class="tag">En développement</div>
+        <h2>Bientôt disponible</h2>
+        <p>Ce module est en cours de développement. Revenez bientôt pour accéder à cette fonctionnalité.</p>
+      </div>
+    </div>
+
+    <footer class="dash-footer">Estate Mind © 2026 · Dashboard SaaS IA immobilier</footer>
+  </main>
+
+  <button class="ai-button" onclick="document.body.classList.toggle('assistant-open')">✦</button>
+  <aside class="ai-panel">
+    <div class="ai-head">
+      <strong>Assistant IA Estate Mind</strong>
+      <button onclick="document.body.classList.remove('assistant-open')">×</button>
+    </div>
+    <div class="ai-chat">
+      <p class="bot">Bonjour 👋 Je peux expliquer un score, comparer deux zones ou générer un rapport.</p>
+      <p class="user">Pourquoi cette annonce est suspecte ?</p>
+      <p class="bot">Son prix/m² est inférieur au marché local, la description est incomplète et elle ressemble à deux annonces déjà publiées.</p>
+    </div>
+    <div class="ai-input"><input placeholder="Posez une question..." /><button>➜</button></div>
+  </aside>
+
+  <script>
+    /* ── API ──────────────────────────────────────────── */
+    const API_BASE = "http://localhost:8000/api";
+
+    async function apiGet(ep) {
+      const r = await fetch(API_BASE + ep);
+      if (!r.ok) throw new Error(await r.text());
+      return r.json();
+    }
+    async function apiPost(ep, body) {
+      const r = await fetch(API_BASE + ep, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) throw new Error(await r.text());
+      return r.json();
+    }
+
+    /* ── Toast ────────────────────────────────────────── */
+    function showToast(msg, type = "info") {
+      let c = document.querySelector(".toast-container");
+      if (!c) { c = document.createElement("div"); c.className = "toast-container"; document.body.appendChild(c); }
+      const icons = { success: "✓", error: "✗", info: "ℹ" };
+      const t = document.createElement("div");
+      t.className = `toast ${type}`;
+      t.innerHTML = `<span>${icons[type] || "ℹ"}</span> ${msg}`;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+    }
+
+    /* ── Formatters ───────────────────────────────────── */
+    function fmt(n, d = 0) {
+      if (n == null || isNaN(n)) return "—";
+      return Number(n).toLocaleString("fr-TN", { maximumFractionDigits: d });
+    }
+    function fmtPct(n) {
+      if (n == null) return "—";
+      return `${n >= 0 ? "+" : ""}${Number(n).toFixed(1)}%`;
+    }
+
+    /* ── Page navigation ──────────────────────────────── */
+    function setPage(title, el, pageId) {
+      document.getElementById("pageTitle").textContent = title;
+      document.querySelectorAll(".dash-nav a").forEach(a => a.classList.remove("active"));
+      el.classList.add("active");
+      document.querySelectorAll(".dash-content").forEach(s => s.style.display = "none");
+      const target = document.getElementById(pageId || "page-bo1");
+      if (target) target.style.display = "block";
+      if (pageId === "page-bo3" && !bo3Loaded) { bo3Loaded = true; loadBO3(); }
+    }
+
+    /* ── Tabs (BO1) ───────────────────────────────────── */
+    function setTab(btn, type) {
+      document.querySelectorAll(".dash-tabs button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const content = document.getElementById("tabContent");
+      content.classList.add("pulse");
+      setTimeout(() => content.classList.remove("pulse"), 250);
+    }
+
+    /* ── BO3 tab switch ───────────────────────────────── */
+    function setBo3Tab(tab, btn) {
+      document.querySelectorAll('.bo3-nav button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.bo3-view').forEach(v => v.style.display = 'none');
+      document.getElementById('bo3-view-' + tab).style.display = 'block';
+    }
+
+    /* ── BO3 state ────────────────────────────────────── */
+    let bo3Loaded = false;
+    let mlReady   = false;
+
+    /* ── BO3 init (called once on first visit) ────────── */
+    async function loadBO3() {
+      try {
+        const status = await apiGet("/status");
+
+        const govSel = document.getElementById("bo3Gouvernorat");
+        govSel.innerHTML = "";
+        (status.gouvernorats || []).forEach(g => {
+          const o = document.createElement("option");
+          o.value = g; o.textContent = g; govSel.appendChild(o);
+        });
+
+        const citySel = document.getElementById("bo3City");
+        citySel.innerHTML = "";
+        (status.cities || []).forEach(c => {
+          const o = document.createElement("option");
+          o.value = c; o.textContent = c;
+          if (c === "Tunis") o.selected = true;
+          citySel.appendChild(o);
+        });
+
+        mlReady = status.ml_ready || false;
+        if (status.ml_metrics?.r2) {
+          document.getElementById("bo3KpiR2").textContent = status.ml_metrics.r2.toFixed(3);
+          document.getElementById("bo3KpiR2Hint").textContent =
+            "RF · " + (status.ml_samples || "—") + " annonces";
+        }
+        if (!mlReady) document.getElementById("bo3TrainNotice").classList.add("visible");
+
+      } catch (e) {
+        const govSel = document.getElementById("bo3Gouvernorat");
+        govSel.innerHTML = '<option value="">API non disponible</option>';
+        const citySel = document.getElementById("bo3City");
+        citySel.innerHTML = ["Tunis","Sfax","Sousse","Nabeul","Ariana","Ben Arous","La Marsa","Monastir","Hammamet","Bizerte"]
+          .map(c => `<option value="${c}">${c}</option>`).join("");
+        document.getElementById("bo3KpiR2Hint").textContent = "Démarrez le serveur FastAPI";
+        document.getElementById("bo3TrainNotice").classList.add("visible");
+        showToast("API non joignable — démarrez le serveur FastAPI", "error");
+      }
+    }
+
+    /* ── SARIMA ───────────────────────────────────────── */
+    async function runBO3Sarima() {
+      const body = {
+        gouvernorat: document.getElementById("bo3Gouvernorat").value,
+        variable:    document.getElementById("bo3Variable").value,
+        horizon:     parseInt(document.getElementById("bo3Horizon").value),
+        p: parseInt(document.getElementById("bo3p").value),
+        d: parseInt(document.getElementById("bo3d").value),
+        q: parseInt(document.getElementById("bo3q").value),
+        P: parseInt(document.getElementById("bo3P").value),
+        D: parseInt(document.getElementById("bo3D").value),
+        Q: parseInt(document.getElementById("bo3Q").value),
+      };
+      if (!body.gouvernorat) { showToast("Sélectionnez un gouvernorat", "error"); return; }
+
+      const load = document.getElementById("bo3ChartLoad");
+      const btn  = document.getElementById("bo3BtnSarima");
+      load.classList.add("active"); btn.disabled = true;
+
+      try {
+        const res = await apiPost("/train", body);
+        drawBO3Sarima(res.data);
+        showToast(`SARIMA terminé — AIC: ${res.data.aic}`, "success");
+        sessionStorage.setItem("sarimaResults", JSON.stringify(res.data));
+      } catch (e) {
+        showToast("Erreur SARIMA: " + e.message, "error");
+      } finally {
+        load.classList.remove("active"); btn.disabled = false;
+      }
+    }
+
+    function drawBO3Sarima(d) {
+      const hPct = d.hausse_pct;
+      document.getElementById("bo3KpiGrowth").textContent = `${hPct > 0 ? "+" : ""}${hPct}%`;
+      document.getElementById("bo3KpiGrowth").style.color = hPct >= 0 ? "#2f9c7e" : "#cc3b25";
+      document.getElementById("bo3KpiGovt").textContent   = d.gouvernorat;
+      document.getElementById("bo3KpiHorizon").textContent = d.prevision.dates.length + " trim.";
+
+      document.getElementById("bo3SarimaPlaceholder").style.display = "none";
+      document.getElementById("bo3ChartArea").style.display  = "block";
+      document.getElementById("bo3SubGrid").style.display    = "grid";
+      document.getElementById("bo3SarimaInfo").style.display = "block";
+
+      const adfOk = d.adf_pval != null && d.adf_pval < 0.05;
+      document.getElementById("bo3MetricsBar").innerHTML = `
+        <span class="bo3-metric">AIC <strong>${d.aic}</strong></span>
+        <span class="bo3-metric">BIC <strong>${d.bic}</strong></span>
+        <span class="bo3-metric">ADF p <strong style="color:${adfOk ? "#2f9c7e" : "#cc3b25"}">${d.adf_pval ?? "—"}</strong></span>
+        <span class="bo3-metric">Hausse <strong style="color:${hPct > 0 ? "#2f9c7e" : "#cc3b25"}">${hPct > 0 ? "+" : ""}${hPct}%</strong></span>
+      `;
+
+      const splitDate = d.historique.dates[d.historique.dates.length - 1];
+      const layout = {
+        paper_bgcolor: "transparent", plot_bgcolor: "#f8fcfb",
+        font: { family: "Inter, sans-serif", color: "#0b1d33" },
+        margin: { t: 16, r: 16, b: 48, l: 60 },
+        xaxis: { gridcolor: "#e6eaf0", linecolor: "#e6eaf0", tickfont: { size: 11 } },
+        yaxis: { gridcolor: "#e6eaf0", linecolor: "#e6eaf0", tickfont: { size: 11 }, title: "TND/m²", tickformat: ",.0f" },
+        legend: { bgcolor: "rgba(255,255,255,.85)", bordercolor: "#e6eaf0", borderwidth: 1, font: { size: 11 } },
+        hovermode: "x unified",
+        shapes: [{ type: "line", x0: splitDate, x1: splitDate, y0: 0, y1: 1, yref: "paper", line: { color: "#cc3b25", width: 1.5, dash: "dash" } }],
+        annotations: [{ x: splitDate, y: 1, yref: "paper", text: "Prévision →", showarrow: false, font: { size: 10, color: "#cc3b25" }, xanchor: "left" }],
+      };
+      const cfg = { displayModeBar: true, modeBarButtonsToRemove: ["select2d","lasso2d","autoScale2d"], displaylogo: false, responsive: true };
+
+      Plotly.newPlot("bo3ChartForecast", [
+        { x: d.historique.dates, y: d.historique.valeurs, mode: "lines", name: "Historique", line: { color: "#071d33", width: 2.5 } },
+        { x: d.ajuste.dates,     y: d.ajuste.valeurs,     mode: "lines", name: "Ajusté",     line: { color: "#8390a0", width: 1.5, dash: "dot" } },
+        { x: [...d.prevision.dates, ...d.prevision.dates.slice().reverse()],
+          y: [...d.prevision.upper, ...d.prevision.lower.slice().reverse()],
+          fill: "toself", fillcolor: "rgba(255,154,75,0.12)", line: { width: 0 }, name: "IC 95%", showlegend: true },
+        { x: d.prevision.dates, y: d.prevision.valeurs, mode: "lines+markers", name: "Prévision",
+          line: { color: "#ff9a4b", width: 3 }, marker: { size: 7, color: "#ff9a4b" } },
+      ], layout, cfg);
+
+      /* Residuals */
+      const hV = d.historique.valeurs, aV = d.ajuste.valeurs;
+      const minL = Math.min(hV.length, aV.length);
+      const rDates = d.historique.dates.slice(-minL);
+      const rVals  = hV.slice(-minL).map((v, i) => v - aV[aV.length - minL + i]);
+      Plotly.newPlot("bo3ChartResiduals", [{
+        x: rDates, y: rVals, type: "bar",
+        marker: { color: rVals.map(v => v >= 0 ? "#2f9c7e" : "#cc3b25") }, name: "Résidu",
+      }], {
+        paper_bgcolor: "transparent", plot_bgcolor: "#f8fcfb",
+        font: { family: "Inter, sans-serif", color: "#0b1d33" },
+        margin: { t: 8, r: 8, b: 40, l: 50 }, showlegend: false,
+        xaxis: { gridcolor: "#e6eaf0", tickfont: { size: 10 } },
+        yaxis: { gridcolor: "#e6eaf0", title: "Résidu (TND/m²)", tickfont: { size: 10 } },
+      }, { displayModeBar: false, responsive: true });
+
+      /* Forecast table */
+      let html = `<table class="bo3-table"><thead><tr><th>Période</th><th>Prévision</th><th>IC 95%</th></tr></thead><tbody>`;
+      d.prevision.dates.forEach((dt, i) => {
+        html += `<tr>
+          <td class="mono">${dt.slice(0, 7)}</td>
+          <td style="color:#ff9a4b;font-weight:800">${fmt(d.prevision.valeurs[i])} TND</td>
+          <td class="dim">[${fmt(d.prevision.lower[i])} – ${fmt(d.prevision.upper[i])}]</td>
+        </tr>`;
+      });
+      html += "</tbody></table>";
+      document.getElementById("bo3ForecastTable").innerHTML = html;
+
+      document.getElementById("bo3SarimaInfo").innerHTML = `
+        <strong>${d.gouvernorat}</strong> — SARIMA(${d.order.join(",")})×(${d.seasonal_order.slice(0, 3).join(",")})₄ ·
+        Prix actuel: <strong>${fmt(d.derniere_valeur)} TND/m²</strong> ·
+        Prévision T+${d.prevision.dates.length}: <strong>${fmt(d.prevision_finale)} TND/m²</strong> ·
+        Variation: <strong style="color:${hPct > 0 ? "#2f9c7e" : "#cc3b25"}">${hPct > 0 ? "+" : ""}${hPct}%</strong>
+      `;
+    }
+
+    /* ── ML training ──────────────────────────────────── */
+    async function trainMLBO3(btn) {
+      showToast("Entraînement démarré (~30 sec)…", "info");
+      btn.disabled = true;
+      try {
+        await apiPost("/train-ml", {});
+        const poll = setInterval(async () => {
+          const s = await apiGet("/status");
+          if (s?.ml_ready) {
+            clearInterval(poll);
+            mlReady = true;
+            document.getElementById("bo3TrainNotice").classList.remove("visible");
+            const citySel = document.getElementById("bo3City");
+            citySel.innerHTML = "";
+            (s.cities || []).forEach(c => {
+              const o = document.createElement("option");
+              o.value = c; o.textContent = c;
+              if (c === "Tunis") o.selected = true;
+              citySel.appendChild(o);
+            });
+            if (s.ml_metrics?.r2) {
+              document.getElementById("bo3KpiR2").textContent      = s.ml_metrics.r2.toFixed(3);
+              document.getElementById("bo3KpiR2Hint").textContent   = `Prêt · R²=${s.ml_metrics.r2.toFixed(3)}`;
+            }
+            showToast("Modèle ML entraîné avec succès !", "success");
+          }
+        }, 3000);
+      } catch (e) {
+        showToast("Erreur entraînement: " + e.message, "error");
+        btn.disabled = false;
+      }
+    }
+
+    /* ── Estimation ───────────────────────────────────── */
+    async function runBO3Estimation() {
+      if (!mlReady) { showToast("Entraînez d'abord le modèle ML", "error"); return; }
+      const body = {
+        city:            document.getElementById("bo3City").value,
+        surface:         parseFloat(document.getElementById("bo3Surface").value),
+        bedrooms:        parseFloat(document.getElementById("bo3Bedrooms").value),
+        bathrooms:       parseFloat(document.getElementById("bo3Bathrooms").value),
+        budget:          parseFloat(document.getElementById("bo3Budget").value) || 0,
+        etage:           parseFloat(document.getElementById("bo3Etage").value),
+        equipment_score: parseFloat(document.getElementById("bo3Equipment").value),
+      };
+      const btn = document.getElementById("bo3BtnEstim");
+      btn.disabled = true; btn.textContent = "Calcul…";
+      try {
+        const res = await apiPost("/estimate", body);
+        displayBO3Estim(body, res);
+        showToast(`Estimation: ${fmt(res.estimation.predicted)} TND`, "success");
+        sessionStorage.setItem("estimResults", JSON.stringify(res.estimation));
+      } catch (e) {
+        showToast("Erreur estimation: " + e.message, "error");
+      } finally {
+        btn.disabled = false; btn.innerHTML = "🔍 Estimer le prix";
+      }
+    }
+
+    function displayBO3Estim(inp, res) {
+      const e    = res.estimation;
+      const dist = res.distribution;
+
+      document.getElementById("bo3EstimPlaceholder").style.display = "none";
+      document.getElementById("bo3EstimPanel").style.display = "block";
+      document.getElementById("bo3RPrice").textContent  = fmt(e.predicted);
+      document.getElementById("bo3RCI").textContent     = `IC 80%: ${fmt(e.ci_lower)} – ${fmt(e.ci_upper)} TND`;
+      document.getElementById("bo3RPPM2").textContent   = `${fmt(e.price_per_m2)} TND/m²`;
+      document.getElementById("bo3RConf").textContent   = `${e.confidence}%`;
+      document.getElementById("bo3RConfBar").style.width = e.confidence + "%";
+
+      const badge = document.getElementById("bo3RBadge");
+      if (e.market_delta_pct != null) {
+        const delta = e.market_delta_pct;
+        if (Math.abs(delta) < 5)
+          badge.style.cssText = "background:#e3f0ff;color:#1a5fa5;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:900",
+          badge.textContent   = "≈ Prix marché";
+        else if (delta > 0)
+          badge.style.cssText = "background:#ffe4df;color:#cc3b25;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:900",
+          badge.textContent   = `↑ +${delta}% marché`;
+        else
+          badge.style.cssText = "background:#dcf7eb;color:#238765;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:900",
+          badge.textContent   = `↓ ${Math.abs(delta)}% marché`;
+      }
+
+      document.getElementById("bo3MMediane").textContent = fmt(e.city_median) + " TND";
+      const ecartEl = document.getElementById("bo3MEcart");
+      ecartEl.textContent  = fmtPct(e.market_delta_pct);
+      ecartEl.style.color  = e.market_delta_pct > 5 ? "#cc3b25" : e.market_delta_pct < -5 ? "#2f9c7e" : "inherit";
+      document.getElementById("bo3MSurface").textContent = e.surface_possible ? `${e.surface_possible} m²` : "—";
+      document.getElementById("bo3ChartCity").textContent = inp.city;
+
+      if (dist?.prices?.length > 3) {
+        Plotly.newPlot("bo3ChartDistrib", [
+          { x: dist.prices, type: "histogram", nbinsx: 30, marker: { color: "#ff9a4b", opacity: 0.7 }, name: "Annonces" },
+          { x: [e.predicted, e.predicted],  y: [0, 1], mode: "lines", line: { color: "#071d33", width: 2, dash: "dash" }, name: "Votre bien" },
+          { x: [e.city_median, e.city_median], y: [0, 1], mode: "lines", line: { color: "#2f9c7e", width: 1.5 }, name: "Médiane" },
+        ], {
+          paper_bgcolor: "transparent", plot_bgcolor: "#f8fcfb",
+          font: { family: "Inter, sans-serif", color: "#0b1d33" },
+          margin: { t: 8, r: 16, b: 48, l: 56 },
+          xaxis: { gridcolor: "#e6eaf0", title: "Prix (TND)", tickformat: ",.0f" },
+          yaxis: { gridcolor: "#e6eaf0", title: "Annonces" },
+          legend: { bgcolor: "rgba(255,255,255,.85)", font: { size: 11 } },
+        }, { displayModeBar: false, responsive: true });
+      }
+
+      // Conseils IA
+      const tips = generateTips(inp, e);
+      document.getElementById("bo3TipsGrid").innerHTML = tips.map(([title, body]) => `
+        <div class="bo3-tip">
+          <div class="bo3-tip-title">${title}</div>
+          <div class="bo3-tip-body">${body}</div>
+        </div>`).join("");
+
+      document.getElementById("bo3EstimPanel").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function generateTips(inp, e) {
+      const tips = [];
+      if (e.budget_delta != null && inp.budget > 0) {
+        if (e.budget_delta < -50000)
+          tips.push(["💡 Budget serré", `Il manque ${fmt(Math.abs(e.budget_delta))} TND. Envisagez une ville adjacente ou une surface réduite.`]);
+        else if (e.budget_delta < 0)
+          tips.push(["⚠️ Budget limite", `Écart de ${fmt(Math.abs(e.budget_delta))} TND — une négociation est recommandée.`]);
+        else
+          tips.push(["✅ Budget adéquat", `Marge de ${fmt(e.budget_delta)} TND après estimation. Vous êtes dans votre fourchette.`]);
+      }
+      if (e.market_delta_pct != null) {
+        if (e.market_delta_pct > 15)
+          tips.push(["🔴 Au-dessus du marché", `+${e.market_delta_pct}% vs la médiane de ${inp.city}. Négociez fermement avant d'acheter.`]);
+        else if (e.market_delta_pct < -10)
+          tips.push(["🟢 Bonne opportunité", `${Math.abs(e.market_delta_pct)}% sous la médiane — prix attractif par rapport au marché local.`]);
+        else
+          tips.push(["📊 Prix cohérent", `Le prix est aligné avec le marché de ${inp.city}. Pas de sur- ou sous-évaluation détectée.`]);
+      }
+      tips.push(["📈 Rendement locatif estimé", `Loyer estimé ~${fmt(e.predicted * 0.055 / 12)} TND/mois (rendement brut ~5.5% annuel).`]);
+      if (e.confidence < 60)
+        tips.push(["⚠️ Données limitées", `Peu d'annonces disponibles pour cette ville. Confirmez avec un agent immobilier local.`]);
+      else
+        tips.push(["🎯 Estimation fiable", `R²=${e.r2} — le modèle est bien ajusté sur votre profil de bien.`]);
+      return tips;
+    }
+  </script>
+</body>
+</html>
