@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Estate Mind</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="dash-body">
+  <aside class="dash-sidebar" id="sidebar">
+    <div class="dash-brand">
+      <span class="logo-mark">⌂</span>
+      <strong>Estate Mind</strong>
+    </div>
+
+    <button class="collapse-btn" onclick="document.body.classList.toggle('sidebar-collapsed')">☰</button>
+
+    <nav class="dash-nav">
+      <a class="active" onclick="setPage('BO 1 — Intelligence des annonces', this)">🔎 <span>BO 1 · Annonces</span></a>
+      <a onclick="setPage('BO 2 — Intelligence territoriale', this)">🗺️ <span>BO 2 · Territoires</span></a>
+      <a onclick="setPage('BO 3 — Prévision marché', this)">📈 <span>BO 3 · Prévisions</span></a>
+      <a onclick="setPage('BO 4 — Réglementaire', this)">⚖️ <span>BO 4 · Réglementaire</span></a>
+      <a onclick="setPage('BO 5 — Clients & vendeurs', this)">👥 <span>BO 5 · CRM</span></a>
+      <a onclick="setPage('BO 6 — Rapports IA', this)">📊 <span>BO 6 · Rapports</span></a>
+    </nav>
+
+    <div class="sidebar-card">
+      <img src="assets/avatar-advisor.png" alt="">
+      <p>Besoin d’un insight rapide ?</p>
+      <button>Demander à l’IA</button>
+    </div>
+  </aside>
+
+  <main class="dash-main">
+    <header class="dash-header">
+      <div>
+        <span class="eyebrow">Dashboard intelligent</span>
+        <h1 id="pageTitle">BO 1 — Intelligence des annonces</h1>
+      </div>
+
+      <div class="header-actions">
+        <div class="dash-search">🔍 <input placeholder="Rechercher une annonce, ville, score..." /></div>
+        <button class="icon-btn">🔔</button>
+        <div class="profile">
+          <img src="assets/avatar-director.png" alt="">
+          <span>Admin</span>
+          <b>⌄</b>
+        </div>
+      </div>
+    </header>
+
+    <section class="dash-tabs">
+      <button class="active" onclick="setTab(this, 'overview')">Vue globale</button>
+      <button onclick="setTab(this, 'map')">Carte</button>
+      <button onclick="setTab(this, 'models')">Modèles IA</button>
+      <button onclick="setTab(this, 'data')">Données</button>
+      <button onclick="setTab(this, 'alerts')">Alertes</button>
+    </section>
+
+    <section class="dash-grid" id="tabContent">
+      <article class="kpi-card">
+        <span>Score moyen</span>
+        <strong>87%</strong>
+        <small>+8.4% cette semaine</small>
+      </article>
+      <article class="kpi-card">
+        <span>Annonces analysées</span>
+        <strong>8,240</strong>
+        <small>4 sources connectées</small>
+      </article>
+      <article class="kpi-card">
+        <span>Doublons détectés</span>
+        <strong>312</strong>
+        <small>Exact + fuzzy + sémantique</small>
+      </article>
+      <article class="kpi-card">
+        <span>Zones émergentes</span>
+        <strong>8</strong>
+        <small>Signal fort marché</small>
+      </article>
+
+      <article class="panel big">
+        <div class="panel-head">
+          <h3>Carte intelligente du marché</h3>
+          <select><option>Tunis</option><option>Sousse</option><option>Ariana</option></select>
+        </div>
+        <div class="map-mock">
+          <span class="pin p1"></span><span class="pin p2"></span><span class="pin p3"></span><span class="pin p4"></span>
+          <div class="map-card"><strong>Lac 2</strong><br>Prix +14% · Forte demande</div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><h3>Évolution des prix</h3><button>Exporter</button></div>
+        <div class="line-chart"><i></i></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><h3>Répartition des sources</h3></div>
+        <div class="donut"></div>
+        <ul class="legend"><li>Tayara</li><li>Mubawab</li><li>Remax</li><li>Tecnocasa</li></ul>
+      </article>
+
+      <article class="panel table-panel">
+        <div class="panel-head">
+          <h3>Dernières annonces suspectes</h3>
+          <button>Voir tout</button>
+        </div>
+        <table>
+          <thead><tr><th>Bien</th><th>Ville</th><th>Score</th><th>Risque</th></tr></thead>
+          <tbody>
+            <tr><td>Appartement S+2</td><td>Ariana</td><td>42%</td><td><span class="risk high">Élevé</span></td></tr>
+            <tr><td>Villa moderne</td><td>La Marsa</td><td>58%</td><td><span class="risk mid">Moyen</span></td></tr>
+            <tr><td>Studio centre</td><td>Tunis</td><td>76%</td><td><span class="risk low">Faible</span></td></tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <footer class="dash-footer">Estate Mind © 2026 · Dashboard SaaS IA immobilier</footer>
+  </main>
+
+  <button class="ai-button" onclick="document.body.classList.toggle('assistant-open')">✦</button>
+  <aside class="ai-panel">
+    <div class="ai-head">
+      <strong>Assistant IA Estate Mind</strong>
+      <button onclick="document.body.classList.remove('assistant-open')">×</button>
+    </div>
+    <div class="ai-chat">
+      <p class="bot">Bonjour 👋 Je peux expliquer un score, comparer deux zones ou générer un rapport.</p>
+      <p class="user">Pourquoi cette annonce est suspecte ?</p>
+      <p class="bot">Son prix/m² est inférieur au marché local, la description est incomplète et elle ressemble à deux annonces déjà publiées.</p>
+    </div>
+    <div class="ai-input"><input placeholder="Posez une question..." /><button>➜</button></div>
+  </aside>
+
+  <script>
+    function setPage(title, el){
+      document.getElementById('pageTitle').textContent = title;
+      document.querySelectorAll('.dash-nav a').forEach(a => a.classList.remove('active'));
+      el.classList.add('active');
+    }
+    function setTab(btn, type){
+      document.querySelectorAll('.dash-tabs button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const content = document.getElementById('tabContent');
+      content.classList.add('pulse');
+      setTimeout(()=>content.classList.remove('pulse'), 250);
+    }
+  </script>
+</body>
+</html>
