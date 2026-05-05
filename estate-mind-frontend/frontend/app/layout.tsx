@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { NavBar } from "@/components/NavBar";
+import { Sidebar } from "@/components/Sidebar";
 import { ToastProvider } from "@/components/ToastNotifier";
 
 export const metadata: Metadata = {
-  title: "Estate Mind — PropTech Tunisienne",
-  description: "Plateforme d'analyse immobilière — trust scoring, analyse territoriale, intelligence marché",
+  title: "Estate Mind — AI Real Estate Intelligence",
+  description: "PropTech platform — trust scoring, territorial analytics, market intelligence",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr">
-      <body>
+    <html lang="en">
+      <body className="dash-body">
         <ToastProvider>
-          <NavBar />
-          <main style={{ maxWidth:1280, margin:"0 auto", padding:"28px 28px" }}>
+          <Sidebar />
+          <main className="dash-main">
             {children}
           </main>
         </ToastProvider>
