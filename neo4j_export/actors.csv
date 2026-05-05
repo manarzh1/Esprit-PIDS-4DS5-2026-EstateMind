@@ -1,0 +1,16 @@
+id,name,is_standard
+2e0c464cd707,créancier,True
+dace5f0f06d4,proprietaire,True
+f5306c3a951e,locataire,True
+25faee667bb6,preneur,True
+67406fc49e00,ministre chargé des domaines de l'etat,False
+b892928ac16e,etat,True
+941fad6b9218,possesseur,True
+2fbf858aea52,commission,False
+3c34c7382eed,gouverneur,False
+4ee6cb385d75,collectivité publique expropriante,False
+4a773057ceb2,ministres chargés de l'agriculture et des domaines de l'etat et des affaires foncières,False
+0f699dfaebac,tribunal,True
+5810d09eb743,établissements de crédits,False
+91538f395267,partie qui a constitué le gage,False
+1f4165f98290,particulier,True

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Immo Tunisia — Carte Interactive</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+.map-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+  align-items: start;
+}
+.map-wrapper {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  position: relative;
+}
+.gov-list { display: flex; flex-direction: column; gap: 8px; }
+.gov-item {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.gov-item:hover { border-color: var(--orange); background: var(--orange-lt); }
+.gov-item.selected { border-color: var(--orange); border-left: 3px solid var(--orange); }
+.gov-name { font-size: 13px; font-weight: 500; }
+.gov-price { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--orange); }
+.gov-change { font-size: 10px; margin-top: 2px; }
+.gov-change.up { color: var(--green); }
+.gov-change.dn { color: var(--red); }
+
+.detail-panel {
+  background: var(--charcoal);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  color: white;
+  display: none;
+  margin-bottom: 16px;
+}
+.detail-panel.visible { display: block; }
+.detail-gov-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.detail-item label { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; display: block; }
+.detail-item span { font-family: 'DM Mono', monospace; font-size: 16px; color: var(--orange); font-weight: 500; }
+
+.legend-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 11px;
+  color: var(--dim);
+}
+.legend-gradient {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #E8F4FE, #F5A623, #C0392B);
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-brand">IMMO<span>TN</span></div>
+    <div class="logo-sub">Marché Immobilier Tunisie</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Navigation</div>
+    <a href="index.html" class="nav-link"><span class="nav-icon">⊞</span> Accueil</a>
+    <a href="sarima.html" class="nav-link"><span class="nav-icon">📈</span> Prévision SARIMA</a>
+    <a href="estimation.html" class="nav-link"><span class="nav-icon">🏠</span> Estimation Prix</a>
+    <a href="map.html" class="nav-link"><span class="nav-icon">🗺</span> Carte Interactive</a>
+    <a href="chatbot.html" class="nav-link"><span class="nav-icon">💬</span> Assistant IA</a>
+  </nav>
+  <div class="sidebar-footer"><div class="version">v1.0 · FastAPI + ML</div></div>
+</aside>
+
+<div class="main-content">
+  <header class="page-header">
+    <div>
+      <div class="page-title">Carte <span>Interactive</span></div>
+      <div class="page-subtitle">Prix médians par gouvernorat · Données 2015–2025</div>
+    </div>
+    <div class="status-indicator">
+      <div class="status-dot" id="apiDot"></div>
+      <span class="status-text" id="apiText">Vérification...</span>
+    </div>
+  </header>
+
+  <div class="page-body">
+
+    <div class="detail-panel" id="detailPanel">
+      <div class="detail-gov-name" id="detailName">—</div>
+      <div class="detail-grid">
+        <div class="detail-item"><label>Prix médian</label><span id="detailMed">—</span></div>
+        <div class="detail-item"><label>Croissance YoY</label><span id="detailGrowth">—</span></div>
+        <div class="detail-item"><label>Prix appartement</label><span id="detailAppt">—</span></div>
+        <div class="detail-item"><label>Prix maison</label><span id="detailMaison">—</span></div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:8px;">
+        <a id="detailSarimaBtn" href="sarima.html" class="btn btn-primary" style="font-size:12px;padding:7px 14px;text-decoration:none;">📈 Analyser SARIMA</a>
+      </div>
+    </div>
+
+    <div class="map-layout">
+      <!-- MAP -->
+      <div class="map-wrapper">
+        <div class="loading-overlay" id="loadMap">
+          <div class="spinner"></div>
+          <div class="loading-text">Chargement des données...</div>
+        </div>
+        <div class="card-header" style="margin-bottom:12px;">
+          <div>
+            <div class="card-title">Tunisie — Prix médians (TND/m²)</div>
+            <div class="card-subtitle">Cliquez sur un point pour voir les détails</div>
+          </div>
+          <div class="legend-bar" style="min-width:200px;">
+            <span>Bas</span>
+            <div class="legend-gradient"></div>
+            <span>Élevé</span>
+          </div>
+        </div>
+        <div id="mapChart" style="height:520px;"></div>
+      </div>
+
+      <!-- LIST -->
+      <div>
+        <div class="card" style="margin-bottom:12px;">
+          <div class="card-header">
+            <div class="card-title">Classement</div>
+          </div>
+          <div style="font-size:11px;color:var(--dim);margin-bottom:10px;">Par prix médian TND/m²</div>
+          <div class="gov-list" id="govList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+let mapData = [];
+
+async function loadMap() {
+  document.getElementById("loadMap").classList.add("active");
+  try {
+    const res = await apiGet("/map-data");
+    mapData = res.data.sort((a, b) => b.prix_median - a.prix_median);
+    drawMap(mapData);
+    drawList(mapData);
+  } catch(e) {
+    showToast("Erreur chargement carte: " + e.message, "error");
+  } finally {
+    document.getElementById("loadMap").classList.remove("active");
+  }
+}
+
+// Coordonnées approximatives des gouvernorats tunisiens
+const GOV_COORDS = {
+  "Tunis":       [36.82, 10.17], "Ariana":     [36.86, 10.19],
+  "Ben Arous":   [36.75, 10.22], "Manouba":    [36.81, 10.10],
+  "Nabeul":      [36.45, 10.74], "Zaghouan":   [36.40, 10.14],
+  "Bizerte":     [37.27, 9.87],  "Béja":       [36.73, 9.18],
+  "Jendouba":    [36.50, 8.78],  "Le Kef":     [36.18, 8.71],
+  "Siliana":     [36.08, 9.37],  "Kairouan":   [35.67, 10.10],
+  "Kasserine":   [35.17, 8.83],  "Sidi Bouzid":[35.04, 9.49],
+  "Sousse":      [35.83, 10.64], "Monastir":   [35.77, 10.82],
+  "Mahdia":      [35.50, 11.06], "Sfax":       [34.74, 10.76],
+  "Gafsa":       [34.43, 8.78],  "Tozeur":     [33.92, 8.13],
+  "Kébili":      [33.70, 8.97],  "Gabès":      [33.88, 9.99],
+  "Médenine":    [33.35, 10.50], "Tataouine":  [32.93, 10.45],
+};
+
+function drawMap(data) {
+  const prices = data.map(d => d.prix_median);
+  const minP = Math.min(...prices);
+  const maxP = Math.max(...prices);
+
+  const lats = [], lons = [], texts = [], colors = [], sizes = [];
+
+  data.forEach(d => {
+    const coords = GOV_COORDS[d.gouvernorat];
+    if (!coords) return;
+    const pct = (d.prix_median - minP) / (maxP - minP);
+    lats.push(coords[0]);
+    lons.push(coords[1]);
+    colors.push(d.prix_median);
+    sizes.push(16 + pct * 22);
+    texts.push(`<b>${d.gouvernorat}</b><br>Prix: ${fmt(d.prix_median)} TND/m²<br>Croissance: ${fmtPct(d.croissance_yoy)}`);
+  });
+
+  const trace = {
+    type: "scattergeo",
+    lat: lats, lon: lons,
+    text: texts, hoverinfo: "text",
+    mode: "markers",
+    marker: {
+      color: colors,
+      colorscale: [
+        [0, "#EAF3FD"], [0.3, "#FAC775"], [0.6, "#F5A623"], [1, "#C0392B"]
+      ],
+      size: sizes,
+      showscale: true,
+      colorbar: {
+        title: { text: "TND/m²", font: { size: 11 } },
+        thickness: 12, len: 0.6,
+        tickformat: ",.0f",
+        x: 1.02,
+      },
+      line: { color: "white", width: 1.5 },
+    },
+    customdata: data.map(d => d),
+  };
+
+  const layout = {
+    paper_bgcolor: "transparent",
+    geo: {
+      scope: "africa",
+      center: { lat: 34.0, lon: 9.5 },
+      projection: { scale: 8 },
+      showland: true, landcolor: "#F2F1EF",
+      showocean: true, oceancolor: "#EAF3FD",
+      showcountries: true, countrycolor: "#DDDBD8",
+      showframe: false,
+      bgcolor: "transparent",
+    },
+    margin: { t: 0, r: 0, b: 0, l: 0 },
+    hovermode: "closest",
+  };
+
+  Plotly.newPlot("mapChart", [trace], layout, { ...CHART_CONFIG, scrollZoom: true });
+
+  document.getElementById("mapChart").on("plotly_click", function(e) {
+    const idx = e.points[0].pointIndex;
+    const validData = data.filter(d => GOV_COORDS[d.gouvernorat]);
+    showDetail(validData[idx]);
+  });
+}
+
+function drawList(data) {
+  const list = document.getElementById("govList");
+  list.innerHTML = data.slice(0, 15).map((d, i) => `
+    <div class="gov-item ${i === 0 ? 'selected' : ''}" onclick="showDetail(${JSON.stringify(JSON.stringify(d))})">
+      <div>
+        <div class="gov-name">${d.gouvernorat}</div>
+        <div class="gov-change ${d.croissance_yoy >= 0 ? 'up' : 'dn'}">${fmtPct(d.croissance_yoy)} / an</div>
+      </div>
+      <div class="gov-price">${fmt(d.prix_median)}<br><span style="font-size:9px;color:var(--light);">TND/m²</span></div>
+    </div>
+  `).join("");
+}
+
+function showDetail(d) {
+  if (typeof d === "string") d = JSON.parse(d);
+  const panel = document.getElementById("detailPanel");
+  panel.classList.add("visible");
+  document.getElementById("detailName").textContent = d.gouvernorat;
+  document.getElementById("detailMed").textContent = fmt(d.prix_median) + " TND/m²";
+  document.getElementById("detailGrowth").textContent = fmtPct(d.croissance_yoy);
+  document.getElementById("detailAppt").textContent = d.prix_appt ? fmt(d.prix_appt) + " TND" : "—";
+  document.getElementById("detailMaison").textContent = d.prix_maison ? fmt(d.prix_maison) + " TND" : "—";
+}
+
+checkStatus();
+loadMap();
+</script>
+</body>
+</html>

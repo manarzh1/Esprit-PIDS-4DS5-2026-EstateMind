@@ -1,0 +1,19 @@
+{
+  "build_date": "2026-04-18",
+  "source": "Code des Droits Réels tunisien",
+  "input_rules": 38,
+  "nodes": {
+    "Actor": 15,
+    "Action": 38,
+    "Target": 29,
+    "Condition": 21,
+    "Article": 18,
+    "total": 121
+  },
+  "relationships": {
+    "total": 38,
+    "MUST": 15,
+    "CAN": 13,
+    "CANNOT": 10
+  }
+}

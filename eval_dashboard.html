@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BO5 — Évaluation LLM</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:#0f1117;color:#e2e8f0;font-size:14px}
+.hdr{background:#161b27;border-bottom:1px solid rgba(255,255,255,.08);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:99}
+.hdr h1{font-size:17px;font-weight:600;color:#fff}
+.hdr p{font-size:11px;color:#64748b;margin-top:2px}
+.sbig{font-size:34px;font-weight:700;color:#22c55e}
+.gpill{display:inline-block;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(245,158,11,.18);color:#f59e0b;margin-left:8px}
+.page{max-width:1280px;margin:0 auto;padding:22px 20px 60px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:14px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:14px}
+@media(max-width:880px){.g4,.g3{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}}
+.kpi{background:#161b27;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.red::before{background:#ef4444}.kpi.green::before{background:#22c55e}
+.kpi.amber::before{background:#f59e0b}.kpi.blue::before{background:#3b82f6}
+.kpi.purple::before{background:#8b5cf6}.kpi.teal::before{background:#14b8a6}
+.kv{font-size:26px;font-weight:700;margin-bottom:1px}
+.kpi.red .kv{color:#ef4444}.kpi.green .kv{color:#22c55e}
+.kpi.amber .kv{color:#f59e0b}.kpi.blue .kv{color:#3b82f6}
+.kpi.purple .kv{color:#8b5cf6}.kpi.teal .kv{color:#14b8a6}
+.kl{font-size:11px;color:#64748b;margin-bottom:1px}.ks{font-size:10px;color:#475569}
+.card{background:#161b27;border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px}
+.ct{font-size:14px;font-weight:600;color:#fff;margin-bottom:3px}
+.cs{font-size:11px;color:#64748b;margin-bottom:12px}
+.stitle{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin:22px 0 11px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.06)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:7px 10px;color:#475569;font-size:10px;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.08);background:#1e2535}
+td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,.02)}
+.bb,.br{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
+.bb{background:rgba(59,130,246,.15);color:#3b82f6}.br{background:rgba(239,68,68,.15);color:#ef4444}
+.mono{font-family:monospace;font-size:11px}.red{color:#ef4444}
+.verdict{background:linear-gradient(135deg,rgba(239,68,68,.1),rgba(245,158,11,.07));border:1px solid rgba(239,68,68,.18);border-radius:12px;padding:16px;margin-bottom:14px;display:flex;gap:14px;align-items:center}
+.vt{font-size:14px;font-weight:600;color:#fff;margin-bottom:3px}
+.vb{font-size:12px;color:#94a3b8;line-height:1.5}
+.rec{display:flex;gap:10px;padding:9px 0;border-bottom:.5px solid rgba(255,255,255,.05)}
+.rec:last-child{border-bottom:none}
+.rn{width:22px;height:22px;border-radius:50%;background:rgba(139,92,246,.2);color:#8b5cf6;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.rb{font-size:12px;color:#94a3b8;line-height:1.5}
+.foot{margin-top:36px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;font-size:11px;color:#475569;flex-wrap:wrap;gap:6px}
+</style></head><body>
+<div class="hdr">
+  <div><h1>BO5 — Dashboard Évaluation LLM</h1>
+  <p>Pipeline Hybride NLP · CDR tunisien · Mistral · 2026-04-18 · 38 règles</p></div>
+  <div style="display:flex;align-items:center">
+    <div><div style="font-size:11px;color:#64748b;margin-bottom:2px">Score fiabilité</div>
+    <div><span class="sbig">100</span><span style="color:#64748b;font-size:13px">/100</span></div></div>
+    <span class="gpill">Grade A</span>
+  </div>
+</div>
+<div class="page">
+<div class="stitle">Métriques</div>
+<div class="g4">
+  <div class="kpi green"><div class="kl">Hallucinations</div><div class="kv">0.0%</div><div class="ks">0/38 · BON</div></div>
+  <div class="kpi green"><div class="kl">Règles propres CDR</div><div class="kv">100.0%</div><div class="ks">38/38</div></div>
+  <div class="kpi teal"><div class="kl">Doublons sémantiques</div><div class="kv">0.0%</div><div class="ks">0 paires</div></div>
+  <div class="kpi blue"><div class="kl">Quality score</div><div class="kv">8.4/10</div><div class="ks">min 7 · max 9</div></div>
+</div>
+<div class="g4">
+  <div class="kpi purple"><div class="kl">Total règles</div><div class="kv">38</div><div class="ks">Après nettoyage</div></div>
+  <div class="kpi teal"><div class="kl">Acteurs normalisés</div><div class="kv">73.7%</div><div class="ks">ACTOR_MAP</div></div>
+  <div class="kpi green"><div class="kl">Score fiabilité</div><div class="kv">100/100</div><div class="ks">Grade A</div></div>
+  <div class="kpi red"><div class="kl">Pipeline</div><div class="kv">Hybride</div><div class="ks">TF-IDF(1,3)+MiniLM+k=4</div></div>
+</div>
+<div class="stitle">Graphiques</div>
+<div class="g3">
+  <div class="card"><div class="ct">Propres vs hallucinations</div><div class="cs">0.0% inventées</div>
+    <div style="position:relative;height:185px"><canvas id="cD" role="img" aria-label="Donut hallucinations">38 propres, 0 hallucinations</canvas></div></div>
+  <div class="card"><div class="ct">Distribution par statut</div><div class="cs">3 catégories</div>
+    <div style="position:relative;height:185px"><canvas id="cS" role="img" aria-label="Statuts">{"interdit": 10, "obligation": 15, "permis": 13}</canvas></div></div>
+  <div class="card"><div class="ct">Risk scores</div><div class="cs">Par tranche</div>
+    <div style="position:relative;height:185px"><canvas id="cR" role="img" aria-label="Risks">{"0-25": 10, "26-50": 15, "51-70": 9, "71-85": 2, "86-100": 2}</canvas></div></div>
+</div>
+<div class="g2">
+  <div class="card"><div class="ct">Top acteurs</div><div class="cs">Règles par acteur</div>
+    <div style="position:relative;height:200px"><canvas id="cA" role="img" aria-label="Acteurs">{"proprietaire": 7, "cr\u00e9ancier": 5, "preneur": 4, "etat": 4, "possesseur": 4, "collectivit\u00e9 publique expropriante": 2}</canvas></div></div>
+  <div class="card"><div class="ct">Radar qualité</div><div class="cs">Actuel vs objectif</div>
+    <div style="position:relative;height:200px"><canvas id="cRad" role="img" aria-label="Radar">{"labels": ["Authenticit\u00e9", "Unicit\u00e9", "Articles", "Quality", "Acteurs", "Domaine"], "current": [100, 100, 90, 84, 74, 95], "target": [90, 95, 95, 90, 100, 98]}</canvas></div></div>
+</div>
+<div class="stitle">Recommandations</div>
+<div class="card"><div class="ct">Actions correctives</div><div class="cs">Objectif : score &ge;85/100 · hallucinations &lt;5%</div>
+<div class="rec"><span class="rn">1</span><div class="rb">Qualité satisfaisante. Continuer à surveiller à chaque nouvelle extraction.</div></div></div>
+<div class="foot">
+  <span>BO5 · Pipeline Hybride NLP · 2026-04-18</span>
+  <span style="font-family:monospace;font-size:10px">python main.py --step eval</span>
+</div></div>
+<script>
+const ST={"interdit": 10, "obligation": 15, "permis": 13},DIST={"0-25": 10, "26-50": 15, "51-70": 9, "71-85": 2, "86-100": 2},ACT={"proprietaire": 7, "cr\u00e9ancier": 5, "preneur": 4, "etat": 4, "possesseur": 4, "collectivit\u00e9 publique expropriante": 2},RAD={"labels": ["Authenticit\u00e9", "Unicit\u00e9", "Articles", "Quality", "Acteurs", "Domaine"], "current": [100, 100, 90, 84, 74, 95], "target": [90, 95, 95, 90, 100, 98]};
+const G=id=>document.getElementById(id);
+new Chart(G("cD"),{type:"doughnut",data:{labels:["Propres","Hallucinations"],datasets:[{data:[38,0],backgroundColor:["#22c55e","#ef4444"],borderColor:"#161b27",borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:"62%",plugins:{legend:{position:"bottom",labels:{color:"#94a3b8",font:{size:11},usePointStyle:true,padding:12}}}}});
+new Chart(G("cS"),{type:"bar",data:{labels:Object.keys(ST),datasets:[{data:Object.values(ST),backgroundColor:["#ef4444","#f59e0b","#22c55e"],borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:"#64748b"}},y:{grid:{color:"rgba(255,255,255,.05)"},ticks:{color:"#64748b"}}}}});
+new Chart(G("cR"),{type:"bar",data:{labels:Object.keys(DIST),datasets:[{data:Object.values(DIST),backgroundColor:["#22c55e","#14b8a6","#f59e0b","#ef4444","#dc2626"],borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:"#64748b"}},y:{grid:{color:"rgba(255,255,255,.05)"},ticks:{color:"#64748b"}}}}});
+new Chart(G("cA"),{type:"bar",data:{labels:Object.keys(ACT),datasets:[{data:Object.values(ACT),backgroundColor:"#3b82f6",borderRadius:5,borderSkipped:false}]},options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:"rgba(255,255,255,.05)"},ticks:{color:"#64748b"}},y:{grid:{display:false},ticks:{color:"#94a3b8"}}}}});
+new Chart(G("cRad"),{type:"radar",data:{labels:RAD.labels,datasets:[{label:"Actuel",data:RAD.current,backgroundColor:"rgba(59,130,246,.12)",borderColor:"#3b82f6",borderWidth:2,pointBackgroundColor:"#3b82f6",pointRadius:3},{label:"Objectif",data:RAD.target,backgroundColor:"rgba(34,197,94,.07)",borderColor:"rgba(34,197,94,.4)",borderWidth:1.5,borderDash:[5,3],pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{color:"#94a3b8",font:{size:11},usePointStyle:true,padding:12}}},scales:{r:{min:0,max:100,ticks:{stepSize:25,backdropColor:"transparent",color:"#475569",font:{size:9}},grid:{color:"rgba(255,255,255,.07)"},angleLines:{color:"rgba(255,255,255,.07)"},pointLabels:{color:"#94a3b8",font:{size:10}}}}}});
+</script></body></html>
