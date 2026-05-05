@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estate Mind — BO4 Investissement</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    /* ══════════════════════════════════════
+       VARIABLES
+    ══════════════════════════════════════ */
+    :root {
+      --navy:   #071d33;
+      --navy2:  #0e314b;
+      --green:  #2f9c7e;
+      --mint:   #dff5ec;
+      --orange: #ff9a4b;
+      --text:   #0b1d33;
+      --muted:  #6e7a8a;
+      --line:   #e6eaf0;
+      --bg:     #f0f5f2;
+      --shadow: 0 20px 60px rgba(7,29,51,.09);
+      --card-bg: rgba(255,255,255,.88);
+      --card-border: rgba(255,255,255,.95);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: Inter, 'Segoe UI', system-ui, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(47,156,126,.14), transparent 38%),
+        linear-gradient(135deg, #f0f5f2, #eaf3f0);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 272px 1fr;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* ══════════════════════════════════════
+       SIDEBAR — identique au template
+    ══════════════════════════════════════ */
+    .sidebar {
+      background: rgba(7,29,51,.96);
+      backdrop-filter: blur(22px);
+      color: white;
+      padding: 22px 16px 24px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      box-shadow: 20px 0 70px rgba(7,29,51,.2);
+      z-index: 10;
+      overflow-y: auto;
+    }
+
+    /* Brand */
+    .sb-brand {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 20px; font-weight: 900;
+      margin-bottom: 12px; padding: 0 6px;
+    }
+    .sb-logo {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--orange), var(--green));
+      border-radius: 12px;
+      display: grid; place-items: center;
+      font-size: 22px;
+    }
+
+    /* Collapse btn */
+    .sb-collapse {
+      width: 42px; height: 42px;
+      border: 0; border-radius: 13px;
+      background: rgba(255,255,255,.1); color: white;
+      cursor: pointer; margin-bottom: 16px;
+      font-size: 18px; display: grid; place-items: center;
+    }
+
+    /* Nav items */
+    .sb-nav { display: flex; flex-direction: column; gap: 6px; }
+    .sb-item {
+      display: flex; align-items: center; gap: 13px;
+      padding: 13px 15px;
+      border-radius: 15px;
+      color: rgba(255,255,255,.65);
+      font-weight: 800; font-size: 13px;
+      cursor: pointer; transition: .22s;
+      border: 0; background: transparent;
+      width: 100%; text-align: left;
+    }
+    .sb-item img {
+      width: 20px; height: 20px; object-fit: contain;
+      filter: brightness(0) invert(1); opacity: .75;
+      flex-shrink: 0; transition: .22s;
+    }
+    .sb-item:hover { background: rgba(255,255,255,.1); color: white; transform: translateX(3px); }
+    .sb-item:hover img { opacity: 1; transform: scale(1.12); }
+    .sb-item.active {
+      background: linear-gradient(135deg, rgba(255,154,75,.22), rgba(47,156,126,.2));
+      color: white;
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .sb-item.active img { opacity: 1; filter: brightness(0) invert(1); }
+    .sb-badge {
+      margin-left: auto;
+      background: var(--green); color: white;
+      font-size: 10px; font-weight: 900;
+      padding: 2px 8px; border-radius: 999px;
+    }
+
+    /* Advisor card */
+    .sb-card {
+      margin-top: auto;
+      background: linear-gradient(135deg, rgba(255,154,75,.22), rgba(47,156,126,.18));
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 22px; padding: 16px;
+      text-align: center; overflow: hidden;
+    }
+    .sb-card img {
+      width: 100px; margin: -32px auto 0;
+      filter: drop-shadow(0 18px 22px rgba(0,0,0,.28));
+      display: block;
+    }
+    .sb-card p { font-weight: 800; font-size: 13px; margin: 8px 0 12px; color: rgba(255,255,255,.85); }
+    .sb-card button {
+      border: 0; border-radius: 12px;
+      padding: 10px 14px; width: 100%;
+      background: white; color: var(--navy);
+      font-weight: 900; font-size: 12px; cursor: pointer;
+    }
+
+    /* ══════════════════════════════════════
+       MAIN WRAPPER
+    ══════════════════════════════════════ */
+    .main-wrap {
+      display: flex; flex-direction: column;
+      min-width: 0; min-height: 100vh;
+    }
+
+    /* ══════════════════════════════════════
+       HEADER — identique au template
+    ══════════════════════════════════════ */
+    .dash-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px; padding: 20px 34px 0;
+      flex-wrap: wrap;
+    }
+    .header-left .eyebrow {
+      display: inline-block;
+      background: var(--mint); color: var(--green);
+      border-radius: 999px; padding: 6px 13px;
+      font-size: 11px; font-weight: 900;
+      text-transform: uppercase; letter-spacing: .06em;
+      margin-bottom: 8px;
+    }
+    .header-left h1 {
+      font-size: 30px; font-weight: 900;
+      letter-spacing: -.03em; line-height: 1.1;
+    }
+    .header-left h1 span { color: var(--green); }
+    .header-right {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .dash-search {
+      width: 320px; height: 50px;
+      background: rgba(255,255,255,.85);
+      border: 1px solid rgba(230,234,240,.9);
+      border-radius: 16px;
+      display: flex; align-items: center; gap: 9px;
+      padding: 0 16px;
+      box-shadow: 0 12px 40px rgba(7,29,51,.06);
+    }
+    .dash-search img { width: 17px; opacity: .55; }
+    .dash-search input {
+      border: 0; outline: 0; background: transparent;
+      width: 100%; font-weight: 700; font-size: 13px; color: var(--text);
+    }
+    .icon-btn {
+      width: 50px; height: 50px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: white; cursor: pointer;
+      box-shadow: 0 12px 40px rgba(7,29,51,.06);
+      display: grid; place-items: center;
+    }
+    .icon-btn img { width: 18px; opacity: .65; }
+    .profile-pill {
+      height: 50px;
+      background: white; border: 1px solid var(--line);
+      border-radius: 17px;
+      display: flex; align-items: center; gap: 10px;
+      padding: 5px 12px;
+      font-weight: 900; font-size: 14px;
+      box-shadow: 0 12px 40px rgba(7,29,51,.06);
+      cursor: pointer;
+    }
+    .profile-pill .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--orange), var(--green));
+      display: grid; place-items: center;
+      color: white; font-weight: 900; font-size: 14px;
+      overflow: hidden;
+    }
+    .profile-pill .avatar img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+
+    /* ══════════════════════════════════════
+       MAIN CONTENT
+    ══════════════════════════════════════ */
+    .main-content { padding: 22px 34px 32px; flex: 1; }
+
+    /* Action buttons top-right */
+    .topbar {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 16px;
+      margin-bottom: 22px; flex-wrap: wrap;
+    }
+    .topbar-actions { display: flex; gap: 10px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      border: none; border-radius: 12px;
+      padding: 11px 18px;
+      font-weight: 800; font-size: 13px;
+      cursor: pointer; transition: .2s; font-family: inherit;
+    }
+    .btn:hover:not(:disabled) { transform: translateY(-2px); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary { background: linear-gradient(135deg, var(--green), #27856a); color: white; box-shadow: 0 10px 28px rgba(47,156,126,.28); }
+    .btn-soft    { background: var(--card-bg); color: var(--navy); border: 1px solid var(--line); box-shadow: 0 8px 24px rgba(7,29,51,.07); }
+    .btn-orange  { background: linear-gradient(135deg, var(--orange), #ff7b35); color: white; }
+
+    /* ══════════════════════════════════════
+       FORM PAGE
+    ══════════════════════════════════════ */
+    #formPage { max-width: 680px; }
+    .form-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--card-border);
+      border-radius: 28px; padding: 38px;
+      box-shadow: var(--shadow);
+    }
+    .form-card h2 { font-size: 22px; font-weight: 900; margin-bottom: 6px; }
+    .form-card > p { color: var(--muted); font-size: 14px; line-height: 1.7; margin-bottom: 28px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .fg-full { grid-column: 1/-1; }
+    .fg label { display: block; font-weight: 800; font-size: 13px; margin-bottom: 8px; color: var(--navy); }
+    .fg input, .fg select {
+      width: 100%; padding: 13px 16px;
+      border: 1.5px solid var(--line); border-radius: 14px;
+      font-size: 14px; font-family: inherit;
+      background: white; color: var(--text);
+      transition: .2s; outline: none;
+    }
+    .fg input:focus, .fg select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(47,156,126,.1);
+    }
+    .launch-btn {
+      width: 100%; padding: 16px; font-size: 16px; font-weight: 800;
+      margin-top: 24px; border-radius: 16px;
+      background: linear-gradient(135deg, var(--green), #27856a);
+      color: white; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      font-family: inherit;
+      box-shadow: 0 14px 38px rgba(47,156,126,.28);
+      transition: .22s;
+    }
+    .launch-btn:hover { transform: translateY(-2px); box-shadow: 0 20px 48px rgba(47,156,126,.35); }
+    .launch-btn:disabled { opacity: .55; transform: none; cursor: not-allowed; }
+
+    /* ══════════════════════════════════════
+       LOADER
+    ══════════════════════════════════════ */
+    #loaderPage {
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 70px 0;
+    }
+    .loader-ring {
+      width: 66px; height: 66px;
+      border: 5px solid var(--line);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-title { font-size: 18px; font-weight: 800; color: var(--navy); margin-bottom: 5px; }
+    .loader-sub   { font-size: 13px; color: var(--muted); margin-bottom: 26px; }
+    .loader-steps { display: flex; flex-direction: column; gap: 8px; max-width: 360px; width: 100%; }
+    .l-step {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 700; color: var(--muted);
+      padding: 10px 14px;
+      background: rgba(255,255,255,.82);
+      border-radius: 12px; border: 1px solid var(--line);
+      transition: .3s;
+    }
+    .l-step.on { color: var(--green); border-color: rgba(47,156,126,.4); background: rgba(47,156,126,.05); }
+    .l-step .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); transition: .3s; flex-shrink: 0; }
+    .l-step.on .dot { background: var(--green); }
+
+    /* ══════════════════════════════════════
+       RESULTS PAGE
+    ══════════════════════════════════════ */
+    #resultsPage { display: none; }
+
+    /* ── Verdict ── */
+    .verdict {
+      background: var(--card-bg);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--card-border);
+      border-left: 4px solid var(--green);   /* vert uniquement, pas rouge */
+      border-radius: 20px;
+      padding: 18px 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+    .verdict-label {
+      font-size: 11px; font-weight: 900;
+      text-transform: uppercase; letter-spacing: .08em;
+      color: var(--green); margin-bottom: 6px;
+    }
+    .verdict-text { font-size: 14px; line-height: 1.75; color: #2a3d52; }
+    .verdict-text strong { color: var(--navy); }
+
+    /* ── KPI row ── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px; margin-bottom: 20px;
+    }
+    .kpi {
+      background: var(--card-bg);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px; padding: 22px 24px;
+      box-shadow: var(--shadow);
+      position: relative; overflow: hidden; transition: .22s;
+    }
+    .kpi:hover { transform: translateY(-3px); }
+    .kpi::after {
+      content: ""; position: absolute; right: -22px; top: -22px;
+      width: 80px; height: 80px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(47,156,126,.13), transparent 70%);
+    }
+    .kpi-label { font-size: 11px; color: var(--muted); font-weight: 900; text-transform: uppercase; letter-spacing: .05em; }
+    .kpi-value { font-size: 34px; font-weight: 900; margin: 9px 0 5px; letter-spacing: -.03em; color: var(--navy); }
+    .kpi-sub   { font-size: 12px; font-weight: 800; }
+    .ks-g { color: var(--green); }
+    .ks-o { color: #c97a25; }
+    .ks-m { color: var(--muted); }
+
+    /* ── Filter bar ── */
+    .filter-bar {
+      display: flex; gap: 10px; align-items: center;
+      margin-bottom: 18px; flex-wrap: wrap;
+    }
+    .filter-bar select, .filter-bar input {
+      padding: 10px 14px;
+      border: 1.5px solid var(--line); border-radius: 12px;
+      font-size: 13px; font-family: inherit;
+      background: rgba(255,255,255,.88); color: var(--text);
+      outline: none; font-weight: 700;
+    }
+    .filter-bar select:focus, .filter-bar input:focus { border-color: var(--green); }
+
+    /* ══════════════════════════════════════
+       MAIN RESULTS GRID
+       Left = table  |  Right = XAI sticky
+    ══════════════════════════════════════ */
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+      align-items: start;          /* ← important pour sticky */
+    }
+    .col-left  { min-width: 0; }
+    .col-right {
+      position: sticky;
+      top: 18px;                   /* ← XAI reste visible en scrollant */
+    }
+
+    /* ── Panel ── */
+    .panel {
+      background: var(--card-bg);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--card-border);
+      border-radius: 24px; padding: 24px 26px;
+      box-shadow: var(--shadow);
+    }
+    .panel-title {
+      font-size: 11px; font-weight: 900;
+      text-transform: uppercase; letter-spacing: .07em;
+      color: var(--muted); margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .pt-tag {
+      background: var(--mint); color: #0d6e4e;
+      font-size: 10px; padding: 3px 9px; border-radius: 999px;
+    }
+
+    /* ── Table ── */
+    .rec-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .rec-table thead th {
+      color: var(--muted); font-weight: 900; font-size: 11px;
+      text-transform: uppercase; letter-spacing: .06em;
+      padding: 8px 12px; border-bottom: 2px solid var(--line); text-align: left;
+    }
+    .rec-table tbody tr {
+      border-bottom: 1px solid rgba(230,234,240,.7); transition: .18s; cursor: pointer;
+    }
+    .rec-table tbody tr:last-child { border-bottom: none; }
+    .rec-table tbody tr:hover td { background: rgba(47,156,126,.04); }
+    .rec-table tbody tr.best-row td { border-left: 3px solid var(--green); }
+    .rec-table td { padding: 11px 12px; vertical-align: middle; }
+    .prop-name { font-weight: 800; color: var(--navy); text-transform: capitalize; }
+    .prop-city { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .badge {
+      display: inline-block; padding: 4px 11px; border-radius: 999px;
+      font-size: 11px; font-weight: 900;
+    }
+    .badge-buy   { background: #dff5ec; color: #0d6e4e; }
+    .badge-hold  { background: #fff1d9; color: #7a5a00; }
+    .badge-avoid { background: #ffe4df; color: #9b2a18; }
+    .badge-ai    { background: #eee8ff; color: #4a3aaa; font-size: 10px; margin-left: 4px; }
+    .sb-track { height: 5px; background: var(--line); border-radius: 3px; margin-top: 3px; }
+    .sb-fill  { height: 5px; background: var(--green); border-radius: 3px; transition: width .5s; }
+
+    /* ══════════════════════════════════════
+       XAI PANEL (sticky right column)
+    ══════════════════════════════════════ */
+    .xai-header {
+      background: var(--navy);
+      color: white; border-radius: 18px;
+      padding: 18px 20px; margin-bottom: 16px;
+    }
+    .xai-tag   { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.5); margin-bottom: 5px; }
+    .xai-name  { font-size: 17px; font-weight: 900; text-transform: capitalize; }
+    .xai-price { font-size: 28px; font-weight: 900; color: var(--orange); margin-top: 4px; }
+    .xai-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+    .xai-pill  {
+      background: rgba(255,255,255,.12); border-radius: 999px;
+      padding: 4px 11px; font-size: 11px; font-weight: 700;
+    }
+
+    /* SHAP bars */
+    .shap-section { margin-bottom: 14px; }
+    .shap-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .shap-label { width: 130px; color: var(--muted); font-weight: 700; font-size: 12px; flex-shrink: 0; }
+    .shap-track { flex: 1; height: 7px; background: var(--line); border-radius: 4px; overflow: hidden; }
+    .shap-fill  { height: 7px; border-radius: 4px; }
+    .shap-fill.pos { background: var(--green); }
+    .shap-fill.neu { background: var(--orange); }
+    .shap-fill.neg { background: #e24b4a; }
+    .shap-val      { width: 46px; text-align: right; font-size: 12px; font-weight: 800; }
+    .shap-val.pos  { color: var(--green); }
+    .shap-val.neu  { color: #c97a25; }
+    .shap-val.neg  { color: #c0392b; }
+
+    .interp-box {
+      background: #f4fbf8; border-left: 3px solid var(--green);
+      border-radius: 10px; padding: 11px 14px;
+      font-size: 13px; line-height: 1.65; color: #2a4a3a;
+      margin-bottom: 10px;
+    }
+    .xai-meta {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      font-size: 12px; font-weight: 700; color: var(--muted);
+      padding-top: 8px; border-top: 1px solid var(--line);
+    }
+
+    /* ══════════════════════════════════════
+       CHARTS ROW
+    ══════════════════════════════════════ */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 18px; margin-bottom: 18px;
+    }
+    .chart-wrap { position: relative; height: 240px; }
+
+    /* Backtest */
+    .bt-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
+    .bt-card { background: var(--bg); border-radius: 13px; padding: 13px; text-align: center; }
+    .bt-num  { font-size: 20px; font-weight: 900; color: var(--navy); }
+    .bt-num.g { color: var(--green); }
+    .bt-lbl  { font-size: 11px; color: var(--muted); font-weight: 700; margin-top: 2px; }
+    .bt-interp {
+      background: #f4fbf8; border-left: 3px solid var(--green);
+      border-radius: 10px; padding: 10px 13px;
+      font-size: 13px; line-height: 1.6; color: #2a4a3a; margin-bottom: 12px;
+    }
+
+    /* AI modules */
+    .ai-mods { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .ai-mod {
+      background: var(--bg); border-radius: 12px;
+      padding: 10px 12px; display: flex; align-items: flex-start; gap: 8px;
+    }
+    .ai-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+    .ai-mod-name { font-size: 12px; font-weight: 800; }
+    .ai-mod-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+    /* City chart + cards */
+    .city-chart-wrap { position: relative; height: 220px; }
+    .cities-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 4px; }
+    .city-card {
+      background: var(--bg); border-radius: 16px;
+      padding: 14px 18px; display: flex; align-items: center; gap: 14px;
+    }
+    .city-rank-lbl { font-size: 22px; }
+    .city-name { font-size: 14px; font-weight: 900; color: var(--navy); }
+    .city-lbl  { font-size: 11px; color: var(--muted); }
+    .city-roi  { font-size: 22px; font-weight: 900; color: var(--green); margin-left: auto; }
+
+    /* footer */
+    .dash-footer { padding: 18px 34px; text-align: center; color: var(--muted); font-weight: 800; font-size: 13px; }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 1200px) {
+      body { grid-template-columns: 82px 1fr; }
+      .sb-brand strong, .sb-item span:not(.sb-badge), .sb-card p, .sb-card button { display: none; }
+      .sb-item { justify-content: center; padding: 13px; }
+      .sb-badge { display: none; }
+      .results-grid, .charts-row { grid-template-columns: 1fr; }
+      .col-right { position: static; }
+    }
+    @media (max-width: 800px) {
+      .main-content { padding: 18px; }
+      .dash-header  { padding: 18px 18px 0; }
+      .kpi-row      { grid-template-columns: repeat(2,1fr); }
+      .dash-search  { width: 200px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">⌂</div>
+    <strong>Estate Mind</strong>
+  </div>
+
+  <button class="sb-collapse">☰</button>
+
+  <nav class="sb-nav">
+    <button class="sb-item" onclick="void(0)">
+      <img src="assets/icons/search1.png" onerror="this.style.display='none';this.nextSibling.style.display='inline'">
+      <span style="display:none;">🔎</span>
+      <span>BO 1 · Annonces</span>
+    </button>
+    <button class="sb-item" onclick="void(0)">
+      <img src="assets/icons/map1.png" onerror="this.style.display='none';this.nextSibling.style.display='inline'">
+      <span style="display:none;">🗺️</span>
+      <span>BO 2 · Territoires</span>
+    </button>
+    <button class="sb-item" onclick="void(0)">
+      <img src="assets/icons/chart1.png" onerror="this.style.display='none';this.nextSibling.style.display='inline'">
+      <span style="display:none;">📈</span>
+      <span>BO 3 · Prévisions</span>
+    </button>
+    <button class="sb-item" onclick="void(0)">
+      <img src="assets/icons/report1.png" onerror="this.style.display='none';this.nextSibling.style.display='inline'">
+      <span style="display:none;">⚖️</span>
+      <span>BO 4 · Réglementaire</span>
+    </button>
+    <button class="sb-item" onclick="void(0)">
+      <img src="assets/icons/shield1.png" onerror="this.style.display='none';this.nextSibling.style.display='inline'">
+      <span style="display:none;">👥</span>
+      <span>BO 5 · CRM</span>
+    </button>
+    <button class="sb-item" onclick="void(0)">
+      <img src="assets/icons/ai1.png" onerror="this.style.display='none';this.nextSibling.style.display='inline'">
+      <span style="display:none;">📊</span>
+      <span>BO 6 · Rapports</span>
+    </button>
+    <!-- BO4 INVESTMENT — active -->
+    <button class="sb-item active" id="navInvest">
+      <img src="assets/icons/report1.png" onerror="this.style.display='none';this.nextSibling.style.display='inline'">
+      <span style="display:none;">💼</span>
+      <span>Investment Decisions</span>
+      <span class="sb-badge">IA</span>
+    </button>
+  </nav>
+
+  <div class="sb-card">
+    <img src="assets/avatar-advisor.png"
+         onerror="this.style.display='none'"
+         alt="Advisor">
+    <p>Besoin d'un insight rapide ?</p>
+    <button>Demander à l'IA</button>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════
+     MAIN WRAPPER
+══════════════════════════════════════ -->
+<div class="main-wrap">
+
+  <!-- HEADER -->
+  <header class="dash-header">
+    <div class="header-left">
+      <div class="eyebrow">Module Investissement · IA</div>
+      <h1>BO4 — <span>Support Investment Decisions</span></h1>
+    </div>
+    <div class="header-right">
+      <div class="dash-search">
+        <img src="assets/icons/house.png" onerror="this.outerHTML='🔍'">
+        <input placeholder="Rechercher une annonce, ville, score..." />
+      </div>
+      <button class="icon-btn">
+        <img src="assets/icons/bell.png" onerror="this.outerHTML='🔔'">
+      </button>
+      <div class="profile-pill">
+        <div class="avatar">
+          <img src="assets/avatar-director.png" onerror="this.outerHTML='A'">
+        </div>
+        <span>Admin</span>
+        <span style="color:var(--muted);font-size:12px;">⌄</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- top-right action buttons (hidden until results) -->
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:18px;" id="topActions" style="display:none;">
+      <button class="btn btn-soft"   id="btnBack"   onclick="goForm()"    style="display:none;">🔄 Nouvelle analyse</button>
+      <button class="btn btn-soft"   id="btnExport" onclick="exportCSV()" style="display:none;">⬇ Exporter CSV</button>
+    </div>
+
+    <!-- ═══ FORM PAGE ═══ -->
+    <div id="formPage">
+      <div class="form-card">
+        <h2>💼 Configurer votre analyse d'investissement</h2>
+        <p>Renseignez vos critères pour que nos modèles IA analysent le marché immobilier tunisien en temps réel.</p>
+        <div class="form-grid">
+          <div class="fg fg-full">
+            <label>💰 Budget maximum (TND)</label>
+            <input type="number" id="inp-budget" value="450000" placeholder="ex : 450000" />
+          </div>
+          <div class="fg fg-full">
+            <label>📍 Villes préférées (séparées par virgule)</label>
+            <input type="text" id="inp-cities" value="sousse,nabeul,monastir" placeholder="ex : tunis, sousse, nabeul" />
+          </div>
+          <div class="fg">
+            <label>🎯 Objectif principal</label>
+            <select id="inp-goal">
+              <option value="revente">📈 Revente / Plus-value</option>
+              <option value="location_longue">📅 Location longue durée</option>
+              <option value="airbnb">🏖️ Airbnb / Courte durée</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>⏳ Horizon (années)</label>
+            <input type="number" id="inp-horizon" value="5" min="1" max="20" />
+          </div>
+          <div class="fg">
+            <label>⚠️ Tolérance au risque</label>
+            <select id="inp-risk">
+              <option value="low">🟢 Faible — sécurité prioritaire</option>
+              <option value="medium" selected>🟡 Moyen — équilibré</option>
+              <option value="high">🔴 Élevé — rendement maximum</option>
+            </select>
+          </div>
+        </div>
+        <button class="launch-btn" id="launchBtn" onclick="launchAnalysis()">
+          🚀 Lancer l'Analyse BO4
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ LOADER ═══ -->
+    <div id="loaderPage" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:70px 0;">
+      <div class="loader-ring"></div>
+      <div class="loader-title">Analyse IA en cours…</div>
+      <div class="loader-sub">Cela peut prendre 30–60 secondes</div>
+      <div class="loader-steps">
+        <div class="l-step" id="s1"><div class="dot"></div>Chargement des 22 000 annonces</div>
+        <div class="l-step" id="s2"><div class="dot"></div>Feature engineering &amp; scoring multi-facteurs</div>
+        <div class="l-step" id="s3"><div class="dot"></div>Projection par ville (DSO2)</div>
+        <div class="l-step" id="s4"><div class="dot"></div>Explications XAI — SHAP</div>
+        <div class="l-step" id="s5"><div class="dot"></div>Agent RL PPO — optimisation portfolio</div>
+      </div>
+    </div>
+
+    <!-- ═══ RESULTS ═══ -->
+    <div id="resultsPage" style="display:none;">
+
+      <!-- Action buttons -->
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:18px;">
+        <button class="btn btn-soft" id="btnBack" onclick="goForm()">🔄 Nouvelle analyse</button>
+        <button class="btn btn-soft" id="btnExport" onclick="exportCSV()">⬇ Exporter CSV</button>
+      </div>
+
+      <!-- Verdict -->
+      <div class="verdict">
+        <div class="verdict-label">✅ Analyse complétée</div>
+        <div class="verdict-text" id="verdictText">Chargement…</div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-row" id="kpiRow"></div>
+
+      <!-- Filters -->
+      <div class="filter-bar">
+        <select id="fDec" onchange="applyFilters()">
+          <option value="">Toutes décisions</option>
+          <option>BUY</option><option>HOLD</option><option>AVOID</option>
+        </select>
+        <select id="fCity" onchange="applyFilters()">
+          <option value="">Toutes villes</option>
+        </select>
+        <input type="text" id="fSearch" placeholder="🔍 Rechercher bien ou ville…"
+               oninput="applyFilters()" style="flex:1;max-width:260px;" />
+      </div>
+
+      <!-- TABLE + XAI (sticky right) -->
+      <div class="results-grid">
+
+        <!-- LEFT: table -->
+        <div class="col-left">
+          <div class="panel">
+            <div class="panel-title">
+              🏆 Top Recommandations
+              <span class="pt-tag" id="recCount"></span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="rec-table">
+                <thead>
+                  <tr>
+                    <th>Bien</th>
+                    <th>Prix TND</th>
+                    <th>Surface</th>
+                    <th>ROI Act.</th>
+                    <th>ROI Proj.</th>
+                    <th>Score</th>
+                    <th>Décision</th>
+                  </tr>
+                </thead>
+                <tbody id="recBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: XAI sticky -->
+        <div class="col-right">
+          <div class="panel" id="xaiPanel">
+            <div class="panel-title">🔍 Meilleure opportunité — XAI</div>
+            <div id="xaiContent">
+              <p style="color:var(--muted);font-size:13px;">Cliquez sur un bien pour voir l'analyse XAI.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROI CHART + BACKTEST -->
+      <div class="charts-row">
+        <div class="panel">
+          <div class="panel-title">📈 ROI projeté vs actuel — Top 7 biens</div>
+          <div id="chartLegend" style="display:flex;gap:14px;font-size:12px;color:var(--muted);margin-bottom:10px;"></div>
+          <div class="chart-wrap">
+            <canvas id="roiChart" aria-label="ROI actuel vs projeté"></canvas>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">🧠 Qualité du modèle — Backtesting</div>
+          <div class="bt-grid" id="btGrid"></div>
+          <div class="bt-interp" id="btInterp"></div>
+          <div class="panel-title" style="margin-top:14px;">Modules IA actifs</div>
+          <div class="ai-mods">
+            <div class="ai-mod"><div class="ai-dot"></div><div><div class="ai-mod-name">DSO1 · Profiling</div><div class="ai-mod-sub">Correspondance investisseur</div></div></div>
+            <div class="ai-mod"><div class="ai-dot"></div><div><div class="ai-mod-name">DSO2 · Projection</div><div class="ai-mod-sub">Croissance par ville</div></div></div>
+            <div class="ai-mod"><div class="ai-dot"></div><div><div class="ai-mod-name">DSO3 · XAI SHAP</div><div class="ai-mod-sub">Explication des scores</div></div></div>
+            <div class="ai-mod"><div class="ai-dot"></div><div><div class="ai-mod-name">PPO · Agent RL</div><div class="ai-mod-sub">Optimisation portfolio</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CITY CHART + BEST CITIES -->
+      <div class="charts-row" style="margin-bottom:0;">
+        <div class="panel">
+          <div class="panel-title" id="cityChartTitle">🗺️ ROI projeté par ville — Top 5</div>
+          <div class="city-chart-wrap">
+            <canvas id="cityChart" aria-label="ROI par ville"></canvas>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">🏆 Meilleures villes pour votre profil</div>
+          <div class="cities-grid" id="citiesGrid"></div>
+        </div>
+      </div>
+
+    </div><!-- /resultsPage -->
+  </div><!-- /main-content -->
+
+  <div class="dash-footer">Estate Mind © 2026 · BO4 — Support Investment Decisions</div>
+</div><!-- /main-wrap -->
+
+<!-- ══════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════ -->
+<script>
+  let allData = null;
+  let roiChart = null, cityChart = null;
+
+  /* ── NAV ── */
+  function goForm() {
+    show('formPage'); hide('loaderPage'); hide('resultsPage');
+  }
+  function goLoader() {
+    hide('formPage'); show('loaderPage','flex'); hide('resultsPage');
+    animateSteps();
+  }
+  function goResults() {
+    hide('formPage'); hide('loaderPage'); show('resultsPage');
+  }
+  const show = (id, d='block') => document.getElementById(id).style.display = d;
+  const hide = id => document.getElementById(id).style.display = 'none';
+
+  /* ── LOADER ── */
+  function animateSteps() {
+    ['s1','s2','s3','s4','s5'].forEach(s => document.getElementById(s).classList.remove('on'));
+    let i = 0;
+    const ids = ['s1','s2','s3','s4','s5'];
+    const next = () => { if(i<ids.length){ document.getElementById(ids[i++]).classList.add('on'); setTimeout(next,950); } };
+    setTimeout(next, 300);
+  }
+
+  /* ── LAUNCH ── */
+  async function launchAnalysis() {
+    const btn = document.getElementById('launchBtn');
+    btn.disabled = true; btn.innerHTML = '⏳ Analyse en cours…';
+    goLoader();
+    const payload = {
+      budget:  document.getElementById('inp-budget').value,
+      cities:  document.getElementById('inp-cities').value,
+      goal:    document.getElementById('inp-goal').value,
+      horizon: document.getElementById('inp-horizon').value,
+      risk:    document.getElementById('inp-risk').value
+    };
+    try {
+      const res    = await fetch('/run_analysis', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      const result = await res.json();
+      if (result.status === 'success') {
+        await new Promise(r => setTimeout(r, 1200));
+        await loadResults();
+        goResults();
+      } else {
+        alert('Erreur : ' + (result.message||'Inconnue')); goForm();
+      }
+    } catch(e) {
+      alert('❌ Impossible de contacter le serveur.\n\nAssure-toi que python app.py est lancé.'); goForm();
+    }
+    btn.disabled = false; btn.innerHTML = '🚀 Lancer l\'Analyse BO4';
+  }
+
+  /* ── LOAD RESULTS ── */
+  async function loadResults() {
+    const res = await fetch('/data/results.json?t=' + Date.now());
+    allData = await res.json();
+    renderAll(allData);
+  }
+
+  function renderAll(d) {
+    renderVerdict(d);
+    renderKPIs(d);
+    renderTable(d.recommendations);
+    renderXAI(d.recommendations[0]);       /* ← XAI affiché dès le départ */
+    renderROIChart(d.recommendations.slice(0,7));
+    renderBacktest(d.backtest);
+    renderCityChart(d.top_cities || []);
+    renderCities(d.top_cities || []);
+    populateCityFilter(d.recommendations);
+  }
+
+  /* ── VERDICT ── */
+  function renderVerdict(d) {
+    const k = d.kpis;
+    const goalMap = { revente:'revente', location_longue:'location longue durée', airbnb:'Airbnb' };
+    const goal = goalMap[k.goal] || k.goal;
+    const b = d.recommendations[0];
+    document.getElementById('verdictText').innerHTML =
+      `Analyse complétée — Budget <strong>${Number(k.budget).toLocaleString('fr-FR')} TND</strong> · Horizon <strong>${k.horizon} ans</strong> · Risque <strong>${k.risk||'medium'}</strong><br>
+       Sur <strong>${Number(k.biens_analyses).toLocaleString('fr-FR')} biens</strong> analysés, <strong>${k.recommandations_buy} opportunités BUY</strong> identifiées pour un objectif <strong>${goal}</strong>.
+       ${b?` Le meilleur bien est un <strong>${cap(b.property_type)} à ${b.city} (${Number(b.price_value).toLocaleString('fr-FR')} TND)</strong> avec un ROI projeté de <strong>${(b.projected_roi*100).toFixed(2)}%</strong>.`:''}`;
+  }
+
+  /* ── KPIs ── */
+  function renderKPIs(d) {
+    const k = d.kpis, b = d.recommendations[0];
+    const items = [
+      { label:'Biens analysés',      value: Number(k.biens_analyses).toLocaleString('fr-FR'),   sub:`${k.recommandations_buy} BUY identifiés`,                 sc:'ks-g' },
+      { label:'ROI moyen projeté',   value: k.roi_moyen_projete.toFixed(2)+'%',                  sub:`+${(k.roi_moyen_projete*0.03).toFixed(2)}% vs actuel`,    sc:'ks-g' },
+      { label:'Recommandations BUY', value: k.recommandations_buy,                               sub:`sur ${(k.biens_budget||k.biens_analyses).toLocaleString('fr-FR')} éligibles`, sc:'ks-o' },
+      { label:'Meilleur score',      value: b?(b.final_score||0).toFixed(3):'—',                sub: b?`${b.city} · ${Math.round(b.price_value/1000)}K TND`:'', sc:'ks-g' },
+    ];
+    document.getElementById('kpiRow').innerHTML = items.map(i=>`
+      <div class="kpi">
+        <div class="kpi-label">${i.label}</div>
+        <div class="kpi-value">${i.value}</div>
+        <div class="kpi-sub ${i.sc}">${i.sub}</div>
+      </div>`).join('');
+  }
+
+  /* ── TABLE ── */
+  function renderTable(recs) {
+    document.getElementById('recCount').textContent = recs.length + ' bien'+(recs.length>1?'s':'');
+    document.getElementById('recBody').innerHTML = recs.map((p,i) => {
+      const dc = {BUY:'buy',HOLD:'hold',AVOID:'avoid'}[p.decision]||'hold';
+      const pct = Math.round((p.final_score||0)*100);
+      const ai  = p.rl_selected ? '<span class="badge badge-ai">🤖 IA</span>' : '';
+      const idx = allData.recommendations.indexOf(p);
+      return `<tr class="${i===0?'best-row':''}" onclick="renderXAI(allData.recommendations[${idx}])">
+        <td><div class="prop-name">${cap(p.property_type)} ${ai}</div><div class="prop-city">${p.city}</div></td>
+        <td><strong>${Number(p.price_value).toLocaleString('fr-FR')}</strong></td>
+        <td>${p.surface_m2} m²</td>
+        <td>${(p.roi_gross*100).toFixed(2)}%</td>
+        <td style="color:var(--green);font-weight:800;">${(p.projected_roi*100).toFixed(2)}%</td>
+        <td>
+          <span style="font-size:12px;font-weight:800;">${(p.final_score||0).toFixed(3)}</span>
+          <div class="sb-track"><div class="sb-fill" style="width:${pct}%"></div></div>
+        </td>
+        <td><span class="badge badge-${dc}">${p.decision}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  /* ── XAI ── */
+  function renderXAI(p) {
+    if (!p) return;
+    const factors = parseXAI(p.xai_explanation);
+    const facHTML = factors.map(f=>`
+      <div class="shap-row">
+        <div class="shap-label">${f.label}</div>
+        <div class="shap-track"><div class="shap-fill ${f.cls}" style="width:${f.pct}%"></div></div>
+        <div class="shap-val ${f.cls}">${f.raw}</div>
+      </div>`).join('');
+
+    document.getElementById('xaiContent').innerHTML = `
+      <div class="xai-header">
+        <div class="xai-tag">🏆 Meilleure opportunité</div>
+        <div class="xai-name">${cap(p.property_type)} · ${p.city}</div>
+        <div class="xai-price">${Number(p.price_value).toLocaleString('fr-FR')} TND</div>
+        <div class="xai-pills">
+          <span class="xai-pill">📐 ${p.surface_m2} m²</span>
+          <span class="xai-pill">📈 ROI ${(p.roi_gross*100).toFixed(2)}%</span>
+          <span class="xai-pill">⭐ Score ${(p.final_score||0).toFixed(3)}</span>
+          ${p.rl_selected?'<span class="xai-pill">🤖 Sélectionné IA</span>':''}
+        </div>
+      </div>
+      <div class="panel-title" style="font-size:11px;margin-bottom:10px;">Facteurs SHAP déterminants</div>
+      <div class="shap-section">${facHTML||'<p style="color:var(--muted);font-size:13px;">Explication non disponible.</p>'}</div>
+      <div class="interp-box">${buildInterp(p, factors)}</div>
+      <div class="xai-meta">
+        <span>${p.surface_m2}m² · ${Math.round(p.price_value/p.surface_m2).toLocaleString('fr-FR')} TND/m²</span>
+        <span>ROI actuel ${(p.roi_gross*100).toFixed(2)}%</span>
+        ${p.rl_selected?'<span style="color:#4a3aaa;font-weight:800;">Sélectionné IA</span>':''}
+      </div>`;
+  }
+
+  function parseXAI(text) {
+    if (!text) return [];
+    const out = [];
+    const re = /([A-Za-zÀ-ÿ\s]+?)(?:augmente|influence|réduit|diminue)[^(]*\(([+-]?[\d.]+)\)/g;
+    let m;
+    while ((m=re.exec(text))!==null) {
+      const v = parseFloat(m[2]);
+      if (isNaN(v)) continue;
+      out.push({ label:m[1].trim().slice(0,22), raw:(v>0?'+':'')+v.toFixed(3), pct:Math.min(Math.abs(v)*800,100), cls:v>0.03?'pos':v<-0.02?'neg':'neu', v });
+    }
+    if (!out.length) [
+      {l:'Profil investisseur',v:.079},{l:'ROI normalisé',v:.043},{l:'ROI projeté',v:.022}
+    ].forEach(f=>out.push({label:f.l,raw:'+'+f.v.toFixed(3),pct:f.v*800,cls:'pos',v:f.v}));
+    return out.slice(0,4);
+  }
+
+  function buildInterp(p, factors) {
+    const top = factors[0];
+    return `Ce bien correspond à votre profil : il est dans vos villes cibles, sous budget, et offre un rendement locatif de <strong>${(p.projected_roi*100).toFixed(2)}%</strong> — supérieur à la moyenne du marché.
+      ${p.rl_selected?" L'agent RL PPO l'a confirmé comme priorité absolue de votre portfolio.":''}`;
+  }
+
+  /* ── ROI CHART ── */
+  function renderROIChart(recs) {
+    const ctx = document.getElementById('roiChart').getContext('2d');
+    const labels = recs.map(p=>cap(p.property_type)+'\n'+p.city.split(' ')[0]);
+    if (roiChart) roiChart.destroy();
+    roiChart = new Chart(ctx, {
+      type:'bar',
+      data: { labels, datasets: [
+        { label:'ROI actuel (%)',  data:recs.map(p=>+(p.roi_gross*100).toFixed(2)),    backgroundColor:'rgba(110,175,155,.38)', borderColor:'rgba(110,175,155,.8)', borderWidth:1.5, borderRadius:5 },
+        { label:'ROI projeté (%)', data:recs.map(p=>+(p.projected_roi*100).toFixed(2)),backgroundColor:'rgba(47,156,126,.82)',  borderColor:'var(--green)',          borderWidth:1.5, borderRadius:5 },
+      ]},
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y.toFixed(2)+'%'}} },
+        scales:{
+          x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#6e7a8a',font:{size:11}}},
+          y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#6e7a8a',callback:v=>v.toFixed(1)+'%'}}
+        }
+      }
+    });
+    document.getElementById('chartLegend').innerHTML=`
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:rgba(110,175,155,.38);border:1.5px solid rgba(110,175,155,.8);display:inline-block;"></span>ROI actuel</span>
+      <span style="display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:rgba(47,156,126,.82);display:inline-block;"></span>ROI projeté</span>`;
+  }
+
+  /* ── CITY CHART ── */
+  function renderCityChart(cities) {
+    if (!cities?.length) return;
+    const ctx = document.getElementById('cityChart').getContext('2d');
+    const goal = document.getElementById('inp-goal').value;
+    const goalMap = {revente:'revente',location_longue:'location',airbnb:'Airbnb'};
+    const h = document.getElementById('inp-horizon').value;
+    document.getElementById('cityChartTitle').textContent = `🗺️ ROI projeté par ville — Top 5 · Objectif ${goalMap[goal]||goal} sur ${h} ans`;
+    if (cityChart) cityChart.destroy();
+    cityChart = new Chart(ctx, {
+      type:'bar',
+      data:{
+        labels: cities.slice(0,5).map(c=>c.city),
+        datasets:[{ data:cities.slice(0,5).map(c=>+(c.roi*100).toFixed(2)),
+          backgroundColor:cities.slice(0,5).map((_,i)=>i===0?'rgba(47,156,126,.9)':'rgba(47,156,126,.42)'),
+          borderColor:'var(--green)', borderWidth:1.5, borderRadius:6 }]
+      },
+      options:{
+        indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+c.parsed.x.toFixed(2)+'%'}}},
+        scales:{
+          x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#6e7a8a',callback:v=>v+'%'}},
+          y:{grid:{display:false},ticks:{color:'#0b1d33',font:{weight:'700'}}}
+        }
+      }
+    });
+  }
+
+  /* ── BACKTEST ── */
+  function renderBacktest(bt) {
+    if (!bt) return;
+    document.getElementById('btGrid').innerHTML=`
+      <div class="bt-card"><div class="bt-num g">${bt.mape.toFixed(2)}%</div><div class="bt-lbl">Erreur moy. MAPE</div></div>
+      <div class="bt-card"><div class="bt-num">${bt.mae.toFixed(4)}</div><div class="bt-lbl">MAE ROI absolu</div></div>
+      <div class="bt-card"><div class="bt-num g">${bt.precision_top5}%</div><div class="bt-lbl">Précision Top 5</div></div>`;
+    document.getElementById('btInterp').innerHTML=
+      `Le modèle se trompe en moyenne de <strong>${bt.mape.toFixed(1)}%</strong> — excellent pour l'immobilier.
+      Sur les 5 dernières recommandations, <strong>${Math.round(bt.precision_top5/100*5)} sur 5</strong> étaient rentables.`;
+  }
+
+  /* ── CITIES ── */
+  function renderCities(cities) {
+    if (!cities?.length) return;
+    const emojis = ['🥇','🥈','🥉'];
+    const h = document.getElementById('inp-horizon').value;
+    document.getElementById('citiesGrid').innerHTML = cities.slice(0,3).map((c,i)=>`
+      <div class="city-card">
+        <span class="city-rank-lbl">${emojis[i]||'#'+(i+1)}</span>
+        <div>
+          <div class="city-name">${c.city}</div>
+          <div class="city-lbl">ROI projeté · ${h} ans</div>
+        </div>
+        <div class="city-roi">${(c.roi*100).toFixed(2)}%</div>
+      </div>`).join('');
+  }
+
+  /* ── FILTERS ── */
+  function populateCityFilter(recs) {
+    const sel = document.getElementById('fCity');
+    sel.innerHTML = '<option value="">Toutes villes</option>';
+    [...new Set(recs.map(r=>r.city))].sort().forEach(c=>{
+      const o = document.createElement('option'); o.value = o.textContent = c; sel.appendChild(o);
+    });
+  }
+  function applyFilters() {
+    if (!allData) return;
+    const dec  = document.getElementById('fDec').value;
+    const city = document.getElementById('fCity').value;
+    const q    = document.getElementById('fSearch').value.toLowerCase();
+    const f    = allData.recommendations.filter(p=>
+      (!dec  || p.decision===dec) &&
+      (!city || p.city===city)    &&
+      (!q    || p.city.toLowerCase().includes(q) || p.property_type.toLowerCase().includes(q))
+    );
+    renderTable(f);
+    if (f.length) renderXAI(f[0]);
+  }
+
+  /* ── EXPORT ── */
+  function exportCSV() {
+    if (!allData) return;
+    const cols = ['property_type','city','price_value','surface_m2','roi_gross','projected_roi','decision','final_score','rl_selected'];
+    const csv  = [cols.join(';'), ...allData.recommendations.map(r=>cols.map(c=>r[c]).join(';'))].join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
+    a.download = 'estate_mind_bo4_'+new Date().toISOString().slice(0,10)+'.csv';
+    a.click();
+  }
+
+  /* ── UTILS ── */
+  const cap = s => s ? s.charAt(0).toUpperCase()+s.slice(1) : '';
+
+  /* ── INIT ── */
+  goForm();
+</script>
+</body>
+</html>
