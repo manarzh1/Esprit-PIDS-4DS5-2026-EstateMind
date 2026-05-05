@@ -1,0 +1,110 @@
+{
+  "diff_date": "2026-04-18",
+  "current_file": "D:\\files (2)\\data\\rules_clean.json",
+  "previous_file": "C:\\Users\\Yosr\\AppData\\Local\\Temp\\tmphujtsa4q.json",
+  "summary": {
+    "total_current": 38,
+    "total_previous": 37,
+    "added": 1,
+    "removed": 0,
+    "modified": 2
+  },
+  "added": [
+    {
+      "actor": "proprietaire",
+      "action": "construire sans autorisation",
+      "target": "bâtiment",
+      "status": "interdit",
+      "conditions": [
+        "sans autorisation administrative préalable"
+      ],
+      "article": "18",
+      "quality_score": 9,
+      "priority": "high",
+      "low_quality": false,
+      "actor_standard": true,
+      "source_file": "pdf_francais.pdf",
+      "source_name": "Code des Droits Réels tunisien",
+      "source_version": "2024",
+      "article_ref": "18",
+      "article_number": 18,
+      "article_index": null,
+      "extraction_date": "2026-04-18",
+      "text_hash": "",
+      "cleaning_date": "2026-04-18",
+      "rule_hash": "e5e9d9f37735e5917438f2032096670d",
+      "risk_score": 78,
+      "chunk_method": "cdr_safety_rule"
+    }
+  ],
+  "removed": [],
+  "modified": [
+    {
+      "rule": {
+        "actor": "créancier",
+        "action": "ne pas restituer le gage",
+        "target": "préjudice des créanciers ou cohéritiers qui ne sont pas encore désintéressés",
+        "status": "interdit",
+        "conditions": [
+          "tant que la dette n'est pas entièrement acquittée"
+        ],
+        "article": "229",
+        "quality_score": 9,
+        "priority": "high",
+        "low_quality": false,
+        "actor_standard": true,
+        "source_file": "pdf_francais.pdf",
+        "source_name": "Code des Droits Réels tunisien",
+        "source_version": "2024",
+        "article_ref": "14",
+        "article_number": 14,
+        "article_index": 431,
+        "extraction_date": "2026-04-18",
+        "text_hash": "b4b42f6fdee17a4cbf1e74b5938ec665",
+        "cleaning_date": "2026-04-18",
+        "rule_hash": "39a012bb2207ef9d3d59014ade22e9c2",
+        "risk_score": 90
+      },
+      "risk_before": 75,
+      "risk_after": 90,
+      "delta": 15,
+      "direction": "↑",
+      "status_before": "interdit",
+      "status_after": "interdit"
+    },
+    {
+      "rule": {
+        "actor": "proprietaire",
+        "action": "démolir sans autorisation",
+        "target": "bâtiment",
+        "status": "interdit",
+        "conditions": [
+          "sans autorisation administrative préalable"
+        ],
+        "article": "20",
+        "quality_score": 9,
+        "priority": "high",
+        "low_quality": false,
+        "actor_standard": true,
+        "source_file": "pdf_francais.pdf",
+        "source_name": "Code des Droits Réels tunisien",
+        "source_version": "2024",
+        "article_ref": "20",
+        "article_number": 20,
+        "article_index": null,
+        "extraction_date": "2026-04-18",
+        "text_hash": "",
+        "cleaning_date": "2026-04-18",
+        "rule_hash": "4ee1b934197efc247518e3d92839b9a1",
+        "risk_score": 88,
+        "chunk_method": "cdr_safety_rule"
+      },
+      "risk_before": 98,
+      "risk_after": 88,
+      "delta": -10,
+      "direction": "↓",
+      "status_before": "interdit",
+      "status_after": "interdit"
+    }
+  ]
+}

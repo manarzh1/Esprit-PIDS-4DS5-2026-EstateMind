@@ -1,0 +1,51 @@
+{
+  "eval_date": "2026-04-18",
+  "total_rules": 38,
+  "hallucination": {
+    "count": 0,
+    "rate_pct": 0.0,
+    "clean_count": 38,
+    "clean_rate_pct": 100.0,
+    "examples": [],
+    "verdict": "BON"
+  },
+  "semantic_duplicates": {
+    "count": 0,
+    "rate_pct": 0.0,
+    "examples": [],
+    "exact_dups": {}
+  },
+  "article_quality": {
+    "no_article": 0,
+    "vague_article": 0,
+    "quality_rate_pct": 100.0
+  },
+  "quality_scores": {
+    "min": 7,
+    "max": 9,
+    "avg": 8.4,
+    "low_quality_count": 0
+  },
+  "actors": {
+    "standardized": 28,
+    "standardized_pct": 73.7,
+    "top_actors": {
+      "proprietaire": 7,
+      "créancier": 5,
+      "preneur": 4,
+      "etat": 4,
+      "possesseur": 4,
+      "collectivité publique expropriante": 2
+    }
+  },
+  "status_distribution": {
+    "interdit": 10,
+    "obligation": 15,
+    "permis": 13
+  },
+  "reliability_score": 100,
+  "reliability_grade": "A",
+  "recommendations": [
+    "Qualité satisfaisante. Continuer à surveiller à chaque nouvelle extraction."
+  ]
+}
