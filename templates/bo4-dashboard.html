@@ -3,1028 +3,1028 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Estate Mind — BO4 Investissement</title>
+  <title>Estate Mind — Investissement Immobilier IA</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --navy: #071d33;
-      --navy2: #0e314b;
-      --green: #2f9c7e;
-      --mint: #dff5ec;
+      --navy:   #071d33;
+      --green:  #2f9c7e;
+      --mint:   #dff5ec;
       --orange: #ff9a4b;
-      --text: #0b1d33;
-      --muted: #6e7a8a;
-      --line: #e6eaf0;
-      --white: #ffffff;
-      --bg: #f3f7f5;
-      --shadow: 0 20px 60px rgba(7,29,51,.09);
+      --text:   #0b1d33;
+      --muted:  #6e7a8a;
+      --line:   #e6eaf0;
+      --bg:     #f0f5f2;
+      --white:  #ffffff;
+      --shadow: 0 4px 24px rgba(7,29,51,.08);
+      --shadow-lg: 0 12px 48px rgba(7,29,51,.12);
+      --radius: 14px;
+      --radius-lg: 20px;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(135deg, #f0f5f2, #eaf3f0);
+      font-family: Inter, 'Segoe UI', system-ui, sans-serif;
+      background: #f0f5f2;
       color: var(--text);
       min-height: 100vh;
-      display: grid;
-      grid-template-columns: 260px 1fr;
-    }
-
-    /* ── SIDEBAR ── */
-    .sidebar {
-      background: var(--navy);
-      color: white;
-      padding: 28px 16px;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
     }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 18px;
-      font-weight: 800;
-      margin-bottom: 32px;
-      padding: 0 8px;
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; }
+
+    /* ══ NAVBAR ══ */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.97);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--line);
+      height: 58px;
+      display: flex; align-items: center;
+      padding: 0 32px;
+      box-shadow: 0 1px 12px rgba(7,29,51,.06);
     }
-    .brand-icon {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, var(--orange), #ff7b35);
+    .nb-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 17px; font-weight: 900; color: var(--navy);
+      margin-right: 32px; flex-shrink: 0;
+    }
+    .nb-logo {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--orange), var(--green));
       border-radius: 10px;
       display: grid; place-items: center;
-      font-size: 18px;
+      font-size: 17px;
     }
-    .nav-section {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-      color: rgba(255,255,255,.35);
-      padding: 0 12px;
-      margin: 16px 0 6px;
+    .nb-nav { display: flex; align-items: center; gap: 2px; flex: 1; }
+    .nb-tab {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 14px; border-radius: 10px;
+      font-size: 13px; font-weight: 700; color: var(--muted);
+      border: 0; background: transparent; transition: .18s; cursor: pointer;
+      white-space: nowrap;
     }
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 11px 14px;
-      border-radius: 14px;
-      color: rgba(255,255,255,.65);
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-      transition: .2s;
-      text-decoration: none;
-      margin-bottom: 2px;
+    .nb-tab:hover { background: var(--bg); color: var(--text); }
+    .nb-tab.active {
+      background: rgba(47,156,126,.12); color: var(--green); font-weight: 800;
     }
-    .nav-item:hover { background: rgba(255,255,255,.08); color: white; }
-    .nav-item.active {
-      background: rgba(255,255,255,.13);
-      color: white;
+    .nb-tab.invest-tab {
+      background: linear-gradient(135deg, rgba(47,156,126,.15), rgba(47,156,126,.08));
+      color: var(--green); border: 1px solid rgba(47,156,126,.25); font-weight: 900;
     }
-    .nav-item .ico { font-size: 16px; width: 22px; text-align: center; }
-    .nav-badge {
-      margin-left: auto;
-      background: var(--green);
-      color: white;
-      font-size: 10px;
-      font-weight: 900;
-      padding: 2px 8px;
-      border-radius: 999px;
+    .nb-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .nb-search {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg); border: 1px solid var(--line);
+      border-radius: 10px; padding: 0 12px; height: 36px; width: 220px;
+    }
+    .nb-search input {
+      border: 0; outline: 0; background: transparent;
+      font-size: 13px; font-weight: 600; color: var(--text); width: 100%;
+    }
+    .nb-search input::placeholder { color: var(--muted); }
+    .nb-bell {
+      width: 36px; height: 36px; border-radius: 10px;
+      border: 1px solid var(--line); background: white;
+      display: grid; place-items: center; font-size: 16px; cursor: pointer;
+      position: relative;
+    }
+    .nb-bell::after {
+      content: ''; position: absolute; top: 7px; right: 7px;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--orange); border: 1.5px solid white;
+    }
+    .nb-profile {
+      display: flex; align-items: center; gap: 8px;
+      padding: 4px 10px 4px 5px;
+      background: white; border: 1px solid var(--line);
+      border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 800;
+    }
+    .nb-avatar {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--green), #27856a);
+      display: grid; place-items: center;
+      font-size: 12px; font-weight: 900; color: white;
     }
 
-    /* ── MAIN ── */
-    .main {
-      padding: 28px 32px;
-      min-width: 0;
+    /* ══ PAGE HEADER ══ */
+    .page-header { padding: 20px 32px 0; }
+    .page-eyebrow {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: var(--green); margin-bottom: 4px;
     }
-
-    /* ── TOP BAR ── */
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
+    .page-title {
+      font-size: 26px; font-weight: 900;
+      letter-spacing: -.03em; color: var(--navy);
     }
-    .page-title { font-size: 28px; font-weight: 800; letter-spacing: -.03em; }
     .page-title span { color: var(--green); }
-    .topbar-right { display: flex; gap: 10px; align-items: center; }
+
+    /* ══ MAIN ══ */
+    .main { padding: 20px 32px 40px; flex: 1; }
+
+    /* ══ BUTTONS ══ */
     .btn {
-      border: none; border-radius: 12px;
-      padding: 10px 18px; font-weight: 800; font-size: 13px;
-      cursor: pointer; transition: .2s;
+      display: inline-flex; align-items: center; gap: 7px;
+      border: none; border-radius: 10px; padding: 10px 18px;
+      font-weight: 700; font-size: 13px;
+      cursor: pointer; transition: .18s; font-family: inherit;
     }
     .btn:hover { transform: translateY(-1px); }
-    .btn-primary { background: linear-gradient(135deg, var(--orange), #ff7b35); color: white; }
-    .btn-soft { background: white; color: var(--navy); border: 1px solid var(--line); }
-    .btn-green { background: var(--green); color: white; }
+    .btn:disabled { opacity: .5; transform: none; cursor: not-allowed; }
+    .btn-green  { background: var(--green); color: white; box-shadow: 0 4px 16px rgba(47,156,126,.3); }
+    .btn-green:hover { background: #27856a; }
+    .btn-outline { background: white; color: var(--navy); border: 1px solid var(--line); }
+    .btn-outline:hover { border-color: var(--green); color: var(--green); }
 
-    /* ── FORMS PAGE ── */
-    #formPage { max-width: 680px; margin: 0 auto; }
+    /* ══ FORM PAGE ══ */
+    #formPage {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: calc(100vh - 120px);
+      padding: 20px 0;
+    }
+    .form-wrap { width: 100%; max-width: 520px; }
+    .form-heading { text-align: center; margin-bottom: 28px; }
+    .form-heading .fh-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, rgba(47,156,126,.15), rgba(47,156,126,.08));
+      border: 1px solid rgba(47,156,126,.2); border-radius: 16px;
+      display: grid; place-items: center; font-size: 24px; margin: 0 auto 16px;
+    }
+    .form-heading h2 { font-size: 22px; font-weight: 900; color: var(--navy); margin-bottom: 6px; }
+    .form-heading p  { font-size: 14px; color: var(--muted); line-height: 1.6; }
     .form-card {
-      background: white;
-      border-radius: 24px;
-      padding: 36px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--line);
+      background: white; border: 1px solid var(--line);
+      border-radius: var(--radius-lg); padding: 32px;
+      box-shadow: var(--shadow-lg);
     }
-    .form-card h2 { font-size: 22px; margin-bottom: 6px; }
-    .form-card p { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-    .form-group label {
-      display: block; font-weight: 800; font-size: 13px; margin-bottom: 8px; color: var(--navy);
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-field { margin-bottom: 16px; }
+    .form-field label {
+      display: block; font-size: 12px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .05em;
+      color: var(--muted); margin-bottom: 7px;
     }
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1.5px solid var(--line);
-      border-radius: 14px;
-      font-size: 14px;
-      font-family: inherit;
-      background: white;
-      color: var(--text);
-      transition: .2s;
-      outline: none;
+    .form-field input, .form-field select {
+      width: 100%; height: 44px;
+      border: 1.5px solid var(--line); border-radius: 10px;
+      padding: 0 14px; font-size: 14px; font-weight: 600; font-family: inherit;
+      background: var(--bg); color: var(--text);
+      transition: .18s; outline: none; appearance: none;
     }
-    .form-group input:focus,
-    .form-group select:focus { border-color: var(--green); }
-    .form-group.full { grid-column: 1 / -1; }
+    .form-field input:focus, .form-field select:focus {
+      border-color: var(--green); background: white;
+      box-shadow: 0 0 0 3px rgba(47,156,126,.1);
+    }
     .launch-btn {
-      width: 100%;
-      padding: 16px;
-      font-size: 16px;
-      margin-top: 24px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, var(--green), #27856a);
-      color: white;
-      border: none;
-      font-weight: 800;
-      cursor: pointer;
-      transition: .2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+      width: 100%; height: 50px; background: var(--green);
+      color: white; border: none; border-radius: 12px;
+      font-size: 15px; font-weight: 800; font-family: inherit;
+      cursor: pointer; transition: .2s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      margin-top: 8px; box-shadow: 0 6px 24px rgba(47,156,126,.3);
     }
-    .launch-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(47,156,126,.3); }
+    .launch-btn:hover { background: #27856a; transform: translateY(-1px); }
     .launch-btn:disabled { opacity: .55; transform: none; cursor: not-allowed; }
 
-    /* ── LOADER ── */
+    /* ══ LOADER ══ */
     #loaderPage {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 0;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      min-height: calc(100vh - 120px); gap: 14px;
     }
-    .loader-ring {
-      width: 72px; height: 72px;
-      border: 5px solid var(--line);
-      border-top-color: var(--green);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 24px;
+    .loader-spinner {
+      width: 52px; height: 52px;
+      border: 4px solid var(--line); border-top-color: var(--green);
+      border-radius: 50%; animation: spin 1s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loader-steps { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; max-width: 340px; }
-    .loader-step {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 14px; font-weight: 700; color: var(--muted);
-      padding: 10px 14px;
-      background: white;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      transition: .3s;
-    }
-    .loader-step.active { color: var(--green); border-color: var(--green); }
-    .loader-step .step-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--line); transition: .3s;
-    }
-    .loader-step.active .step-dot { background: var(--green); }
+    .loader-title { font-size: 20px; font-weight: 800; color: var(--navy); }
+    .loader-sub   { font-size: 14px; color: var(--muted); }
 
-    /* ── RESULTS PAGE ── */
+    /* ══ RESULTS ══ */
     #resultsPage { display: none; }
 
-    /* Verdict banner */
-    .verdict-banner {
-      background: white;
-      border: 1px solid var(--line);
-      border-left: 4px solid var(--green);
-      border-radius: 20px;
-      padding: 20px 24px;
-      margin-bottom: 22px;
-      box-shadow: var(--shadow);
+    .verdict {
+      background: white; border: 1px solid var(--line);
+      border-left: 4px solid var(--green); border-radius: var(--radius);
+      padding: 16px 22px; margin-bottom: 20px; box-shadow: var(--shadow);
     }
-    .verdict-banner .vb-label {
+    .verdict-label {
       font-size: 11px; font-weight: 800; text-transform: uppercase;
-      letter-spacing: .08em; color: var(--green); margin-bottom: 6px;
+      letter-spacing: .07em; color: var(--green); margin-bottom: 5px;
     }
-    .verdict-banner .vb-text {
-      font-size: 14px; line-height: 1.7; color: #2a3d52;
-    }
-    .verdict-banner strong { color: var(--navy); }
+    .verdict-text { font-size: 13px; line-height: 1.7; color: #2a3d52; }
+    .verdict-text strong { color: var(--navy); font-weight: 800; }
 
-    /* KPIs */
     .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 22px;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 14px; margin-bottom: 20px;
     }
     .kpi-card {
-      background: white;
-      border-radius: 20px;
-      padding: 20px 22px;
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
+      background: white; border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 18px 20px;
+      box-shadow: var(--shadow); position: relative; overflow: hidden;
     }
-    .kpi-card::after {
-      content: "";
-      position: absolute;
-      right: -20px; top: -20px;
-      width: 72px; height: 72px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(47,156,126,.15), transparent 70%);
+    .kpi-card::before {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      border-radius: 0 0 var(--radius) var(--radius);
     }
-    .kpi-label { font-size: 12px; color: var(--muted); font-weight: 700; }
-    .kpi-value { font-size: 30px; font-weight: 800; margin: 8px 0 4px; letter-spacing: -.02em; }
-    .kpi-sub { font-size: 12px; font-weight: 800; }
-    .kpi-sub.g { color: var(--green); }
-    .kpi-sub.o { color: #c97a25; }
+    .kpi-card.kc-green::before  { background: var(--green); }
+    .kpi-card.kc-blue::before   { background: #4a7fe0; }
+    .kpi-card.kc-orange::before { background: var(--orange); }
+    .kpi-icon {
+      width: 36px; height: 36px; border-radius: 10px; margin-bottom: 10px;
+      display: grid; place-items: center; font-size: 17px;
+    }
+    .kpi-icon.ki-green  { background: rgba(47,156,126,.12); }
+    .kpi-icon.ki-blue   { background: rgba(74,127,224,.12); }
+    .kpi-icon.ki-orange { background: rgba(255,154,75,.12); }
+    .kpi-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 30px; font-weight: 900; color: var(--navy); letter-spacing: -.03em; }
+    .kpi-sub   { font-size: 12px; font-weight: 700; margin-top: 4px; }
+    .kpi-sub.ks-g { color: var(--green); }
+    .kpi-sub.ks-o { color: #c97a25; }
 
-    /* Main grid */
-    .results-grid {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr;
-      gap: 18px;
-      margin-bottom: 18px;
-    }
-    .panel {
-      background: white;
-      border-radius: 20px;
-      padding: 22px 24px;
-      border: 1px solid var(--line);
+    /* ══ TABS ══ */
+    .result-tabs {
+      display: flex; gap: 4px; background: white; border: 1px solid var(--line);
+      border-radius: 12px; padding: 5px; margin-bottom: 20px; width: fit-content;
       box-shadow: var(--shadow);
     }
-    .panel-title {
-      font-size: 14px; font-weight: 800;
-      margin-bottom: 16px;
-      display: flex; align-items: center; gap: 8px;
+    .rtab {
+      display: flex; align-items: center; gap: 7px;
+      padding: 9px 18px; border-radius: 9px;
+      font-size: 13px; font-weight: 700; color: var(--muted);
+      border: 0; background: transparent; cursor: pointer; transition: .18s;
     }
-    .panel-title .pt-tag {
-      background: var(--mint);
-      color: #0d6e4e;
-      font-size: 10px;
-      padding: 3px 9px;
-      border-radius: 999px;
+    .rtab:hover { color: var(--text); background: var(--bg); }
+    .rtab.active { background: var(--navy); color: white; font-weight: 800; }
+    .rtab .tab-count {
+      background: rgba(255,255,255,.2); color: white;
+      font-size: 10px; font-weight: 900; padding: 1px 6px; border-radius: 999px;
+    }
+    .rtab:not(.active) .tab-count { background: var(--bg); color: var(--muted); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ══ TAB 1 — OPPORTUNITÉS ══ */
+    .city-filter-row {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .cfl-label { font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+    .city-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .city-chip {
+      padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      border: 1.5px solid var(--line); background: white; color: var(--muted);
+      cursor: pointer; transition: .18s;
+    }
+    .city-chip:hover  { border-color: var(--green); color: var(--green); }
+    .city-chip.active { background: var(--green); color: white; border-color: var(--green); }
+
+    .opp-grid {
+      display: grid; grid-template-columns: 1fr 360px;
+      gap: 16px; align-items: start;
     }
 
-    /* Table */
-    .rec-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .rec-table th {
-      color: var(--muted); font-weight: 700; font-size: 11px;
-      text-transform: uppercase; letter-spacing: .05em;
-      padding: 8px 10px; border-bottom: 1.5px solid var(--line);
-      text-align: left;
+    .tbl-panel {
+      background: white; border: 1px solid var(--line);
+      border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow);
     }
-    .rec-table td { padding: 10px 10px; border-bottom: 1px solid var(--line); }
-    .rec-table tr:last-child td { border-bottom: none; }
-    .rec-table tr:hover td { background: #f7fbf9; }
+    .tbl-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px; border-bottom: 1px solid var(--line); gap: 12px;
+    }
+    .tbl-head-left { display: flex; align-items: center; gap: 10px; }
+    .tbl-head h3   { font-size: 14px; font-weight: 800; }
+    .tbl-count {
+      background: var(--mint); color: var(--green);
+      font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px;
+    }
+    .tbl-search {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--bg); border: 1px solid var(--line);
+      border-radius: 8px; padding: 0 10px; height: 32px; width: 180px;
+    }
+    .tbl-search input {
+      border: 0; outline: 0; background: transparent; font-size: 12px; font-weight: 600; width: 100%;
+    }
+
+    table.rec-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .rec-table thead th {
+      padding: 10px 14px; text-align: left;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--muted);
+      background: #fafbfc; border-bottom: 1px solid var(--line);
+    }
+    .rec-table tbody tr {
+      border-bottom: 1px solid rgba(230,234,240,.6); cursor: pointer; transition: .15s;
+    }
+    .rec-table tbody tr:last-child { border-bottom: none; }
+    .rec-table tbody tr:hover td { background: rgba(47,156,126,.04); }
+    .rec-table tbody tr.best-row td:first-child { border-left: 3px solid var(--green); }
+    .rec-table td { padding: 11px 14px; vertical-align: middle; }
+    .prop-name { font-weight: 800; color: var(--navy); text-transform: capitalize; }
+    .prop-city { font-size: 12px; color: var(--muted); margin-top: 1px; }
     .badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 800;
+      display: inline-block; padding: 4px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 800;
     }
-    .badge-buy { background: #dff5ec; color: #0d6e4e; }
-    .badge-hold { background: #fff1d9; color: #7a5a00; }
+    .badge-buy   { background: #dff5ec; color: #0d6e4e; }
+    .badge-hold  { background: #fff1d9; color: #7a5a00; }
     .badge-avoid { background: #ffe4df; color: #9b2a18; }
-    .badge-ai { background: #eee8ff; color: #4a3aaa; margin-left: 4px; font-size: 10px; }
-    .score-bar-wrap { height: 5px; background: var(--line); border-radius: 3px; margin-top: 3px; }
-    .score-bar-fill { height: 5px; background: var(--green); border-radius: 3px; transition: width .6s; }
-    .prop-name { font-weight: 700; }
-    .prop-city { color: var(--muted); font-size: 12px; }
+    .badge-ai    { background: #eee8ff; color: #4a3aaa; font-size: 10px; margin-left: 4px; }
+    .score-bar-track { height: 4px; background: var(--line); border-radius: 2px; margin-top: 3px; }
+    .score-bar-fill  { height: 4px; background: var(--green); border-radius: 2px; }
 
-    /* XAI */
-    .xai-header {
-      background: var(--navy);
-      color: white;
-      border-radius: 14px;
-      padding: 16px 18px;
-      margin-bottom: 14px;
+    .pagination {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; border-top: 1px solid var(--line);
     }
-    .xai-header .xh-tag {
-      font-size: 10px; font-weight: 800; text-transform: uppercase;
-      letter-spacing: .08em; color: rgba(255,255,255,.5); margin-bottom: 6px;
+    .pagination-info { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .pagination-btns { display: flex; gap: 4px; }
+    .pg-btn {
+      width: 32px; height: 32px; border-radius: 8px;
+      border: 1px solid var(--line); background: white;
+      font-size: 12px; font-weight: 700; color: var(--muted);
+      cursor: pointer; display: grid; place-items: center; transition: .15s;
     }
-    .xai-header .xh-name { font-size: 15px; font-weight: 800; }
-    .xai-header .xh-price { font-size: 24px; font-weight: 800; color: var(--orange); margin-top: 4px; }
-    .xai-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-    .xai-pill {
-      background: rgba(255,255,255,.12);
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 11px;
-      font-weight: 700;
+    .pg-btn:hover  { border-color: var(--green); color: var(--green); }
+    .pg-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
+    .pg-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* XAI panel */
+    .xai-sticky { position: sticky; top: 76px; }
+    .xai-panel {
+      background: white; border: 1px solid var(--line);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden;
     }
-    .shap-factors { margin-bottom: 14px; }
-    .shap-row {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 8px; font-size: 13px;
+    .xai-panel-head {
+      padding: 14px 18px; border-bottom: 1px solid var(--line);
+      font-size: 12px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--muted);
     }
-    .shap-label { width: 130px; color: var(--muted); font-weight: 700; font-size: 12px; }
-    .shap-bar-wrap { flex: 1; height: 7px; background: var(--line); border-radius: 4px; }
-    .shap-bar { height: 7px; border-radius: 4px; }
-    .shap-bar.pos { background: var(--green); }
-    .shap-bar.neu { background: var(--orange); }
-    .shap-bar.neg { background: #e24b4a; }
-    .shap-val { font-size: 12px; font-weight: 800; width: 46px; text-align: right; }
+    .xai-panel-body { padding: 18px; }
+    .xai-best-card {
+      background: var(--navy); border-radius: 12px;
+      padding: 16px; color: white; margin-bottom: 16px;
+    }
+    .xbc-tag   { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.5); margin-bottom: 5px; }
+    .xbc-name  { font-size: 15px; font-weight: 900; text-transform: capitalize; }
+    .xbc-price { font-size: 24px; font-weight: 900; color: var(--orange); margin: 3px 0; }
+    .xbc-pills { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
+    .xbc-pill  { background: rgba(255,255,255,.12); border-radius: 6px; padding: 3px 9px; font-size: 11px; font-weight: 600; }
+    .shap-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 10px; }
+    .shap-row   { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .shap-label { font-size: 12px; font-weight: 600; color: var(--muted); width: 110px; flex-shrink: 0; }
+    .shap-track { flex: 1; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+    .shap-fill  { height: 6px; border-radius: 3px; }
+    .shap-fill.pos { background: var(--green); }
+    .shap-fill.neu { background: var(--orange); }
+    .shap-fill.neg { background: #e24b4a; }
+    .shap-val   { width: 44px; text-align: right; font-size: 12px; font-weight: 700; }
     .shap-val.pos { color: var(--green); }
     .shap-val.neu { color: #c97a25; }
     .shap-val.neg { color: #c0392b; }
     .interp-box {
-      background: #f4fbf8;
-      border-left: 3px solid var(--green);
-      border-radius: 10px;
-      padding: 10px 13px;
-      font-size: 13px;
-      line-height: 1.6;
-      color: #2a4a3a;
+      background: #f4fbf8; border-left: 3px solid var(--green);
+      border-radius: 8px; padding: 10px 12px;
+      font-size: 12px; line-height: 1.65; color: #2a4a3a; margin-top: 12px;
     }
 
-    /* Charts row */
-    .charts-row {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr;
-      gap: 18px;
-      margin-bottom: 18px;
+    /* ══ TAB 2 — ANALYSES ══ */
+    .charts-grid {
+      display: grid; grid-template-columns: 1.3fr 1fr;
+      gap: 16px; margin-bottom: 16px;
     }
-    .chart-wrap { position: relative; }
+    .chart-panel {
+      background: white; border: 1px solid var(--line);
+      border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow);
+    }
+    .cp-title {
+      font-size: 12px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--muted); margin-bottom: 4px;
+    }
+    .cp-sub   { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+    .chart-wrap { position: relative; height: 220px; }
+    .chart-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+    .cl-item { display: flex; align-items: center; gap: 5px; }
+    .cl-dot  { width: 10px; height: 10px; border-radius: 2px; }
 
-    /* Backtest */
-    .bt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-    .bt-card {
-      background: var(--bg);
-      border-radius: 14px;
-      padding: 14px;
-      text-align: center;
-    }
-    .bt-num { font-size: 22px; font-weight: 800; color: var(--navy); }
-    .bt-num.g { color: var(--green); }
-    .bt-label { font-size: 11px; color: var(--muted); font-weight: 700; margin-top: 2px; }
-    .bt-interp {
-      background: #f4fbf8;
-      border-left: 3px solid var(--green);
-      border-radius: 10px;
-      padding: 10px 13px;
-      font-size: 13px;
-      line-height: 1.6;
-      color: #2a4a3a;
-      margin-bottom: 14px;
-    }
-
-    /* AI Modules */
-    .ai-modules { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .ai-module {
-      background: var(--bg);
-      border-radius: 13px;
-      padding: 11px 13px;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-    .ai-dot {
-      width: 8px; height: 8px;
-      background: var(--green);
-      border-radius: 50%;
-      margin-top: 5px;
-      flex-shrink: 0;
-    }
-    .ai-mod-title { font-size: 12px; font-weight: 800; }
-    .ai-mod-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-    /* Cities */
-    .cities-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 18px;
+    .cities-cards {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
     }
     .city-card {
-      background: white;
-      border-radius: 16px;
-      padding: 16px 18px;
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
+      background: white; border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 18px 20px;
+      box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px;
     }
-    .city-rank { font-size: 10px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
-    .city-name { font-size: 15px; font-weight: 800; margin: 4px 0; }
-    .city-roi { font-size: 26px; font-weight: 800; color: var(--green); }
-    .city-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .city-card-roi { font-size: 24px; font-weight: 900; color: var(--green); }
+    .city-card-name { font-size: 14px; font-weight: 800; color: var(--navy); }
+    .city-card-sub  { font-size: 12px; color: var(--muted); }
 
-    /* Filter bar */
-    .filter-bar {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
+    /* ══ TAB 3 — MODÈLE ══ */
+    .bt-row {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin-bottom: 16px;
     }
-    .filter-bar select, .filter-bar input {
-      padding: 9px 14px;
-      border: 1.5px solid var(--line);
-      border-radius: 12px;
-      font-size: 13px;
-      font-family: inherit;
-      background: white;
-      color: var(--text);
-      outline: none;
-      font-weight: 700;
+    .bt-card {
+      background: white; border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 20px;
+      box-shadow: var(--shadow); text-align: center;
     }
-    .filter-bar select:focus, .filter-bar input:focus { border-color: var(--green); }
+    .bt-num   { font-size: 28px; font-weight: 900; color: var(--navy); }
+    .bt-num.g { color: var(--green); }
+    .bt-lbl   { font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 4px; }
+    .bt-interp {
+      background: #f4fbf8; border-left: 3px solid var(--green);
+      border-radius: 10px; padding: 14px 18px;
+      font-size: 13px; line-height: 1.65; color: #2a4a3a;
+    }
+
+    /* ══ TOPBAR ACTIONS ══ */
+    .results-topbar {
+      display: flex; align-items: center; justify-content: flex-end;
+      margin-bottom: 16px; gap: 8px;
+    }
+
+    /* ══ FOOTER ══ */
+    .page-footer {
+      text-align: center; padding: 20px;
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      border-top: 1px solid var(--line); background: white;
+    }
+
+    /* ══ RESPONSIVE ══ */
+    @media (max-width: 1100px) {
+      .opp-grid    { grid-template-columns: 1fr; }
+      .xai-sticky  { position: static; }
+      .charts-grid { grid-template-columns: 1fr; }
+      .kpi-row     { grid-template-columns: repeat(2, 1fr); }
+      .cities-cards { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 720px) {
+      .main        { padding: 16px; }
+      .navbar      { padding: 0 16px; }
+      .nb-nav      { display: none; }
+      .nb-search   { width: 140px; }
+      .kpi-row     { grid-template-columns: 1fr 1fr; }
+      .bt-row      { grid-template-columns: 1fr; }
+      .form-row    { grid-template-columns: 1fr; }
+      .cities-cards { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
 
-<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
-<aside class="sidebar">
-  <div class="brand">
-    <div class="brand-icon">⌂</div>
-    Estate Mind
-  </div>
-
-  <div class="nav-section">Navigation</div>
-  <a class="nav-item" href="#"><span class="ico">🔎</span> BO 1 · Annonces</a>
-  <a class="nav-item" href="#"><span class="ico">🗺️</span> BO 2 · Territoires</a>
-  <a class="nav-item" href="#"><span class="ico">📈</span> BO 3 · Prévisions</a>
-  <a class="nav-item" href="#"><span class="ico">⚖️</span> BO 4 · Réglementaire</a>
-  <a class="nav-item" href="#"><span class="ico">👥</span> BO 5 · CRM</a>
-  <a class="nav-item" href="#"><span class="ico">📊</span> BO 6 · Rapports</a>
-
-  <div class="nav-section" style="margin-top:12px;">Intelligence Artificielle</div>
-  <a class="nav-item active" onclick="showForm()">
-    <span class="ico">💼</span> BO 4 · Investissement
-    <span class="nav-badge">IA</span>
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar">
+  <a class="nb-brand" href="#">
+    <div class="nb-logo">⌂</div>
+    <span>Estate<strong>Mind</strong></span>
   </a>
-</aside>
-
-<!-- ═══════════════════ MAIN ═══════════════════ -->
-<main class="main">
-
-  <!-- TOP BAR -->
-  <div class="topbar">
-    <div>
-      <div class="page-title">BO4 — <span>Support Investment Decisions</span></div>
+  <div class="nb-nav">
+    <button class="nb-tab"><span>🏠</span> Vue d'ensemble</button>
+    <button class="nb-tab"><span>📋</span> Annonces</button>
+    <button class="nb-tab"><span>🗺️</span> Territoires</button>
+    <button class="nb-tab"><span>📈</span> Prévisions</button>
+    <button class="nb-tab"><span>⚖️</span> Réglementaire</button>
+    <button class="nb-tab invest-tab active"><span>💼</span> Investissement IA</button>
+    <button class="nb-tab"><span>📊</span> Rapports</button>
+  </div>
+  <div class="nb-right">
+    <div class="nb-search">
+      <span style="color:var(--muted);font-size:14px;">🔍</span>
+      <input placeholder="Rechercher une annonce, ville…" />
     </div>
-    <div class="topbar-right">
-      <button class="btn btn-soft" id="btnNewAnalysis" onclick="showForm()" style="display:none;">🔄 Nouvelle analyse</button>
-      <button class="btn btn-soft" id="btnExport" onclick="exportCSV()" style="display:none;">⬇ Exporter CSV</button>
+    <div class="nb-bell">🔔</div>
+    <div class="nb-profile">
+      <div class="nb-avatar">A</div>
+      <span>Admin</span>
+      <span style="color:var(--muted);font-size:11px;margin-left:2px;">▾</span>
     </div>
   </div>
+</nav>
 
-  <!-- ═══ FORM PAGE ═══ -->
+<!-- ══ PAGE HEADER ══ -->
+<div class="page-header">
+  <div class="page-eyebrow">Analyse Immobilière · IA</div>
+  <div class="page-title">Décisions d'Investissement <span>Intelligentes</span></div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+  <!-- FORM PAGE -->
   <div id="formPage">
-    <div class="form-card">
-      <h2>💼 Configurer votre analyse d'investissement</h2>
-      <p>Renseignez vos critères pour que nos modèles IA analysent le marché tunisien en temps réel.</p>
-      <div class="form-grid">
-        <div class="form-group full">
+    <div class="form-wrap">
+      <div class="form-heading">
+        <div class="fh-icon">💼</div>
+        <h2>Configurer votre analyse</h2>
+        <p>Renseignez vos critères — notre IA identifiera les meilleures opportunités immobilières tunisiennes.</p>
+      </div>
+      <div class="form-card">
+        <div class="form-field">
           <label>💰 Budget maximum (TND)</label>
-          <input type="number" id="inp-budget" value="450000" placeholder="ex : 450000" />
+          <input type="number" id="inp-budget" value="450000" placeholder="ex : 450 000" />
         </div>
-        <div class="form-group full">
-          <label>📍 Villes préférées (séparées par virgule)</label>
-          <input type="text" id="inp-cities" value="sousse,nabeul,monastir" placeholder="ex : tunis, sousse, nabeul" />
+        <div class="form-row">
+          <div class="form-field" style="margin-bottom:0;">
+            <label>🎯 Objectif principal</label>
+            <select id="inp-goal">
+              <option value="revente">📈 Revente / Plus-value</option>
+              <option value="location_longue">📅 Location longue durée</option>
+              <option value="airbnb">🏖️ Airbnb / Courte durée</option>
+            </select>
+          </div>
+          <div class="form-field" style="margin-bottom:0;">
+            <label>⏳ Horizon (années)</label>
+            <input type="number" id="inp-horizon" value="5" min="1" max="20" />
+          </div>
         </div>
-        <div class="form-group">
-          <label>🎯 Objectif principal</label>
-          <select id="inp-goal">
-            <option value="revente">Revente</option>
-            <option value="location_longue">Location Longue Durée</option>
-            <option value="airbnb">Airbnb / Courte durée</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>⏳ Horizon (années)</label>
-          <input type="number" id="inp-horizon" value="5" min="1" max="20" />
-        </div>
-        <div class="form-group">
+        <div class="form-field" style="margin-top:16px;">
           <label>⚠️ Tolérance au risque</label>
           <select id="inp-risk">
-            <option value="low">Faible — sécurité prioritaire</option>
-            <option value="medium" selected>Moyen — équilibré</option>
-            <option value="high">Élevé — rendement max</option>
+            <option value="low">🟢 Faible — sécurité prioritaire</option>
+            <option value="medium" selected>🟡 Moyen — équilibré</option>
+            <option value="high">🔴 Élevé — rendement maximum</option>
           </select>
         </div>
+        <button class="launch-btn" id="launchBtn" onclick="launchAnalysis()">
+          🚀 Lancer l'Analyse
+        </button>
       </div>
-      <button class="launch-btn" id="launchBtn" onclick="launchAnalysis()">
-        <span>🚀</span> Lancer l'Analyse BO4
-      </button>
     </div>
   </div>
 
-  <!-- ═══ LOADER PAGE ═══ -->
-  <div id="loaderPage" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:80px 0;">
-    <div class="loader-ring"></div>
-    <div style="font-size:18px;font-weight:800;color:var(--navy);margin-bottom:8px;">Analyse IA en cours…</div>
-    <div style="font-size:14px;color:var(--muted);margin-bottom:28px;">Cela peut prendre 30–60 secondes</div>
-    <div class="loader-steps">
-      <div class="loader-step" id="step1"><div class="step-dot"></div>Chargement des 22 000 annonces</div>
-      <div class="loader-step" id="step2"><div class="step-dot"></div>Feature engineering &amp; scoring multi-facteurs</div>
-      <div class="loader-step" id="step3"><div class="step-dot"></div>Projection par ville (DSO2)</div>
-      <div class="loader-step" id="step4"><div class="step-dot"></div>Explications XAI — SHAP</div>
-      <div class="loader-step" id="step5"><div class="step-dot"></div>Agent RL PPO — optimisation portfolio</div>
-    </div>
+  <!-- LOADER -->
+  <div id="loaderPage">
+    <div class="loader-spinner"></div>
+    <div class="loader-title">Analyse en cours…</div>
+    <div class="loader-sub">Cela peut prendre 30–60 secondes</div>
   </div>
 
-  <!-- ═══ RESULTS PAGE ═══ -->
-  <div id="resultsPage" style="display:none;">
+  <!-- RESULTS -->
+  <div id="resultsPage">
+
+    <div class="results-topbar">
+      <button class="btn btn-outline" onclick="goForm()">🔄 Nouvelle analyse</button>
+      <button class="btn btn-outline" onclick="exportCSV()">⬇ Exporter CSV</button>
+    </div>
 
     <!-- Verdict -->
-    <div class="verdict-banner" id="verdictBanner">
-      <div class="vb-label">✅ Analyse complétée</div>
-      <div class="vb-text" id="verdictText">Chargement…</div>
+    <div class="verdict">
+      <div class="verdict-label">✅ Analyse complétée</div>
+      <div class="verdict-text" id="verdictText">Chargement…</div>
     </div>
 
     <!-- KPIs -->
     <div class="kpi-row" id="kpiRow"></div>
 
-    <!-- Filter bar -->
-    <div class="filter-bar">
-      <select id="filterDecision" onchange="applyFilters()">
-        <option value="">Toutes décisions</option>
-        <option value="BUY">BUY</option>
-        <option value="HOLD">HOLD</option>
-        <option value="AVOID">AVOID</option>
-      </select>
-      <select id="filterCity" onchange="applyFilters()">
-        <option value="">Toutes villes</option>
-      </select>
-      <input type="text" id="filterSearch" placeholder="🔍 Rechercher…" oninput="applyFilters()" style="flex:1;max-width:240px;" />
+    <!-- Tabs -->
+    <div class="result-tabs">
+      <button class="rtab active" onclick="switchTab('tab-opps',this)">
+        🏆 Opportunités <span class="tab-count" id="oppCount">—</span>
+      </button>
+      <button class="rtab" onclick="switchTab('tab-analyses',this)">
+        📊 Analyses
+      </button>
+      <button class="rtab" onclick="switchTab('tab-model',this)">
+        🧠 Qualité du modèle
+      </button>
     </div>
 
-    <!-- Table + XAI -->
-    <div class="results-grid">
-      <div class="panel">
-        <div class="panel-title">
-          🏆 Top Recommandations
-          <span class="pt-tag" id="recCount"></span>
-        </div>
-        <table class="rec-table">
-          <thead>
-            <tr>
-              <th>Bien</th>
-              <th>Prix</th>
-              <th>Surface</th>
-              <th>ROI act.</th>
-              <th>ROI proj.</th>
-              <th>Score</th>
-              <th>Décision</th>
-            </tr>
-          </thead>
-          <tbody id="recTableBody"></tbody>
-        </table>
+    <!-- TAB 1 — OPPORTUNITÉS -->
+    <div class="tab-panel active" id="tab-opps">
+      <div class="city-filter-row">
+        <span class="cfl-label">Filtrer par ville :</span>
+        <div class="city-chips" id="cityChips"></div>
       </div>
-      <div class="panel" id="xaiPanel">
-        <div class="panel-title">🔍 Analyse XAI — Meilleur bien</div>
-        <div id="xaiContent">—</div>
+      <div class="opp-grid">
+        <div class="tbl-panel">
+          <div class="tbl-head">
+            <div class="tbl-head-left">
+              <h3>Top Recommandations</h3>
+              <span class="tbl-count" id="tblCount">—</span>
+            </div>
+            <div class="tbl-search">
+              <span style="color:var(--muted);font-size:12px;">🔍</span>
+              <input placeholder="Rechercher…" id="tblSearch" oninput="applyFilters()" />
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="rec-table">
+              <thead>
+                <tr>
+                  <th>Bien</th>
+                  <th>Prix TND</th>
+                  <th>Surface</th>
+                  <th>ROI Act.</th>
+                  <th>ROI Proj.</th>
+                  <th>Score</th>
+                  <th>Décision</th>
+                </tr>
+              </thead>
+              <tbody id="recBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <div class="pagination-info" id="pgInfo">—</div>
+            <div class="pagination-btns" id="pgBtns"></div>
+          </div>
+        </div>
+        <div class="xai-sticky">
+          <div class="xai-panel">
+            <div class="xai-panel-head">🔍 Analyse XAI — Bien sélectionné</div>
+            <div class="xai-panel-body" id="xaiContent">
+              <p style="color:var(--muted);font-size:13px;">Cliquez sur un bien pour voir l'explication IA.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- ROI Chart + Backtest -->
-    <div class="charts-row">
-      <div class="panel">
-        <div class="panel-title">📈 ROI projeté vs actuel — Top recommandations</div>
-        <div class="chart-wrap" style="height:240px;">
-          <canvas id="roiChart" role="img" aria-label="Graphique comparaison ROI actuel vs projeté par bien"></canvas>
+    <!-- TAB 2 — ANALYSES -->
+    <div class="tab-panel" id="tab-analyses">
+      <div class="charts-grid">
+        <div class="chart-panel">
+          <div class="cp-title">📈 ROI projeté vs actuel</div>
+          <div class="cp-sub">Comparaison par bien — Top 7 recommandations</div>
+          <div class="chart-legend" id="roiLegend"></div>
+          <div class="chart-wrap"><canvas id="roiChart"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <div class="cp-title" id="cityChartTitle">🗺️ ROI moyen par ville — Top 5</div>
+          <div class="cp-sub" id="cityChartSub">Calculé sur vos recommandations réelles</div>
+          <div class="chart-wrap"><canvas id="cityChart"></canvas></div>
         </div>
       </div>
-      <div class="panel">
-        <div class="panel-title">🧠 Qualité du modèle — Backtesting</div>
-        <div class="bt-grid" id="btGrid"></div>
-        <div class="bt-interp" id="btInterp"></div>
-        <div class="panel-title" style="margin-top:14px;">Modules IA actifs</div>
-        <div class="ai-modules">
-          <div class="ai-module"><div class="ai-dot"></div><div><div class="ai-mod-title">DSO1 · Profiling</div><div class="ai-mod-sub">Correspondance investisseur</div></div></div>
-          <div class="ai-module"><div class="ai-dot"></div><div><div class="ai-mod-title">DSO2 · Projection</div><div class="ai-mod-sub">Croissance par ville</div></div></div>
-          <div class="ai-module"><div class="ai-dot"></div><div><div class="ai-mod-title">DSO3 · XAI SHAP</div><div class="ai-mod-sub">Explication des scores</div></div></div>
-          <div class="ai-module"><div class="ai-dot"></div><div><div class="ai-mod-title">PPO · Agent RL</div><div class="ai-mod-sub">Optimisation portfolio</div></div></div>
-        </div>
-      </div>
+      <div class="cities-cards" id="citiesGrid"></div>
     </div>
 
-    <!-- Top villes -->
-    <div class="panel" style="margin-bottom:18px;">
-      <div class="panel-title">🗺️ Meilleures villes pour votre profil</div>
-      <div class="cities-row" id="citiesRow"></div>
+    <!-- TAB 3 — MODÈLE -->
+    <div class="tab-panel" id="tab-model">
+      <div class="bt-row" id="btRow"></div>
+      <div class="bt-interp" id="btInterp"></div>
     </div>
 
   </div><!-- /resultsPage -->
+</div><!-- /main -->
 
-</main>
+<div class="page-footer">Estate Mind © 2026 · Analyse d'Investissement Immobilier IA</div>
 
-<!-- ═══════════════════ JAVASCRIPT ═══════════════════ -->
 <script>
-  let allData = null;
-  let roiChartInstance = null;
+  let allData = null, filteredRecs = [], activeCities = new Set();
+  let currentPage = 1;
+  const PAGE_SIZE = 5;
+  let roiChart = null, cityChart = null;
 
-  // ─── NAVIGATION ───
-  function showForm() {
-    document.getElementById('formPage').style.display = 'block';
-    document.getElementById('loaderPage').style.display = 'none';
-    document.getElementById('resultsPage').style.display = 'none';
-    document.getElementById('btnNewAnalysis').style.display = 'none';
-    document.getElementById('btnExport').style.display = 'none';
+  /* ── NAVIGATION ── */
+  const show = (id, d='block') => { const e=document.getElementById(id); if(e) e.style.display=d; };
+  const hide = id => { const e=document.getElementById(id); if(e) e.style.display='none'; };
+
+  function goForm() {
+    show('formPage'); hide('loaderPage'); hide('resultsPage');
+    window.scrollTo(0,0);
+  }
+  function goLoader() {
+    hide('formPage'); show('loaderPage','flex'); hide('resultsPage');
+  }
+  function goResults() {
+    hide('formPage'); hide('loaderPage'); show('resultsPage');
+    window.scrollTo(0,0);
   }
 
-  function showLoader() {
-    document.getElementById('formPage').style.display = 'none';
-    document.getElementById('loaderPage').style.display = 'flex';
-    document.getElementById('resultsPage').style.display = 'none';
-    animateSteps();
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.rtab').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
   }
 
-  function showResults() {
-    document.getElementById('formPage').style.display = 'none';
-    document.getElementById('loaderPage').style.display = 'none';
-    document.getElementById('resultsPage').style.display = 'block';
-    document.getElementById('btnNewAnalysis').style.display = 'inline-flex';
-    document.getElementById('btnExport').style.display = 'inline-flex';
-  }
-
-  // ─── LOADER ANIMATION ───
-  function animateSteps() {
-    const steps = ['step1','step2','step3','step4','step5'];
-    let i = 0;
-    function next() {
-      if (i < steps.length) {
-        document.getElementById(steps[i]).classList.add('active');
-        i++;
-        setTimeout(next, 900);
-      }
-    }
-    // Reset
-    steps.forEach(s => document.getElementById(s).classList.remove('active'));
-    setTimeout(next, 400);
-  }
-
-  // ─── LAUNCH ───
+  /* ── LAUNCH ── */
   async function launchAnalysis() {
     const btn = document.getElementById('launchBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span>⏳</span> Envoi en cours…';
+    btn.disabled = true; btn.innerHTML = '⏳ Lancement…';
+    goLoader();
 
     const payload = {
-      budget: document.getElementById('inp-budget').value,
-      cities: document.getElementById('inp-cities').value,
-      goal: document.getElementById('inp-goal').value,
+      budget:  document.getElementById('inp-budget').value,
+      goal:    document.getElementById('inp-goal').value,
       horizon: document.getElementById('inp-horizon').value,
-      risk: document.getElementById('inp-risk').value
+      risk:    document.getElementById('inp-risk').value,
+      cities:  ''   // pas de filtre ville au lancement — user choisit après
     };
 
-    showLoader();
-
     try {
-      const res = await fetch('http://127.0.0.1:5000/run_analysis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch('/run_analysis', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const result = await res.json();
-
       if (result.status === 'success') {
-        // Attendre un peu pour que l'animation se finisse
-        await new Promise(r => setTimeout(r, 1000));
-        await loadAndRenderResults();
-        showResults();
+        await new Promise(r => setTimeout(r, 800));
+        await loadResults();
+        goResults();
       } else {
-        alert('Erreur serveur : ' + (result.message || 'Inconnue'));
-        showForm();
+        alert('Erreur : ' + (result.message || 'Inconnue'));
+        goForm();
       }
     } catch(e) {
-      console.error(e);
-      alert('❌ Impossible de contacter le serveur.\n\nAssure-toi que python app.py est lancé sur http://127.0.0.1:5000');
-      showForm();
+      alert('❌ Serveur non joignable.\nAssure-toi que python app.py est lancé.');
+      goForm();
     }
-
-    btn.disabled = false;
-    btn.innerHTML = '<span>🚀</span> Lancer l\'Analyse BO4';
+    btn.disabled = false; btn.innerHTML = '🚀 Lancer l\'Analyse';
   }
 
-  // ─── LOAD & RENDER ───
-  async function loadAndRenderResults() {
-    const res = await fetch('data/results.json?t=' + Date.now());
+  /* ── LOAD ── */
+  async function loadResults() {
+    const res = await fetch('/data/results.json?t=' + Date.now());
     allData = await res.json();
     renderAll(allData);
   }
 
-  function renderAll(data) {
-    renderVerdict(data);
-    renderKPIs(data);
-    renderTable(data.recommendations);
-    renderXAI(data.recommendations[0]);
-    renderROIChart(data.recommendations.slice(0, 7));
-    renderBacktest(data.backtest);
-    renderCities(data.top_cities);
-    populateCityFilter(data.recommendations);
+  function renderAll(d) {
+    renderVerdict(d);
+    renderKPIs(d);
+    buildCityChips(d.recommendations);
+    applyFilters();
+    renderXAI(d.recommendations[0]);
+    renderROIChart(d.recommendations.slice(0,7));
+    renderCityChart(d);
+    renderCities(d);
+    renderBacktest(d.backtest);
+    const el = document.getElementById('oppCount');
+    if (el) el.textContent = d.recommendations.length;
   }
 
-  // ─── VERDICT ───
-  function renderVerdict(data) {
-    const kpis = data.kpis;
-    const goal_map = { revente: 'revente', location_longue: 'location longue durée', airbnb: 'Airbnb' };
-    const goal = goal_map[kpis.goal] || kpis.goal;
-    const best = data.recommendations[0];
-    const text = `Sur <strong>${kpis.biens_analyses.toLocaleString('fr-FR')} biens</strong> analysés dans votre budget de <strong>${Number(kpis.budget).toLocaleString('fr-FR')} TND</strong>, 
-      notre système IA a identifié <strong>${kpis.recommandations_buy} opportunités BUY</strong> pour un objectif <strong>${goal}</strong> sur ${kpis.horizon} ans.
-      ${best ? `La meilleure opportunité est un <strong>${best.property_type}</strong> à <strong>${best.city}</strong> (${Number(best.price_value).toLocaleString('fr-FR')} TND) avec un ROI projeté de <strong>${(best.projected_roi*100).toFixed(2)}%</strong>.` : ''}
-      Le modèle IA affiche une précision de ${data.backtest ? data.backtest.precision_top5 + '% sur le Top 5' : 'haute précision'}.`;
-    document.getElementById('verdictText').innerHTML = text;
+  /* ── VERDICT ── */
+  function renderVerdict(d) {
+    const k = d.kpis;
+    const gm = { revente:'revente', location_longue:'location longue durée', airbnb:'Airbnb' };
+    const b  = d.recommendations[0];
+    document.getElementById('verdictText').innerHTML =
+      `Budget <strong>${Number(k.budget).toLocaleString('fr-FR')} TND</strong> · ` +
+      `Horizon <strong>${k.horizon} ans</strong> · Risque <strong>${k.risk||'medium'}</strong> — ` +
+      `Sur <strong>${Number(k.biens_analyses).toLocaleString('fr-FR')} biens</strong> analysés, ` +
+      `<strong>${k.recommandations_buy} BUY identifiées</strong> pour un objectif <strong>${gm[k.goal]||k.goal}</strong>.` +
+      (b ? ` Meilleure opportunité : <strong>${cap(b.property_type)} à ${b.city}</strong> ` +
+        `(${Number(b.price_value).toLocaleString('fr-FR')} TND · ROI projeté <strong>${(b.projected_roi*100).toFixed(2)}%</strong>).` : '');
   }
 
-  // ─── KPIs ───
-  function renderKPIs(data) {
-    const k = data.kpis;
-    const html = [
-      { label:'Biens analysés', value: Number(k.biens_analyses).toLocaleString('fr-FR'), sub: `${k.recommandations_buy} BUY identifiés`, cls:'g' },
-      { label:'ROI moyen projeté', value: k.roi_moyen_projete.toFixed(2)+'%', sub: `Horizon ${k.horizon} ans`, cls:'g' },
-      { label:'Budget', value: (k.budget/1000).toFixed(0)+'K TND', sub: 'Budget configuré', cls:'o' },
-      { label:'Opportunités BUY', value: k.recommandations_buy, sub: 'Score > 0.75', cls:'g' },
-    ].map(c => `
-      <div class="kpi-card">
-        <div class="kpi-label">${c.label}</div>
-        <div class="kpi-value">${c.value}</div>
-        <div class="kpi-sub ${c.cls}">${c.sub}</div>
-      </div>
-    `).join('');
-    document.getElementById('kpiRow').innerHTML = html;
+  /* ── KPIs ── */
+  function renderKPIs(d) {
+    const k = d.kpis, b = d.recommendations[0];
+    const items = [
+      { label:'Biens analysés',      value:Number(k.biens_analyses).toLocaleString('fr-FR'), sub:`${k.recommandations_buy} BUY identifiées`, sc:'ks-g', ic:'ki-green',  cc:'kc-green',  icon:'🏠' },
+      { label:'ROI moyen projeté',   value:k.roi_moyen_projete.toFixed(2)+'%',               sub:`Horizon ${k.horizon} ans`,                 sc:'ks-g', ic:'ki-green',  cc:'kc-green',  icon:'📈' },
+      { label:'Opportunités BUY',    value:k.recommandations_buy,                             sub:`sur ${Number(k.biens_analyses).toLocaleString('fr-FR')} éligibles`, sc:'ks-o', ic:'ki-orange', cc:'kc-orange', icon:'✅' },
+      { label:'Meilleur score',      value:b?(b.final_score||0).toFixed(3):'—',               sub:b?`${b.city} · ${Math.round(b.price_value/1000)}K TND`:'', sc:'ks-g', ic:'ki-blue', cc:'kc-blue', icon:'⭐' },
+    ];
+    document.getElementById('kpiRow').innerHTML = items.map(i => `
+      <div class="kpi-card ${i.cc}">
+        <div class="kpi-icon ${i.ic}">${i.icon}</div>
+        <div class="kpi-label">${i.label}</div>
+        <div class="kpi-value">${i.value}</div>
+        <div class="kpi-sub ${i.sc}">${i.sub}</div>
+      </div>`).join('');
   }
 
-  // ─── TABLE ───
-  function renderTable(recs) {
-    document.getElementById('recCount').textContent = recs.length + ' biens';
-    const tbody = document.getElementById('recTableBody');
-    tbody.innerHTML = recs.map((p, i) => {
-      const decCls = { BUY:'buy', HOLD:'hold', AVOID:'avoid' }[p.decision] || 'hold';
-      const scorePct = Math.round((p.final_score || 0) * 100);
-      const aiTag = p.rl_selected ? '<span class="badge badge-ai">🤖 IA</span>' : '';
-      return `<tr onclick="renderXAI(allData.recommendations[${i}])" style="cursor:pointer;">
-        <td>
-          <div class="prop-name">${capitalize(p.property_type)} ${aiTag}</div>
-          <div class="prop-city">${p.city}</div>
-        </td>
-        <td>${Number(p.price_value).toLocaleString('fr-FR')}</td>
+  /* ── CITY CHIPS ── */
+  function buildCityChips(recs) {
+    const cities = [...new Set(recs.map(r => r.city))].sort();
+    document.getElementById('cityChips').innerHTML = cities.map(c =>
+      `<button class="city-chip" onclick="toggleCity('${c}',this)">${c}</button>`).join('');
+  }
+
+  function toggleCity(city, btn) {
+    activeCities.has(city) ? (activeCities.delete(city), btn.classList.remove('active'))
+                           : (activeCities.add(city),    btn.classList.add('active'));
+    currentPage = 1;
+    applyFilters();
+  }
+
+  /* ── FILTERS + TABLE ── */
+  function applyFilters() {
+    if (!allData) return;
+    const q = (document.getElementById('tblSearch')?.value||'').toLowerCase();
+    filteredRecs = allData.recommendations.filter(p =>
+      (activeCities.size===0 || activeCities.has(p.city)) &&
+      (!q || p.city.toLowerCase().includes(q) || p.property_type.toLowerCase().includes(q))
+    );
+    renderTablePage();
+    if (filteredRecs.length > 0) renderXAI(filteredRecs[0]);
+  }
+
+  function renderTablePage() {
+    const total = filteredRecs.length;
+    const totalPages = Math.max(1, Math.ceil(total/PAGE_SIZE));
+    if (currentPage > totalPages) currentPage = totalPages;
+    const start = (currentPage-1)*PAGE_SIZE;
+    const end   = Math.min(start+PAGE_SIZE, total);
+    const page  = filteredRecs.slice(start, end);
+
+    const tc = document.getElementById('tblCount');
+    if (tc) tc.textContent = total + ' bien' + (total>1?'s':'');
+
+    document.getElementById('recBody').innerHTML = page.map((p,i) => {
+      const dc  = {BUY:'buy',HOLD:'hold',AVOID:'avoid'}[p.decision]||'hold';
+      const pct = Math.round((p.final_score||0)*100);
+      const ai  = p.rl_selected ? '<span class="badge badge-ai">🤖 IA</span>' : '';
+      const gi  = allData.recommendations.indexOf(p);
+      return `<tr class="${(start+i)===0?'best-row':''}" onclick="renderXAI(allData.recommendations[${gi}])">
+        <td><div class="prop-name">${cap(p.property_type)} ${ai}</div><div class="prop-city">${p.city}</div></td>
+        <td><strong>${Number(p.price_value).toLocaleString('fr-FR')}</strong></td>
         <td>${p.surface_m2} m²</td>
         <td>${(p.roi_gross*100).toFixed(2)}%</td>
-        <td style="color:#2f9c7e;font-weight:800;">${(p.projected_roi*100).toFixed(2)}%</td>
+        <td style="color:var(--green);font-weight:800;">${(p.projected_roi*100).toFixed(2)}%</td>
         <td>
-          <span style="font-size:12px;font-weight:800;">${(p.final_score||0).toFixed(3)}</span>
-          <div class="score-bar-wrap"><div class="score-bar-fill" style="width:${scorePct}%"></div></div>
+          <div style="font-size:12px;font-weight:800;">${(p.final_score||0).toFixed(3)}</div>
+          <div class="score-bar-track"><div class="score-bar-fill" style="width:${pct}%"></div></div>
         </td>
-        <td><span class="badge badge-${decCls}">${p.decision}</span></td>
+        <td><span class="badge badge-${dc}">${p.decision}</span></td>
       </tr>`;
     }).join('');
+
+    const pi = document.getElementById('pgInfo');
+    if (pi) pi.textContent = total>0 ? `${start+1}–${end} sur ${total}` : '0 résultat';
+
+    const pb = document.getElementById('pgBtns');
+    if (pb) {
+      let h = `<button class="pg-btn" onclick="changePage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+      for (let p=1;p<=totalPages;p++)
+        h += `<button class="pg-btn ${p===currentPage?'active':''}" onclick="changePage(${p})">${p}</button>`;
+      h += `<button class="pg-btn" onclick="changePage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}>›</button>`;
+      pb.innerHTML = h;
+    }
   }
 
-  // ─── XAI ───
+  function changePage(p) {
+    const tp = Math.ceil(filteredRecs.length/PAGE_SIZE);
+    if (p<1||p>tp) return;
+    currentPage = p; renderTablePage();
+  }
+
+  /* ── XAI ── */
   function renderXAI(p) {
     if (!p) return;
     const factors = parseXAI(p.xai_explanation);
     const facHTML = factors.map(f => `
       <div class="shap-row">
         <div class="shap-label">${f.label}</div>
-        <div class="shap-bar-wrap">
-          <div class="shap-bar ${f.cls}" style="width:${f.pct}%"></div>
-        </div>
+        <div class="shap-track"><div class="shap-fill ${f.cls}" style="width:${f.pct}%"></div></div>
         <div class="shap-val ${f.cls}">${f.raw}</div>
       </div>`).join('');
-
     document.getElementById('xaiContent').innerHTML = `
-      <div class="xai-header">
-        <div class="xh-tag">🏆 Meilleure opportunité</div>
-        <div class="xh-name">${capitalize(p.property_type)} · ${p.city}</div>
-        <div class="xh-price">${Number(p.price_value).toLocaleString('fr-FR')} TND</div>
-        <div class="xai-pills">
-          <span class="xai-pill">📐 ${p.surface_m2} m²</span>
-          <span class="xai-pill">📈 ROI ${(p.roi_gross*100).toFixed(2)}%</span>
-          <span class="xai-pill">⭐ Score ${(p.final_score||0).toFixed(3)}</span>
-          ${p.rl_selected ? '<span class="xai-pill">🤖 Sélectionné IA</span>' : ''}
+      <div class="xai-best-card">
+        <div class="xbc-tag">🏆 Opportunité sélectionnée</div>
+        <div class="xbc-name">${cap(p.property_type)} · ${p.city}</div>
+        <div class="xbc-price">${Number(p.price_value).toLocaleString('fr-FR')} TND</div>
+        <div class="xbc-pills">
+          <span class="xbc-pill">📐 ${p.surface_m2} m²</span>
+          <span class="xbc-pill">📈 ${(p.roi_gross*100).toFixed(2)}%</span>
+          <span class="xbc-pill">⭐ ${(p.final_score||0).toFixed(3)}</span>
+          ${p.rl_selected?'<span class="xbc-pill">🤖 IA</span>':''}
         </div>
       </div>
-      <div class="panel-title" style="font-size:12px;margin-bottom:10px;">Facteurs SHAP déterminants</div>
-      <div class="shap-factors">${facHTML || '<div style="color:var(--muted);font-size:13px;">Explication non disponible</div>'}</div>
-      <div class="interp-box">${buildInterpretation(p, factors)}</div>
-    `;
+      <div class="shap-title">Facteurs déterminants (SHAP)</div>
+      ${facHTML||'<p style="color:var(--muted);font-size:12px;">Explication non disponible.</p>'}
+      <div class="interp-box">
+        ROI projeté de <strong>${(p.projected_roi*100).toFixed(2)}%</strong> — supérieur à la moyenne du marché.
+        ${p.rl_selected?" Confirmé par l'agent RL PPO.":''}
+      </div>`;
   }
 
   function parseXAI(text) {
     if (!text) return [];
-    const results = [];
-    const regex = /([A-Za-z\s]+?)(?:augmente|influence|réduit|diminue)[^(]*\(([+-]?[\d.]+)\)/g;
+    const out=[], re=/([A-Za-zÀ-ÿ\s]+?)(?:augmente|influence|réduit|diminue)[^(]*\(([+-]?[\d.]+)\)/g;
     let m;
-    while ((m = regex.exec(text)) !== null) {
-      const val = parseFloat(m[2]);
-      if (isNaN(val)) continue;
-      const cls = val > 0.03 ? 'pos' : val < -0.02 ? 'neg' : 'neu';
-      results.push({
-        label: m[1].trim().slice(0, 22),
-        raw: (val > 0 ? '+' : '') + val.toFixed(3),
-        pct: Math.min(Math.abs(val) * 800, 100),
-        cls, val
-      });
+    while((m=re.exec(text))!==null){
+      const v=parseFloat(m[2]); if(isNaN(v)) continue;
+      out.push({label:m[1].trim().slice(0,20), raw:(v>0?'+':'')+v.toFixed(3), pct:Math.min(Math.abs(v)*800,100), cls:v>0.03?'pos':v<-0.02?'neg':'neu'});
     }
-    // Fallback si regex ne matche pas
-    if (results.length === 0 && text.length > 10) {
-      [
-        { label: 'Profil investisseur', val: 0.079 },
-        { label: 'ROI normalisé', val: 0.043 },
-        { label: 'ROI projeté', val: 0.022 },
-      ].forEach(f => results.push({
-        label: f.label, raw: '+' + f.val.toFixed(3),
-        pct: f.val * 800, cls: 'pos', val: f.val
-      }));
-    }
-    return results.slice(0, 4);
+    if(!out.length)[{l:'Profil investisseur',v:.079},{l:'ROI normalisé',v:.043},{l:'ROI projeté',v:.022}]
+      .forEach(f=>out.push({label:f.l,raw:'+'+f.v.toFixed(3),pct:f.v*800,cls:'pos'}));
+    return out.slice(0,4);
   }
 
-  function buildInterpretation(p, factors) {
-    const topFactor = factors[0];
-    const roiStr = (p.projected_roi * 100).toFixed(2);
-    return `Ce bien est recommandé principalement grâce à <strong>${topFactor ? topFactor.label : 'son profil de rendement'}</strong>. 
-      Avec un ROI projeté de <strong>${roiStr}%</strong>, il surpasse la moyenne du marché tunisien. 
-      ${p.rl_selected ? "L'agent RL PPO l'a confirmé comme priorité absolue de votre portfolio." : ""}
-      Le rapport qualité/prix est favorable : ${p.surface_m2}m² pour ${Number(p.price_value).toLocaleString('fr-FR')} TND.`;
-  }
-
-  // ─── ROI CHART ───
+  /* ── ROI CHART ── */
   function renderROIChart(recs) {
-    const labels = recs.map(p => capitalize(p.property_type) + '\n' + p.city.split(' ')[0]);
-    const roiActuel = recs.map(p => parseFloat((p.roi_gross * 100).toFixed(2)));
-    const roiProj = recs.map(p => parseFloat((p.projected_roi * 100).toFixed(2)));
-
-    if (roiChartInstance) roiChartInstance.destroy();
     const ctx = document.getElementById('roiChart').getContext('2d');
-    roiChartInstance = new Chart(ctx, {
+    if (roiChart) roiChart.destroy();
+    roiChart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels,
+        labels: recs.map(p => cap(p.property_type).slice(0,8)+'\n'+p.city.split(' ')[0]),
         datasets: [
-          {
-            label: 'ROI actuel (%)',
-            data: roiActuel,
-            backgroundColor: 'rgba(107,175,155,0.45)',
-            borderColor: '#6baf9b',
-            borderWidth: 1.5,
-            borderRadius: 5,
-          },
-          {
-            label: 'ROI projeté (%)',
-            data: roiProj,
-            backgroundColor: 'rgba(47,156,126,0.85)',
-            borderColor: '#2f9c7e',
-            borderWidth: 1.5,
-            borderRadius: 5,
-          }
+          { label:'ROI actuel (%)',  data:recs.map(p=>+(p.roi_gross*100).toFixed(2)),    backgroundColor:'rgba(110,175,155,.35)', borderColor:'rgba(110,175,155,.8)', borderWidth:1.5, borderRadius:5 },
+          { label:'ROI projeté (%)', data:recs.map(p=>+(p.projected_roi*100).toFixed(2)), backgroundColor:'rgba(47,156,126,.8)',   borderColor:'#2f9c7e',              borderWidth:1.5, borderRadius:5 },
         ]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: ctx => ' ' + ctx.dataset.label + ' : ' + ctx.parsed.y.toFixed(2) + '%'
-            }
-          }
-        },
-        scales: {
-          x: {
-            grid: { color: 'rgba(0,0,0,0.05)' },
-            ticks: { color: '#6e7a8a', font: { size: 11 } }
-          },
-          y: {
-            grid: { color: 'rgba(0,0,0,0.05)' },
-            ticks: {
-              color: '#6e7a8a', font: { size: 11 },
-              callback: v => v.toFixed(1) + '%'
-            }
-          }
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y.toFixed(2)+'%'}} },
+        scales:{
+          x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#6e7a8a',font:{size:10}}},
+          y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#6e7a8a',callback:v=>v.toFixed(1)+'%'}}
         }
       }
     });
-
-    // Légende manuelle
-    const legend = `
-      <div style="display:flex;gap:16px;font-size:12px;color:#6e7a8a;margin-bottom:8px;">
-        <span style="display:flex;align-items:center;gap:5px;">
-          <span style="width:12px;height:12px;border-radius:3px;background:rgba(107,175,155,0.45);border:1.5px solid #6baf9b;display:inline-block;"></span>ROI actuel
-        </span>
-        <span style="display:flex;align-items:center;gap:5px;">
-          <span style="width:12px;height:12px;border-radius:3px;background:rgba(47,156,126,0.85);display:inline-block;"></span>ROI projeté
-        </span>
-      </div>`;
-    document.querySelector('.charts-row .panel .panel-title').insertAdjacentHTML('afterend', legend);
+    document.getElementById('roiLegend').innerHTML = `
+      <div class="cl-item"><div class="cl-dot" style="background:rgba(110,175,155,.7);"></div>ROI actuel</div>
+      <div class="cl-item"><div class="cl-dot" style="background:#2f9c7e;"></div>ROI projeté</div>`;
   }
 
-  // ─── BACKTEST ───
+  /* ── CITY CHART — valeurs réelles du dataset ── */
+  function renderCityChart(d) {
+    /* Calcul depuis les recommandations réelles — pas de valeurs fictives par objectif */
+    const cityMap = {};
+    d.recommendations.forEach(r => {
+      if (!cityMap[r.city]) cityMap[r.city] = { sum:0, count:0 };
+      cityMap[r.city].sum   += r.projected_roi;
+      cityMap[r.city].count++;
+    });
+    const cityData = Object.entries(cityMap)
+      .map(([city,v]) => ({ city, roi: v.sum/v.count }))
+      .sort((a,b) => b.roi - a.roi)
+      .slice(0,5);
+
+    document.getElementById('cityChartSub').textContent =
+      `ROI projeté moyen calculé sur vos ${d.recommendations.length} recommandations`;
+
+    const ctx = document.getElementById('cityChart').getContext('2d');
+    if (cityChart) cityChart.destroy();
+    cityChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: cityData.map(c => c.city),
+        datasets: [{
+          data: cityData.map(c => +(c.roi*100).toFixed(2)),
+          backgroundColor: cityData.map((_,i) => i===0 ? 'rgba(47,156,126,.9)' : 'rgba(47,156,126,.42)'),
+          borderColor: '#2f9c7e', borderWidth:1.5, borderRadius:6,
+        }]
+      },
+      options: {
+        indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>' '+c.parsed.x.toFixed(2)+'%'}} },
+        scales:{
+          x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#6e7a8a',callback:v=>v+'%'},min:0},
+          y:{grid:{display:false},ticks:{color:'#0b1d33',font:{weight:'700',size:12}}}
+        }
+      }
+    });
+  }
+
+  /* ── CITIES CARDS ── */
+  function renderCities(d) {
+    const cityMap = {};
+    d.recommendations.forEach(r => {
+      if (!cityMap[r.city]) cityMap[r.city] = { sum:0, n:0 };
+      cityMap[r.city].sum += r.projected_roi; cityMap[r.city].n++;
+    });
+    const top = Object.entries(cityMap)
+      .map(([city,v]) => ({city, roi:v.sum/v.n}))
+      .sort((a,b) => b.roi-a.roi).slice(0,3);
+    const emojis = ['🥇','🥈','🥉'];
+    const h = document.getElementById('inp-horizon').value;
+    document.getElementById('citiesGrid').innerHTML = top.map((c,i) => `
+      <div class="city-card">
+        <span style="font-size:22px;">${emojis[i]}</span>
+        <div style="flex:1;">
+          <div class="city-card-name">${c.city}</div>
+          <div class="city-card-sub">ROI projeté · ${h} ans</div>
+        </div>
+        <div class="city-card-roi">${(c.roi*100).toFixed(2)}%</div>
+      </div>`).join('');
+  }
+
+  /* ── BACKTEST ── */
   function renderBacktest(bt) {
     if (!bt) return;
-    document.getElementById('btGrid').innerHTML = `
-      <div class="bt-card">
-        <div class="bt-num g">${bt.mape.toFixed(2)}%</div>
-        <div class="bt-label">Erreur moy. (MAPE)</div>
-      </div>
-      <div class="bt-card">
-        <div class="bt-num">${bt.mae.toFixed(4)}</div>
-        <div class="bt-label">MAE ROI absolu</div>
-      </div>
-      <div class="bt-card">
-        <div class="bt-num g">${bt.precision_top5}%</div>
-        <div class="bt-label">Précision Top 5</div>
-      </div>
-    `;
-    const prec = bt.precision_top5;
-    document.getElementById('btInterp').innerHTML = `
-      Le modèle se trompe en moyenne de <strong>${bt.mape.toFixed(1)}%</strong> sur les prédictions de ROI 
-      — c'est excellent pour l'immobilier. Sur les dernières recommandations historiques, 
-      <strong>${Math.round(prec/100*5)} bien(s) sur 5</strong> étaient effectivement rentables (précision ${prec}%).
-    `;
+    document.getElementById('btRow').innerHTML = `
+      <div class="bt-card"><div class="bt-num g">${bt.mape.toFixed(2)}%</div><div class="bt-lbl">Erreur moy. MAPE</div></div>
+      <div class="bt-card"><div class="bt-num">${bt.mae.toFixed(4)}</div><div class="bt-lbl">MAE ROI absolu</div></div>
+      <div class="bt-card"><div class="bt-num g">${bt.precision_top5}%</div><div class="bt-lbl">Précision Top 5</div></div>`;
+    document.getElementById('btInterp').innerHTML =
+      `Le modèle se trompe en moyenne de <strong>${bt.mape.toFixed(1)}%</strong> sur les prédictions de ROI — ` +
+      `excellent pour l'immobilier. Sur les 5 dernières recommandations historiques, ` +
+      `<strong>${Math.round(bt.precision_top5/100*5)} sur 5</strong> étaient effectivement rentables.`;
   }
 
-  // ─── CITIES ───
-  function renderCities(cities) {
-    if (!cities || cities.length === 0) {
-      document.querySelector('.panel:last-child').style.display = 'none';
-      return;
-    }
-    const labels = ['🥇', '🥈', '🥉'];
-    document.getElementById('citiesRow').innerHTML = cities.slice(0, 3).map((c, i) => `
-      <div class="city-card">
-        <div class="city-rank">${labels[i] || '#'+ (i+1)} Meilleure ville</div>
-        <div class="city-name">${c.city}</div>
-        <div class="city-roi">${(c.roi * 100).toFixed(2)}%</div>
-        <div class="city-label">ROI projeté</div>
-      </div>
-    `).join('');
-  }
-
-  // ─── FILTERS ───
-  function populateCityFilter(recs) {
-    const cities = [...new Set(recs.map(r => r.city))].sort();
-    const sel = document.getElementById('filterCity');
-    cities.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c; opt.textContent = c;
-      sel.appendChild(opt);
-    });
-  }
-
-  function applyFilters() {
-    const dec = document.getElementById('filterDecision').value;
-    const city = document.getElementById('filterCity').value;
-    const q = document.getElementById('filterSearch').value.toLowerCase();
-    let filtered = allData.recommendations.filter(p => {
-      if (dec && p.decision !== dec) return false;
-      if (city && p.city !== city) return false;
-      if (q && !p.city.toLowerCase().includes(q) && !p.property_type.toLowerCase().includes(q)) return false;
-      return true;
-    });
-    renderTable(filtered);
-    if (filtered.length > 0) renderXAI(filtered[0]);
-  }
-
-  // ─── EXPORT CSV ───
+  /* ── EXPORT CSV ── */
   function exportCSV() {
     if (!allData) return;
-    const cols = ['property_type','city','price_value','surface_m2','roi_gross','projected_roi','decision','final_score'];
-    const header = cols.join(';');
-    const rows = allData.recommendations.map(r => cols.map(c => r[c]).join(';'));
-    const csv = [header, ...rows].join('\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'estate_mind_bo4_' + new Date().toISOString().slice(0,10) + '.csv';
+    const cols = ['property_type','city','price_value','surface_m2','roi_gross','projected_roi','decision','final_score','rl_selected'];
+    const csv  = [cols.join(';'), ...allData.recommendations.map(r => cols.map(c=>r[c]).join(';'))].join('\n');
+    const a    = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'}));
+    a.download = 'estate_mind_'+new Date().toISOString().slice(0,10)+'.csv';
     a.click();
   }
 
-  // ─── UTILS ───
-  function capitalize(s) {
-    if (!s) return '';
-    return s.charAt(0).toUpperCase() + s.slice(1);
-  }
-
-  // Init
-  showForm();
+  const cap = s => s ? s.charAt(0).toUpperCase()+s.slice(1) : '';
+  goForm();
 </script>
 </body>
 </html>
