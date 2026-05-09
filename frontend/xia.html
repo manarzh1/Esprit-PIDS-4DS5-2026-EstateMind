@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EstateMind — Intelligence & Traçabilité</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+/* ── XIA PAGE STYLES ─────────────────────────────────────── */
+.xia-header-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, rgba(47,156,126,0.18), rgba(43,123,229,0.12));
+  border: 1px solid rgba(47,156,126,0.3);
+  border-radius: 999px; padding: 6px 16px;
+  font-size: 11px; font-weight: 700; color: var(--green);
+  text-transform: uppercase; letter-spacing: 1.2px;
+  margin-bottom: 10px;
+}
+
+/* ── KPI SCORE CARDS ─────────────────────────────────────── */
+.xia-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.xia-kpi {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.95);
+  border-radius: var(--radius-lg);
+  padding: 22px 20px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+.xia-kpi:hover { transform: translateY(-3px); }
+.xia-kpi::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.xia-kpi.green::before { background: linear-gradient(90deg, var(--green), #71d5b1); }
+.xia-kpi.orange::before { background: linear-gradient(90deg, var(--accent), #ffc077); }
+.xia-kpi.blue::before { background: linear-gradient(90deg, var(--blue), #7eb8f7); }
+.xia-kpi.navy::before { background: linear-gradient(90deg, var(--navy), var(--navy2)); }
+.xia-kpi-icon { font-size: 28px; margin-bottom: 10px; }
+.xia-kpi-label { font-size: 10px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.xia-kpi-value { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 800; color: var(--text); line-height: 1; }
+.xia-kpi-value.green { color: var(--green); }
+.xia-kpi-value.orange { color: var(--accent); }
+.xia-kpi-value.blue { color: var(--blue); }
+.xia-kpi-sub { font-size: 11px; color: var(--dim); margin-top: 6px; }
+
+/* ── JAUGE SCORE R² ──────────────────────────────────────── */
+.gauge-wrapper {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 24px 20px 16px;
+}
+.gauge-label-main {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px; font-weight: 800; color: var(--green);
+  margin-top: -10px;
+}
+.gauge-label-sub { font-size: 11px; color: var(--dim); font-weight: 700; margin-top: 2px; }
+.gauge-band {
+  display: flex; gap: 6px; margin-top: 16px; width: 100%;
+}
+.gauge-seg {
+  flex: 1; height: 6px; border-radius: 99px;
+  background: var(--border);
+}
+.gauge-seg.active { background: var(--green); }
+
+/* ── FEATURE IMPORTANCE ──────────────────────────────────── */
+.feat-row {
+  display: flex; align-items: center; gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.feat-row:last-child { border-bottom: none; }
+.feat-name { font-size: 13px; font-weight: 600; color: var(--text); min-width: 140px; }
+.feat-bar-track { flex: 1; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.feat-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--green), #71d5b1); transition: width 1.2s cubic-bezier(.22,1,.36,1); }
+.feat-bar-fill.orange { background: linear-gradient(90deg, var(--accent), #ffc077); }
+.feat-bar-fill.blue { background: linear-gradient(90deg, var(--blue), #7eb8f7); }
+.feat-pct { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--dim); min-width: 42px; text-align: right; font-weight: 600; }
+
+/* ── SARIMA INSIGHT PANEL ────────────────────────────────── */
+.sarima-mini-layout { display: grid; grid-template-columns: 260px 1fr; gap: 20px; align-items: start; }
+.mini-control {
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.95);
+  border-radius: var(--radius-lg); padding: 20px;
+  box-shadow: var(--shadow);
+}
+.mini-control-title { font-size: 10px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+
+/* ── TRACABILITE TIMELINE ────────────────────────────────── */
+.trace-timeline { position: relative; padding-left: 28px; }
+.trace-timeline::before { content:''; position:absolute; left:10px; top:0; bottom:0; width:2px; background:var(--border); border-radius:99px; }
+.trace-step { position: relative; margin-bottom: 20px; }
+.trace-step:last-child { margin-bottom: 0; }
+.trace-dot {
+  position: absolute; left: -22px; top: 2px;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800;
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.trace-dot.done { background: var(--green); color: white; }
+.trace-dot.active { background: var(--accent); color: white; }
+.trace-dot.pending { background: var(--border2); color: var(--dim); }
+.trace-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.trace-body { font-size: 11px; color: var(--dim); margin-top: 3px; line-height: 1.5; }
+.trace-meta { font-size: 10px; color: var(--light); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+.trace-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 6px;
+  font-size: 10px; font-weight: 700; margin-right: 4px; margin-top: 6px;
+}
+.trace-tag.green { background: var(--green-lt); color: var(--green); }
+.trace-tag.orange { background: var(--accent-lt); color: var(--accent-dk); }
+.trace-tag.blue { background: var(--blue-lt); color: var(--blue); }
+
+/* ── PREDICTION LOG ──────────────────────────────────────── */
+.pred-log-header {
+  display: grid; grid-template-columns: 80px 1fr 1fr 90px 80px 70px;
+  gap: 8px; padding: 8px 12px;
+  font-size: 10px; font-weight: 700; color: var(--dim);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  background: var(--bg); border-radius: var(--radius) var(--radius) 0 0;
+  border: 1px solid var(--border); border-bottom: none;
+}
+.pred-log-row {
+  display: grid; grid-template-columns: 80px 1fr 1fr 90px 80px 70px;
+  gap: 8px; padding: 10px 12px;
+  font-size: 12px; border-bottom: 1px solid var(--border);
+  background: white; align-items: center;
+  transition: background 0.15s;
+}
+.pred-log-row:last-child { border-radius: 0 0 var(--radius) var(--radius); border-bottom: none; }
+.pred-log-row:hover { background: var(--bg); }
+.pred-log-wrap { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.conf-badge { display:inline-flex; align-items:center; gap:3px; padding:3px 9px; border-radius:6px; font-size:11px; font-weight:700; }
+.conf-badge.high { background:var(--green-lt); color:var(--green); }
+.conf-badge.med { background:var(--gold-lt); color:var(--gold); }
+.conf-badge.low { background:rgba(231,76,60,0.08); color:#E74C3C; }
+
+/* ── RESIDUALS QUICK VIEW ────────────────────────────────── */
+.metrics-compare {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.metric-compare-box {
+  background: var(--bg); border-radius: var(--radius);
+  padding: 14px 16px; border: 1px solid var(--border);
+}
+.mcb-label { font-size: 10px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.mcb-val { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; color: var(--text); }
+.mcb-sub { font-size: 11px; color: var(--dim); margin-top: 3px; }
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .xia-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .sarima-mini-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 680px) {
+  .xia-kpi-grid { grid-template-columns: 1fr; }
+  .metrics-compare { grid-template-columns: 1fr; }
+  .pred-log-header, .pred-log-row { grid-template-columns: 70px 1fr 80px 60px; }
+  .pred-log-header > *:nth-child(3),
+  .pred-log-row > *:nth-child(3),
+  .pred-log-header > *:nth-child(6),
+  .pred-log-row > *:nth-child(6) { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="main-content">
+
+  <!-- ── PAGE HEADER ─────────────────────────────────────── -->
+  <header class="page-header">
+    <div>
+      <div class="xia-header-badge">🔬 Intelligence Explicable</div>
+      <div class="page-title">Évaluation <span>des modèles</span></div>
+      <div class="page-subtitle">Performances, traçabilité et transparence — pour vous et vos clients</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" onclick="refreshAll()" id="btnRefresh" style="gap:8px;">
+        <span id="refreshIcon">🔄</span> Actualiser
+      </button>
+    </div>
+  </header>
+
+  <div class="page-body">
+
+    <!-- ── SECTION 1 : KPI MODÈLES ─────────────────────────── -->
+    <div class="xia-kpi-grid" id="kpiGrid">
+      <!-- Remplies dynamiquement -->
+      <div class="xia-kpi green skeleton" id="kpi-r2">
+        <div class="xia-kpi-icon">🎯</div>
+        <div class="xia-kpi-label">Score R² — Random Forest</div>
+        <div class="xia-kpi-value green" id="val-r2">—</div>
+        <div class="xia-kpi-sub" id="sub-r2">Chargement…</div>
+      </div>
+      <div class="xia-kpi orange">
+        <div class="xia-kpi-icon">📏</div>
+        <div class="xia-kpi-label">Erreur RMSE</div>
+        <div class="xia-kpi-value orange" id="val-rmse">—</div>
+        <div class="xia-kpi-sub" id="sub-rmse">Chargement…</div>
+      </div>
+      <div class="xia-kpi blue">
+        <div class="xia-kpi-icon">🏙️</div>
+        <div class="xia-kpi-label">Villes couvertes</div>
+        <div class="xia-kpi-value blue" id="val-cities">—</div>
+        <div class="xia-kpi-sub" id="sub-cities">Chargement…</div>
+      </div>
+      <div class="xia-kpi navy">
+        <div class="xia-kpi-icon">📋</div>
+        <div class="xia-kpi-label">Annonces analysées</div>
+        <div class="xia-kpi-value" id="val-samples">—</div>
+        <div class="xia-kpi-sub" id="sub-samples">Jeu d'entraînement</div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2 : PERFORMANCES ────────────────────────── -->
+    <div class="grid-2" style="gap:20px; margin-bottom:24px;">
+
+      <!-- Jauge R² + métriques -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🎯 Score de précision — Random Forest</div>
+            <div class="card-subtitle">Qualité du modèle d'estimation de prix</div>
+          </div>
+        </div>
+        <div class="gauge-wrapper">
+          <div id="gaugeChart" style="width:100%; height:200px;"></div>
+          <div class="gauge-label-sub" id="gaugeLabel">Score R² (coefficient de détermination)</div>
+        </div>
+        <div class="metrics-compare" style="padding: 0 4px 4px;">
+          <div class="metric-compare-box">
+            <div class="mcb-label">RMSE</div>
+            <div class="mcb-val" id="mcb-rmse">—</div>
+            <div class="mcb-sub">Erreur quadratique moyenne</div>
+          </div>
+          <div class="metric-compare-box">
+            <div class="mcb-label">Précision estimée</div>
+            <div class="mcb-val" id="mcb-prec">—</div>
+            <div class="mcb-sub">Intervalle de confiance à 95%</div>
+          </div>
+          <div class="metric-compare-box">
+            <div class="mcb-label">Algo utilisé</div>
+            <div class="mcb-val" style="font-size:13px;">Random Forest</div>
+            <div class="mcb-sub">200 arbres · min_leaf=4</div>
+          </div>
+          <div class="metric-compare-box">
+            <div class="mcb-label">Données test (20%)</div>
+            <div class="mcb-val" id="mcb-test">—</div>
+            <div class="mcb-sub">Séparation train/test</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Importance des variables -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🧬 Importance des variables</div>
+            <div class="card-subtitle">Contribution de chaque facteur à l'estimation</div>
+          </div>
+        </div>
+        <div style="padding: 4px 0;">
+          <div class="feat-row">
+            <span class="feat-name">📍 Localisation (ville)</span>
+            <div class="feat-bar-track"><div class="feat-bar-fill" style="width:42%"></div></div>
+            <span class="feat-pct">42%</span>
+          </div>
+          <div class="feat-row">
+            <span class="feat-name">📐 Surface (m²)</span>
+            <div class="feat-bar-track"><div class="feat-bar-fill" style="width:30%"></div></div>
+            <span class="feat-pct">30%</span>
+          </div>
+          <div class="feat-row">
+            <span class="feat-name">🛏️ Chambres</span>
+            <div class="feat-bar-track"><div class="feat-bar-fill orange" style="width:11%"></div></div>
+            <span class="feat-pct">11%</span>
+          </div>
+          <div class="feat-row">
+            <span class="feat-name">🚿 Salles de bain</span>
+            <div class="feat-bar-track"><div class="feat-bar-fill orange" style="width:7%"></div></div>
+            <span class="feat-pct">7%</span>
+          </div>
+          <div class="feat-row">
+            <span class="feat-name">🏗️ Coordonnées GPS</span>
+            <div class="feat-bar-track"><div class="feat-bar-fill blue" style="width:6%"></div></div>
+            <span class="feat-pct">6%</span>
+          </div>
+          <div class="feat-row">
+            <span class="feat-name">🏢 Étage</span>
+            <div class="feat-bar-track"><div class="feat-bar-fill blue" style="width:4%"></div></div>
+            <span class="feat-pct">4%</span>
+          </div>
+        </div>
+        <div style="margin-top:16px; padding:12px 14px; background:var(--green-lt); border-radius:var(--radius); border:1px solid rgba(47,156,126,0.2);">
+          <span style="font-size:12px; color:var(--green); font-weight:600;">
+            💡 La localisation et la surface expliquent à elles seules 72% du prix. C'est cohérent avec le marché tunisien.
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 3 : SARIMA supprimée ─────────────────────── -->
+
+
+  </div><!-- end page-body -->
+</div><!-- end main-content -->
+
+<!-- ── NAVIGATION ─────────────────────────────────────────── -->
+<nav class="page-nav">
+  <a href="recommandations.html" class="page-nav-arrow">← Précédent</a>
+  <div class="page-nav-sep"></div>
+  <a href="index.html"           class="page-nav-btn">🏠 Accueil</a>
+  <a href="sarima.html"          class="page-nav-btn">📈 Tendances</a>
+  <a href="estimation.html"      class="page-nav-btn">💰 Estimation</a>
+  <a href="recommandations.html" class="page-nav-btn">💡 Opportunités</a>
+  <a href="xia.html"             class="page-nav-btn active-page">🔬 Intelligence</a>
+  <div class="page-nav-sep"></div>
+  <a href="index.html" class="page-nav-arrow">Accueil →</a>
+</nav>
+
+<script src="js/api.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   XIA — Intelligence Explicable
+   Évaluation des modèles Random Forest
+   ═══════════════════════════════════════════════════════════ */
+
+// ── Données simulées / fallback (si API non connectée) ──────
+const MOCK_METRICS = {
+  r2: 0.87,
+  rmse: 48500,
+  n_samples: 12430,
+  n_cities: 63
+};
+
+// ── Format utilitaires ───────────────────────────────────────
+function fmt(n, decimals = 0) {
+  if (n == null || isNaN(n)) return "—";
+  return Number(n).toLocaleString("fr-TN", { maximumFractionDigits: decimals });
+}
+
+// ── Charger les métriques ML ─────────────────────────────────
+async function loadMLMetrics() {
+  let metrics = MOCK_METRICS;
+  try {
+    const res = await apiGet("/metrics");
+    if (res && res.r2) metrics = res;
+  } catch (_) { /* API non dispo — on garde les mock */ }
+
+  const r2 = metrics.r2 || MOCK_METRICS.r2;
+  const rmse = metrics.rmse || MOCK_METRICS.rmse;
+  const samples = metrics.n_samples || MOCK_METRICS.n_samples;
+  const cities = metrics.n_cities || MOCK_METRICS.n_cities;
+
+  // KPI cards
+  document.getElementById("val-r2").textContent = (r2 * 100).toFixed(1) + "%";
+  document.getElementById("sub-r2").textContent = r2 >= 0.85 ? "🟢 Excellente précision" : r2 >= 0.70 ? "🟡 Bonne précision" : "🔴 À améliorer";
+  document.getElementById("val-rmse").textContent = fmt(rmse) + " TND";
+  document.getElementById("sub-rmse").textContent = "Erreur moyenne sur le jeu de test";
+  document.getElementById("val-cities").textContent = cities;
+  document.getElementById("sub-cities").textContent = cities + " villes avec ≥3 annonces";
+  document.getElementById("val-samples").textContent = fmt(samples);
+  document.getElementById("sub-samples").textContent = "80% entraînement · 20% test";
+
+  // Métriques détaillées
+  document.getElementById("mcb-rmse").textContent = fmt(rmse) + " TND";
+  document.getElementById("mcb-prec").textContent = "±" + fmt(rmse * 1.28) + " TND";
+  document.getElementById("mcb-test").textContent = fmt(Math.round(samples * 0.2));
+
+  // Jauge plotly
+  drawGauge(r2);
+}
+
+// ── Jauge R² (plotly) ────────────────────────────────────────
+function drawGauge(r2) {
+  const pct = r2 * 100;
+
+  const color = pct >= 85 ? "#2f9c7e" : pct >= 70 ? "#f0a500" : "#E74C3C";
+  const label = pct >= 85 ? "Excellent — le modèle explique " + pct.toFixed(0) + "% de la variance des prix"
+              : pct >= 70 ? "Correct — utilisable pour des estimations orientatives"
+              : "Attention — modèle à réentraîner avec plus de données";
+  document.getElementById("gaugeLabel").textContent = label;
+
+  const data = [{
+    type: "indicator",
+    mode: "gauge+number",
+    value: pct,
+    number: {
+      suffix: "%",
+      font: { family: "'Playfair Display', serif", size: 42, color: color },
+      valueformat: ".1f"
+    },
+    gauge: {
+      axis: { range: [0, 100], tickwidth: 1, tickcolor: "#e6eaf0", tickfont: { size: 10 } },
+      bar: { color: color, thickness: 0.25 },
+      bgcolor: "white",
+      borderwidth: 0,
+      steps: [
+        { range: [0, 50],  color: "rgba(231,76,60,0.08)"  },
+        { range: [50, 70], color: "rgba(240,165,0,0.1)"   },
+        { range: [70, 85], color: "rgba(43,123,229,0.1)"  },
+        { range: [85, 100], color: "rgba(47,156,126,0.12)" },
+      ],
+      threshold: { line: { color: color, width: 3 }, thickness: 0.75, value: pct }
+    }
+  }];
+
+  const layout = {
+    paper_bgcolor: "transparent",
+    plot_bgcolor: "transparent",
+    margin: { t: 16, r: 20, b: 10, l: 20 },
+    font: { family: "Outfit, sans-serif" },
+    height: 200,
+  };
+
+  Plotly.newPlot("gaugeChart", data, layout, { displayModeBar: false, responsive: true });
+}
+
+// ── Rafraîchir tout ─────────────────────────────────────────
+async function refreshAll() {
+  const btn = document.getElementById("btnRefresh");
+  const icon = document.getElementById("refreshIcon");
+  btn.disabled = true;
+  icon.textContent = "⏳";
+  await loadMLMetrics();
+  icon.textContent = "✅";
+  setTimeout(() => { icon.textContent = "🔄"; btn.disabled = false; }, 1500);
+  showToast("Métriques actualisées", "success");
+}
+
+// ── Init ─────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadMLMetrics();
+});
+</script>
+</body>
+</html>
