@@ -836,7 +836,7 @@
           <div class="xai-panel">
             <div class="xai-panel-head">🔍 Meilleure opportunité</div>
             <div class="xai-panel-body" id="xaiContent">
-              <p style="color:var(--muted);font-size:13px;">Cliquez sur un bien pour voir l'analyse</p>
+              <p style="color:var(--muted);font-size:13px;">Cliquez sur un bien pour voir l'analyse XAI.</p>
             </div>
           </div>
         </div>
@@ -999,7 +999,9 @@
 
   /* ── CITY CHIPS ── */
   function buildCityChips(recs) {
-    const cities = [...new Set(recs.map(r => r.city))].sort();
+    const cities = [...new Set(recs.map(r => r.city))]
+      .filter(c => c && c.toLowerCase() !== 'unknown' && c.trim() !== '')
+      .sort();
     const container = document.getElementById('cityChips');
     container.innerHTML = cities.map(c => `
       <button class="city-chip" onclick="toggleCity('${c}',this)">${c}</button>
@@ -1023,10 +1025,13 @@
     if (!allData) return;
     const q = (document.getElementById('tblSearch')?.value || '').toLowerCase();
 
-    filteredRecs = allData.recommendations.filter(p =>
-      (activeCities.size === 0 || activeCities.has(p.city)) &&
-      (!q || p.city.toLowerCase().includes(q) || p.property_type.toLowerCase().includes(q))
-    );
+    filteredRecs = allData.recommendations.filter(p => {
+      const city = (p.city || '').trim();
+      if (!city || city.toLowerCase() === 'unknown') return false;   // ← exclure unknown
+      if (activeCities.size > 0 && !activeCities.has(city)) return false;
+      if (q && !city.toLowerCase().includes(q) && !p.property_type.toLowerCase().includes(q)) return false;
+      return true;
+    });
 
     renderTablePage();
     if (filteredRecs.length > 0) renderXAI(filteredRecs[0]);
@@ -1115,7 +1120,7 @@
           ${p.rl_selected ? '<span class="xbc-pill">🤖 IA</span>' : ''}
         </div>
       </div>
-      <div class="shap-title">Facteurs déterminants</div>
+      <div class="shap-title">Facteurs déterminants (SHAP)</div>
       ${facHTML || '<p style="color:var(--muted);font-size:12px;">Explication non disponible.</p>'}
       <div class="interp-box">
         Ce bien offre un rendement de <strong>${(p.projected_roi * 100).toFixed(2)}%</strong> — 

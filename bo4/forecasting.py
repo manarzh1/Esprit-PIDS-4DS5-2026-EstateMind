@@ -1,112 +1,149 @@
-import pandas as pd
-import numpy as np
-from prophet import Prophet
-import warnings
-warnings.filterwarnings("ignore")
+    periods = int(periods)
+    periods = max(periods, 12)
 
-def prepare_historical_data(df_hist: pd.DataFrame) -> pd.DataFrame:
-    """Prépare les données historiques pour Prophet"""
-    df = df_hist.copy()
-    
-    # Conversion de la date
-    df["DATE_TRIM"] = pd.to_datetime(df["DATE_TRIM"], format="%d/%m/%Y", errors='coerce')
-    df = df.dropna(subset=["DATE_TRIM", "PRIX_M2_MEDIAN", "GOUVERNORAT"])
-    
-    # Agrégation mensuelle par gouvernorat
-    df_grouped = df.groupby([
-        "GOUVERNORAT", 
-        pd.Grouper(key="DATE_TRIM", freq="M")
-    ])["PRIX_M2_MEDIAN"].mean().reset_index()
-    
-    df_grouped = df_grouped.rename(columns={
-        "DATE_TRIM": "ds", 
-        "PRIX_M2_MEDIAN": "y"
-    })
-    
-    print(f"✅ Données historiques préparées : {len(df_grouped)} observations pour {df_grouped['GOUVERNORAT'].nunique()} gouvernorats")
-    return df_grouped
-
-
-def train_prophet_per_city(df_grouped: pd.DataFrame, periods: int = 36):
-    """Entraîne un modèle Prophet par gouvernorat/ville"""
-    models = {}
-    forecasts = {}
-    
     cities = df_grouped["GOUVERNORAT"].unique()
-    
+
     for city in cities:
         df_city = df_grouped[df_grouped["GOUVERNORAT"] == city].copy()
-        
+        df_city = df_city.sort_values("ds")
+
         if len(df_city) < 8:
             print(f"⚠️ {city}: Pas assez de données historiques ({len(df_city)} obs)")
             continue
-            
-        # Modèle Prophet
-        model = Prophet(
-            yearly_seasonality=True,
-            weekly_seasonality=False,
-            daily_seasonality=False,
-            seasonality_mode='multiplicative',
-            interval_width=0.95
-        )
-        
-        model.fit(df_city)
-        models[city] = model
-        
-        # Prévision future
-        future = model.make_future_dataframe(periods=periods, freq='M')
-        forecast = model.predict(future)
-        
-        forecasts[city] = forecast
-        print(f"✅ Prophet entraîné pour {city} ({len(df_city)} observations)")
-    
-    return models, forecasts
 
+        df_prophet = df_city[["ds", "y"]].copy()
 
-def get_projected_price_m2(forecasts: dict, city: str, months_ahead: int = 48):
-    """Retourne le prix au m² projeté dans X mois"""
-    if city not in forecasts:
+        try:
+            model = Prophet(
+                yearly_seasonality=True,
+                weekly_seasonality=False,
+                daily_seasonality=False,
+                seasonality_mode="multiplicative",
+                interval_width=0.95
+            )
+
+            model.fit(df_prophet)
+
+            future = model.make_future_dataframe(
+                periods=periods,
+                freq="M"
+            )
+
+            forecast = model.predict(future)
+
+            last_hist_date = df_city["ds"].max()
+
+            forecast["GOUVERNORAT"] = city
+            forecast["is_future"] = forecast["ds"] > last_hist_date
+            forecast["yhat"] = forecast["yhat"].clip(lower=0)
+
+            models[city] = model
+    months_ahead = int(months_ahead)
+    months_ahead = max(months_ahead, 1)
+
+    target_index = months_ahead - 1
+
+    if target_index >= len(future_df):
+        target_index = len(future_df) - 1
+
+    projected_m2 = future_df.iloc[target_index]["yhat"]
+
+    if pd.isna(projected_m2) or np.isinf(projected_m2):
         return None
-    
-    forecast = forecasts[city]
-    # Prend la valeur future la plus éloignée demandée
-    future_df = forecast[forecast["ds"] > forecast["ds"].iloc[-1] - pd.DateOffset(months=1)]
-    
-    if not future_df.empty:
-        return future_df["yhat"].iloc[-1]
-    return None
+
+    return max(float(projected_m2), 0)
 
 
-def integrate_forecast_in_pipeline(df_current: pd.DataFrame, forecasts: dict, horizon_years: int = 5):
+def integrate_forecast_in_pipeline(
+    df_current: pd.DataFrame,
+    forecasts: dict,
+    horizon_years: int = 5
+):
     """Intègre les prévisions Prophet dans ton dataframe principal"""
+
     df = df_current.copy()
-    
+
+    required_cols = ["price_value", "surface_m2"]
+    missing_cols = [col for col in required_cols if col not in df.columns]
+
+    if missing_cols:
+        raise ValueError(f"Colonnes manquantes dans df_current : {missing_cols}")
+
+    df["price_value"] = pd.to_numeric(
+        df["price_value"],
+        errors="coerce"
+    ).fillna(0)
+
+    df["surface_m2"] = pd.to_numeric(
+        df["surface_m2"],
+        errors="coerce"
+    ).fillna(1)
+
+    df.loc[df["surface_m2"] <= 0, "surface_m2"] = 1
+
+    horizon_years = int(horizon_years)
+    horizon_years = max(1, min(horizon_years, 10))
+
+    months_ahead = horizon_years * 12
+
+    def get_city(row):
+        return (
+            row.get("city")
+            or row.get("GOUVERNORAT")
+            or row.get("city_name")
+            or ""
+        )
+
     def get_projected_price(row):
-        # Gestion des noms de colonnes flexibles
-        city = str(row.get("city") or row.get("GOUVERNORAT") or row.get("city_name", "")).strip()
-        if not city:
-            return row.get("price_value", 0)
-        
-        projected_m2 = get_projected_price_m2(forecasts, city, horizon_years * 12)
-        
+        city = get_city(row)
+
+        current_price = row.get("price_value", 0)
+        surface = row.get("surface_m2", 1)
+
+        projected_m2 = get_projected_price_m2(
+            forecasts=forecasts,
+            city=city,
+            months_ahead=months_ahead
+        )
+
         if projected_m2 is None:
-            return row.get("price_value", 0)
-        
-        projected_price = projected_m2 * row.get("surface_m2", 1)
-        return max(projected_price, row.get("price_value", 0))
-    
+            return current_price
+
+        projected_price = projected_m2 * surface
+
+        if pd.isna(projected_price) or np.isinf(projected_price):
+            return current_price
+
+        return max(float(projected_price), float(current_price))
+
     df["projected_price"] = df.apply(get_projected_price, axis=1)
-    df["projected_roi"] = (df["projected_price"] - df["price_value"]) / df["price_value"]
-    df["projected_roi"] = df["projected_roi"].clip(lower=0.02, upper=0.18)
-    
+
+    df["projected_roi"] = (
+        (df["projected_price"] - df["price_value"]) /
+        df["price_value"].replace(0, np.nan)
+    )
+
+    df["projected_roi"] = (
+        df["projected_roi"]
+        .replace([np.inf, -np.inf], 0)
+        .fillna(0)
+        .clip(lower=0, upper=0.30)
+    )
+
+    # Aligné avec compute_scores()
+    # 20% de croissance future = potentiel excellent
+    df["projected_roi_norm"] = (
+        df["projected_roi"] / 0.20
+    ).clip(0, 1)
+
+    df["projected_roi_percent"] = (
+        df["projected_roi"] * 100
+    ).round(2)
+
     print(f"✅ Projections Prophet intégrées avec succès sur {len(df)} biens")
+
     return df
 
 
-# Pour tester le module seul
 if __name__ == "__main__":
     print("Testing forecasting module...")
-    # Exemple d'utilisation
-    # df_hist = pd.read_csv("data/historical_prices.csv")
-    # df_grouped = prepare_historical_data(df_hist)
-    # models, forecasts = train_prophet_per_city(df_grouped)

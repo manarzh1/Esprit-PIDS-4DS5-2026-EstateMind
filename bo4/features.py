@@ -32,6 +32,17 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
         "terrain|land|plot|parcelle|lot", na=False
     )
 
+    # ✅ Nettoyage colonne city — supprimer les lignes sans ville valide
+    if "city" in df.columns:
+        df["city"] = df["city"].fillna("").astype(str).str.strip()
+        df = df[
+            (df["city"] != "") &
+            (df["city"].str.lower() != "unknown") &
+            (df["city"].str.lower() != "nan") &
+            (df["city"].str.lower() != "none")
+        ].copy()
+        print(f"   → {len(df)} biens avec ville valide")
+
     # --------------------------
     # RENT ESTIMATION
     # --------------------------
