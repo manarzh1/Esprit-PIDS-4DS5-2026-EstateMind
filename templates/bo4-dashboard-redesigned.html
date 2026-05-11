@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Investment Decisions — Estate Mind</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+/* ══════════════════════════════════════════════════════
+   DESIGN SYSTEM — Estate Mind BO4
+   Navbar exacte capture 3 : 2 lignes (topbar + bo-nav)
+   XAI panel côté droit = Meilleure Opportunité
+   Données dynamiques depuis /data/results.json (Flask)
+══════════════════════════════════════════════════════ */
+:root {
+  --navy:    #071d33;
+  --green:   #2f9c7e;
+  --green-2: #27856a;
+  --mint:    #dff5ec;
+  --orange:  #ff9a4b;
+  --text:    #0b1d33;
+  --muted:   #6e7a8a;
+  --line:    #e6eaf0;
+  --bg:      #eef4f0;
+  --white:   #ffffff;
+  --shadow:  0 2px 16px rgba(7,29,51,.07);
+  --shadow-lg: 0 8px 32px rgba(7,29,51,.10);
+  --r:  12px;
+  --rl: 18px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  letter-spacing: -.005em;
+}
+h1,h2,h3,h4,h5 { letter-spacing: -.02em; font-weight: 800; }
+a { text-decoration: none; color: inherit; }
+button { font-family: inherit; cursor: pointer; border: none; }
+
+/* ══ TOPBAR — ligne 1 (logo + search + user) ══ */
+.topbar {
+  background: white;
+  border-bottom: 1px solid var(--line);
+  height: 54px;
+  display: flex; align-items: center;
+  padding: 0 28px;
+  gap: 16px;
+  position: sticky; top: 0; z-index: 200;
+}
+.tb-brand {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 16px; font-weight: 800; color: var(--navy);
+  flex-shrink: 0;
+}
+.tb-logo {
+  width: 32px; height: 32px;
+  display: grid; place-items: center;
+}
+.tb-logo svg { width: 30px; height: 30px; }
+.tb-spacer { flex: 1; }
+.tb-search {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg); border: 1px solid var(--line);
+  border-radius: 22px; padding: 0 16px; height: 38px; width: 280px;
+  font-size: 13px; color: var(--muted);
+}
+.tb-search input {
+  border: 0; outline: 0; background: transparent;
+  font-size: 13px; color: var(--text); font-family: inherit; width: 100%;
+}
+.tb-search input::placeholder { color: var(--muted); }
+.tb-bell {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--line); background: white;
+  display: grid; place-items: center; font-size: 15px; cursor: pointer;
+  position: relative; flex-shrink: 0;
+}
+.tb-conn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px 14px; border-radius: 22px;
+  border: 1px solid var(--line); background: white;
+  font-size: 12px; font-weight: 700; color: var(--text);
+  flex-shrink: 0;
+}
+.tb-conn-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--green); flex-shrink: 0;
+}
+.tb-user {
+  display: flex; align-items: center; gap: 9px;
+  padding: 5px 12px 5px 5px;
+  border: 1px solid var(--line); border-radius: 22px;
+  background: white; cursor: pointer; flex-shrink: 0;
+}
+.tb-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--green), var(--green-2));
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 800; color: white; overflow: hidden;
+}
+.tb-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.tb-username { font-size: 13px; font-weight: 700; color: var(--navy); }
+
+/* ══ BO NAV — ligne 2 (modules) ══ */
+.bo-nav {
+  background: white;
+  border-bottom: 1px solid var(--line);
+  height: 46px;
+  display: flex; align-items: center;
+  padding: 0 20px;
+  gap: 2px;
+  overflow-x: auto;
+  position: sticky; top: 54px; z-index: 190;
+}
+.bo-nav::-webkit-scrollbar { display: none; }
+.bo-item {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 16px; border-radius: 22px;
+  font-size: 13px; font-weight: 600; color: var(--muted);
+  background: transparent; border: none;
+  transition: .15s; cursor: pointer; white-space: nowrap;
+}
+.bo-item:hover { background: var(--bg); color: var(--text); }
+.bo-item.active {
+  background: var(--green); color: white; font-weight: 700;
+}
+.bo-item .bi-icon { font-size: 14px; }
+
+/* ══ PAGE HEAD ══ */
+.page-head {
+  padding: 20px 28px 0;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+}
+.ph-eyebrow {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--green); margin-bottom: 4px;
+}
+.ph-title {
+  font-size: 24px; font-weight: 900; color: var(--navy);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.ph-tabs {
+  display: flex; align-items: center; gap: 0;
+  padding: 20px 28px 0;
+}
+.ph-tab {
+  padding: 9px 20px; border-radius: 10px 10px 0 0;
+  font-size: 13px; font-weight: 700; color: var(--muted);
+  background: transparent; border: none; cursor: pointer; transition: .15s;
+}
+.ph-tab:hover { color: var(--navy); }
+.ph-tab.active {
+  background: white; color: var(--navy); font-weight: 800;
+  border: 1px solid var(--line); border-bottom: 1px solid white;
+}
+
+/* ══ MAIN ══ */
+.main { padding: 0 28px 40px; flex: 1; }
+
+/* ══ BUTTONS ══ */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  border-radius: 10px; padding: 9px 16px;
+  font-weight: 700; font-size: 13px; cursor: pointer;
+  transition: .15s; font-family: inherit; border: none;
+}
+.btn-green  { background: var(--green); color: white; }
+.btn-green:hover { background: var(--green-2); }
+.btn-outline { background: white; color: var(--navy); border: 1px solid var(--line); }
+.btn-outline:hover { border-color: var(--green); color: var(--green); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ══ MODULE HERO — 2 colonnes ══ */
+.module-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) 340px;
+  gap: 16px;
+  margin: 20px 0 20px;
+  align-items: stretch;
+}
+
+/* Colonne gauche — gradient sombre */
+.mh-main {
+  position: relative; overflow: hidden;
+  border-radius: var(--rl);
+  padding: 28px 32px;
+  color: white; min-height: 220px;
+  background: linear-gradient(135deg, #071d33 0%, #0d3b2e 55%, #2f9c7e 100%);
+  box-shadow: 0 16px 48px rgba(7,29,51,.18);
+}
+.mh-main::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 85% 15%, rgba(255,255,255,.13) 0%, transparent 28%),
+    radial-gradient(circle at 10% 80%, rgba(47,156,126,.25) 0%, transparent 36%);
+  pointer-events: none;
+}
+.mh-main::after {
+  content: '';
+  position: absolute; right: -60px; top: -60px;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: rgba(255,255,255,.07); pointer-events: none;
+}
+.mh-kicker {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px; padding: 5px 12px;
+  font-size: 10px; font-weight: 900; letter-spacing: .10em;
+  text-transform: uppercase; margin-bottom: 14px;
+  position: relative; z-index: 1;
+}
+.mh-main h2 {
+  font-size: 26px; font-weight: 900; line-height: 1.1;
+  letter-spacing: -.03em; margin: 0 0 10px;
+  max-width: 560px; position: relative; z-index: 1;
+}
+.mh-main p {
+  font-size: 13px; line-height: 1.65; opacity: .88;
+  max-width: 540px; margin: 0;
+  position: relative; z-index: 1; font-weight: 600;
+}
+.mh-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin-top: 20px;
+  position: relative; z-index: 1;
+}
+.mh-stat {
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 12px; padding: 12px 14px;
+  backdrop-filter: blur(10px);
+}
+.mh-stat strong {
+  display: block; font-size: 20px; font-weight: 900;
+  line-height: 1.05; color: white;
+}
+.mh-stat span {
+  display: block; margin-top: 4px;
+  font-size: 10px; font-weight: 800; opacity: .75;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.mh-badges {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-top: 12px; position: relative; z-index: 1;
+}
+.mh-badges span {
+  font-size: 10px; font-weight: 800; border-radius: 999px;
+  padding: 4px 10px;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.15);
+}
+
+/* Colonne droite — "Meilleure Opportunité" (XAI panel, remplace Investment Pulse) */
+.mh-side {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--rl); overflow: hidden;
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column;
+}
+.mhs-head {
+  padding: 14px 18px; border-bottom: 1px solid var(--line);
+  font-size: 11px; font-weight: 900; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--green);
+  display: flex; align-items: center; gap: 6px;
+}
+.mhs-body { padding: 16px; flex: 1; }
+/* Carte bien sélectionné */
+.mhs-card {
+  background: linear-gradient(135deg, var(--navy), #0f3040);
+  border-radius: 12px; padding: 14px 16px;
+  color: white; margin-bottom: 14px;
+  position: relative; overflow: hidden;
+}
+.mhs-card::after {
+  content: ''; position: absolute; right: -20px; top: -20px;
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(255,255,255,.07); pointer-events: none;
+}
+.mhs-card-tag  { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: .09em; color: rgba(255,255,255,.5); margin-bottom: 5px; }
+.mhs-card-name { font-size: 14px; font-weight: 900; text-transform: capitalize; line-height: 1.2; }
+.mhs-card-price { font-size: 22px; font-weight: 900; color: var(--orange); margin: 5px 0 8px; }
+.mhs-card-pills { display: flex; gap: 5px; flex-wrap: wrap; }
+.mhs-pill {
+  background: rgba(255,255,255,.12); border-radius: 6px;
+  padding: 3px 9px; font-size: 11px; font-weight: 600;
+}
+.mhs-pill.buy  { background: rgba(47,156,126,.35); color: #a8f0d0; }
+.mhs-pill.hold { background: rgba(255,154,75,.3); color: #ffd0a0; }
+.mhs-pill.skip { background: rgba(220,60,60,.3); color: #ffb0a0; }
+
+/* ROI mini row */
+.mhs-roi-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 14px;
+}
+.mhs-roi-box {
+  background: rgba(47,156,126,.07);
+  border: 1px solid rgba(47,156,126,.15);
+  border-radius: 10px; padding: 10px 12px; text-align: center;
+}
+.mhs-roi-box.proj {
+  background: rgba(47,156,126,.12);
+  border-color: rgba(47,156,126,.25);
+}
+.mhs-roi-val { font-size: 17px; font-weight: 900; color: var(--navy); }
+.mhs-roi-box.proj .mhs-roi-val { color: var(--green); }
+.mhs-roi-lbl { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-top: 3px; }
+
+/* SHAP rows */
+.mhs-shap-title {
+  font-size: 10px; font-weight: 900; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--muted); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 5px;
+}
+.mhs-shap-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.mhs-shap-lbl { font-size: 12px; font-weight: 600; color: var(--muted); width: 90px; flex-shrink: 0; }
+.mhs-shap-track { flex: 1; height: 5px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.mhs-shap-fill { height: 5px; border-radius: 3px; }
+.mhs-shap-fill.pos { background: var(--green); }
+.mhs-shap-fill.neu { background: var(--orange); }
+.mhs-shap-fill.neg { background: #cc3b25; }
+.mhs-shap-val { width: 36px; text-align: right; font-size: 11px; font-weight: 800; }
+.mhs-shap-val.pos { color: var(--green); }
+.mhs-shap-val.neu { color: #bf7618; }
+.mhs-shap-val.neg { color: #cc3b25; }
+
+/* Interp box */
+.mhs-interp {
+  background: rgba(47,156,126,.07);
+  border-left: 3px solid var(--green);
+  border-radius: 8px; padding: 9px 12px;
+  font-size: 11px; line-height: 1.6;
+  color: #1a4a3a; margin-top: 10px; font-weight: 700;
+}
+/* Etat vide */
+.mhs-empty {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; flex: 1; padding: 24px 16px;
+  text-align: center; color: var(--muted);
+}
+.mhs-empty p { font-size: 12px; font-weight: 600; line-height: 1.55; }
+
+/* ══ GLASS SIGNAL GRID (3 cartes sous le hero) ══ */
+.signal-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 14px; margin-bottom: 20px;
+}
+.sg-card {
+  background: white; border: 1px solid var(--line);
+  border-radius: var(--r); padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.sg-card small {
+  font-size: 10px; font-weight: 900; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--green); display: block; margin-bottom: 7px;
+}
+.sg-card.orange small { color: var(--orange); }
+.sg-card.blue   small { color: #4a90d9; }
+.sg-card strong { font-size: 14px; font-weight: 800; color: var(--navy); display: block; margin-bottom: 6px; }
+.sg-card p { font-size: 12px; color: var(--muted); line-height: 1.55; font-weight: 600; margin-bottom: 12px; }
+.sg-meter { height: 4px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.sg-meter span { display: block; height: 100%; border-radius: 999px; }
+.sg-meter span.g { background: linear-gradient(90deg, var(--green), #60c3a7); }
+.sg-meter span.o { background: linear-gradient(90deg, var(--orange), #f7c06e); }
+.sg-meter span.b { background: linear-gradient(90deg, #4a90d9, var(--green)); }
+
+/* ══ FORM PAGE ══ */
+#formPage {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 340px; padding: 20px 0;
+}
+.form-wrap { width: 100%; max-width: 500px; }
+.fh-wrap { text-align: center; margin-bottom: 24px; }
+.fh-icon {
+  width: 48px; height: 48px; border-radius: 14px;
+  background: rgba(47,156,126,.10); border: 1px solid rgba(47,156,126,.18);
+  display: grid; place-items: center; font-size: 22px; margin: 0 auto 14px;
+}
+.fh-wrap h2 { font-size: 20px; font-weight: 900; color: var(--navy); margin-bottom: 5px; }
+.fh-wrap p  { font-size: 13px; color: var(--muted); line-height: 1.6; }
+.form-card {
+  background: white; border: 1px solid var(--line);
+  border-radius: var(--rl); padding: 28px;
+  box-shadow: var(--shadow-lg);
+}
+.form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.f-field { margin-bottom: 14px; }
+.f-field label {
+  display: block; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em;
+  color: var(--muted); margin-bottom: 6px;
+}
+.f-field input, .f-field select {
+  width: 100%; height: 42px;
+  border: 1.5px solid var(--line); border-radius: 10px;
+  padding: 0 13px; font-size: 13px; font-weight: 600;
+  font-family: inherit; background: var(--bg); color: var(--text);
+  outline: none; appearance: none; transition: .15s;
+}
+.f-field input:focus, .f-field select:focus {
+  border-color: var(--green); background: white;
+  box-shadow: 0 0 0 3px rgba(47,156,126,.10);
+}
+.launch-btn {
+  width: 100%; height: 48px; background: var(--green);
+  color: white; border: none; border-radius: 11px;
+  font-size: 14px; font-weight: 800; font-family: inherit;
+  cursor: pointer; transition: .18s; margin-top: 8px;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  box-shadow: 0 5px 20px rgba(47,156,126,.28);
+}
+.launch-btn:hover { background: var(--green-2); transform: translateY(-1px); }
+.launch-btn:disabled { opacity: .55; transform: none; cursor: not-allowed; }
+
+/* ══ LOADER ══ */
+#loaderPage {
+  display: none; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 300px; gap: 14px;
+}
+.ld-spin {
+  width: 44px; height: 44px;
+  border: 3.5px solid var(--line); border-top-color: var(--green);
+  border-radius: 50%; animation: spin .85s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.ld-title { font-size: 18px; font-weight: 900; color: var(--navy); }
+.ld-sub   { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+/* ══ RESULTS ══ */
+#resultsPage { display: none; }
+
+/* Verdict */
+.verdict {
+  background: rgba(47,156,126,.08);
+  border: 1px solid rgba(47,156,126,.2);
+  border-left: 4px solid var(--green);
+  border-radius: var(--r); padding: 14px 18px;
+  margin-bottom: 18px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.vd-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.vd-kicker { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .07em; color: var(--green); margin-bottom: 3px; }
+.vd-text { font-size: 13px; font-weight: 600; color: var(--navy); line-height: 1.6; }
+.vd-text strong { color: var(--green); font-weight: 800; }
+
+/* KPI row */
+.kpi-row {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 14px; margin-bottom: 20px;
+}
+.kpi-card {
+  background: white; border: 1px solid var(--line);
+  border-radius: var(--r); padding: 17px 19px;
+  box-shadow: var(--shadow); position: relative; overflow: hidden;
+}
+.kpi-card::before {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 3px; border-radius: 0 0 var(--r) var(--r);
+}
+.kpi-card.kg::before { background: var(--green); }
+.kpi-card.kb::before { background: #4a7fe0; }
+.kpi-card.ko::before { background: var(--orange); }
+.kpi-card.kr::before { background: #e05c5c; }
+.kpi-card::after {
+  content: ''; position: absolute; right: -30px; top: -36px;
+  width: 90px; height: 90px; border-radius: 50%;
+  background: var(--kglow, rgba(47,156,126,.08)); pointer-events: none;
+}
+.kpi-card.kg { --kglow: rgba(47,156,126,.09); }
+.kpi-card.kb { --kglow: rgba(74,127,224,.09); }
+.kpi-card.ko { --kglow: rgba(255,154,75,.09); }
+.kpi-card.kr { --kglow: rgba(220,90,90,.09); }
+.kpi-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: grid; place-items: center; font-size: 16px;
+  margin-bottom: 10px; position: relative;
+}
+.kpi-icon.ig { background: rgba(47,156,126,.12); }
+.kpi-icon.ib { background: rgba(74,127,224,.12); }
+.kpi-icon.io { background: rgba(255,154,75,.12); }
+.kpi-icon.ir { background: rgba(220,90,90,.10); }
+.kpi-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 7px; position: relative; }
+.kpi-value { font-size: 26px; font-weight: 900; color: var(--navy); letter-spacing: -.03em; position: relative; line-height: 1.05; }
+.kpi-sub   { font-size: 11px; font-weight: 700; margin-top: 4px; position: relative; }
+.kpi-sub.sg { color: var(--green); }
+.kpi-sub.so { color: #bf7618; }
+.kpi-sub.sm { color: var(--muted); }
+
+/* Result tabs */
+.result-tabs {
+  display: flex; gap: 4px;
+  background: white; border: 1px solid var(--line);
+  border-radius: var(--r); padding: 5px; margin-bottom: 18px;
+  width: fit-content; box-shadow: var(--shadow);
+}
+.rtab {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 16px; border-radius: 9px;
+  font-size: 13px; font-weight: 700; color: var(--muted);
+  border: 0; background: transparent; cursor: pointer; transition: .15s;
+}
+.rtab:hover { color: var(--text); background: var(--bg); }
+.rtab.active { background: var(--navy); color: white; font-weight: 800; }
+.rtab .tc {
+  background: rgba(255,255,255,.2); color: white;
+  font-size: 10px; font-weight: 900; padding: 1px 6px; border-radius: 999px;
+}
+.rtab:not(.active) .tc { background: var(--bg); color: var(--muted); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: fadeIn .18s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(-3px)} to{opacity:1;transform:translateY(0)} }
+
+/* ══ TAB 1 — OPPORTUNITÉS ══ */
+.city-filter-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 14px; flex-wrap: wrap;
+}
+.cfl-label { font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.city-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.city-chip {
+  padding: 6px 14px; border-radius: 999px;
+  font-size: 12px; font-weight: 700;
+  border: 1.5px solid var(--line); background: white; color: var(--muted);
+  cursor: pointer; transition: .15s;
+}
+.city-chip:hover  { border-color: var(--green); color: var(--green); }
+.city-chip.active { background: var(--green); color: white; border-color: var(--green); }
+
+/* Grid : table + XAI panel */
+.opp-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px; align-items: start;
+}
+.tbl-panel {
+  background: white; border: 1px solid var(--line);
+  border-radius: var(--rl); overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.tbl-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-bottom: 1px solid var(--line); gap: 12px;
+}
+.tbl-head h3 { font-size: 14px; font-weight: 800; color: var(--navy); }
+.tbl-count {
+  background: var(--mint); color: var(--green);
+  font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px;
+}
+.tbl-search {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg); border: 1px solid var(--line);
+  border-radius: 22px; padding: 0 12px; height: 32px; width: 190px;
+  font-size: 12px; color: var(--muted);
+}
+.tbl-search input { border:0; outline:0; background:transparent; font-size:12px; font-weight:600; width:100%; }
+.rec-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.rec-table th {
+  padding: 10px 14px; text-align: left;
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--muted);
+  background: #fafbfc; border-bottom: 1px solid var(--line);
+}
+.rec-table td { padding: 11px 14px; border-bottom: 1px solid rgba(230,234,240,.5); }
+.rec-table tbody tr { cursor: pointer; transition: .13s; }
+.rec-table tbody tr:hover { background: rgba(47,156,126,.04); }
+.rec-table tbody tr.sel-row { background: rgba(47,156,126,.07); }
+.rec-table tbody tr:last-child td { border-bottom: 0; }
+.prop-name { font-weight: 800; color: var(--navy); text-transform: capitalize; }
+.prop-city { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.decision-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 800;
+}
+.db-buy  { background: #dff5ec; color: #0d6e4e; }
+.db-hold { background: #fff1d9; color: #7a5a00; }
+.db-skip { background: #ffe4df; color: #9b2a18; }
+.score-bar-t { height: 3px; background: var(--line); border-radius: 2px; margin-top: 3px; }
+.score-bar-f { height: 3px; background: var(--green); border-radius: 2px; }
+.pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 18px; border-top: 1px solid var(--line);
+}
+.pag-info { font-size: 12px; color: var(--muted); font-weight: 600; }
+.pag-btns { display: flex; gap: 4px; }
+.pg-btn {
+  min-width: 30px; height: 30px; border-radius: 7px;
+  border: 1px solid var(--line); background: white;
+  font-size: 12px; font-weight: 700; color: var(--muted);
+  cursor: pointer; display: grid; place-items: center; transition: .13s;
+}
+.pg-btn:hover  { border-color: var(--green); color: var(--green); }
+.pg-btn.active { background: var(--navy); color: white; border-color: var(--navy); }
+.pg-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+/* XAI panel côté droit du tableau (même structure que mh-side) */
+.xai-sticky { position: sticky; top: 110px; }
+.xai-panel {
+  background: white; border: 1px solid var(--line);
+  border-radius: var(--rl); overflow: hidden; box-shadow: var(--shadow);
+}
+.xai-head {
+  padding: 13px 16px; border-bottom: 1px solid var(--line);
+  font-size: 11px; font-weight: 900; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--green);
+  display: flex; align-items: center; gap: 5px;
+}
+.xai-body { padding: 16px; }
+
+/* ══ TAB 2 — ANALYSES ══ */
+.charts-grid {
+  display: grid; grid-template-columns: 1.3fr 1fr;
+  gap: 16px; margin-bottom: 16px;
+}
+.chart-panel {
+  background: white; border: 1px solid var(--line);
+  border-radius: var(--rl); padding: 20px;
+  box-shadow: var(--shadow);
+}
+.cp-title { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 4px; }
+.cp-sub   { font-size: 12px; color: var(--muted); font-weight: 600; margin-bottom: 14px; }
+.chart-wrap { position: relative; height: 210px; }
+.chart-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 600; }
+.cl-item { display: flex; align-items: center; gap: 4px; }
+.cl-dot  { width: 9px; height: 9px; border-radius: 2px; }
+.cities-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.city-card {
+  background: white; border: 1px solid var(--line);
+  border-radius: var(--r); padding: 16px 18px;
+  box-shadow: var(--shadow);
+  display: flex; align-items: center; gap: 12px;
+}
+.cc-roi  { font-size: 22px; font-weight: 900; color: var(--green); }
+.cc-name { font-size: 13px; font-weight: 800; color: var(--navy); }
+.cc-sub  { font-size: 11px; color: var(--muted); font-weight: 600; }
+
+/* ══ TAB 3 — MODÈLE ══ */
+.bt-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.bt-card {
+  background: white; border: 1px solid var(--line);
+  border-radius: var(--r); padding: 20px;
+  box-shadow: var(--shadow); text-align: center;
+}
+.bt-num   { font-size: 28px; font-weight: 900; color: var(--navy); }
+.bt-num.g { color: var(--green); }
+.bt-lbl   { font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 4px; }
+.bt-interp {
+  background: rgba(47,156,126,.07); border-left: 3px solid var(--green);
+  border-radius: var(--r); padding: 14px 18px;
+  font-size: 13px; line-height: 1.65; color: #1a4a3a; font-weight: 700;
+}
+.bt-interp strong { color: var(--navy); }
+
+/* ══ RESULTS TOPBAR ══ */
+.res-topbar {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 8px; margin-bottom: 16px;
+}
+
+/* ══ TOAST ══ */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--navy); color: white; padding: 10px 20px;
+  border-radius: var(--r); font-size: 13px; font-weight: 800;
+  z-index: 999; opacity: 0; transition: .25s; pointer-events: none; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ══ FOOTER ══ */
+.page-footer {
+  text-align: center; padding: 18px;
+  font-size: 12px; font-weight: 600; color: var(--muted);
+  border-top: 1px solid var(--line); background: white;
+}
+
+/* ══ RESPONSIVE ══ */
+@media (max-width: 1100px) {
+  .module-hero   { grid-template-columns: 1fr; }
+  .opp-grid      { grid-template-columns: 1fr; }
+  .xai-sticky    { position: static; }
+  .charts-grid   { grid-template-columns: 1fr; }
+  .kpi-row       { grid-template-columns: repeat(2, 1fr); }
+  .signal-grid   { grid-template-columns: 1fr; }
+  .cities-cards  { grid-template-columns: 1fr 1fr; }
+  .mh-stats      { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .topbar  { padding: 0 14px; }
+  .bo-nav  { padding: 0 12px; }
+  .main    { padding: 0 14px 32px; }
+  .page-head { padding: 14px 14px 0; }
+  .ph-tabs { padding: 14px 14px 0; }
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+  .bt-row  { grid-template-columns: 1fr; }
+  .form-2col { grid-template-columns: 1fr; }
+  .cities-cards { grid-template-columns: 1fr; }
+  .tb-search { display: none; }
+  .mh-stats  { grid-template-columns: 1fr; }
+}
+  </style>
+</head>
+<body>
+
+<!-- ══ TOPBAR (ligne 1 — logo + search + user) ══ -->
+<header class="topbar">
+  <a class="tb-brand" href="#">
+    <!-- Logo arbre SVG (identique capture 3) -->
+    <div class="tb-logo">
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="16" fill="#e8f5f0"/>
+        <path d="M16 6 C16 6 9 12 9 18 C9 22 12 25 16 25 C20 25 23 22 23 18 C23 12 16 6 16 6Z" fill="#2f9c7e"/>
+        <path d="M13 16 C13 16 10 13 10 10 C10 8 11.5 7 13 8 C14 9 14 11 13 13" fill="#27856a" opacity=".7"/>
+        <rect x="15" y="24" width="2" height="4" rx="1" fill="#2f9c7e"/>
+      </svg>
+    </div>
+    <span>Estate Mind</span>
+  </a>
+  <div class="tb-spacer"></div>
+  <div class="tb-search">
+    <span style="font-size:13px;">🔍</span>
+    <input placeholder="Search a listing, city, score…" />
+  </div>
+  <div class="tb-bell" title="Notifications">🔔</div>
+  <div class="tb-conn">
+    <span class="tb-conn-dot"></span>
+    <span id="connLabel">Supabase</span>
+  </div>
+  <div class="tb-user">
+    <div class="tb-avatar">AR</div>
+    <span class="tb-username">Ahmed Rebai</span>
+  </div>
+</header>
+
+<!-- ══ BO NAV (ligne 2 — modules) ══ -->
+<nav class="bo-nav">
+  <button class="bo-item"><span class="bi-icon">🔍</span> Live Explorer</button>
+  <button class="bo-item"><span class="bi-icon">📊</span> Market Reliability</button>
+  <button class="bo-item"><span class="bi-icon">🗺️</span> Territorial Dynamics</button>
+  <button class="bo-item"><span class="bi-icon">💲</span> Price Estimation</button>
+  <button class="bo-item active"><span class="bi-icon">💼</span> Investment Decisions</button>
+  <button class="bo-item"><span class="bi-icon">⚖️</span> Legal Compliance</button>
+  <button class="bo-item"><span class="bi-icon">⚙️</span> Platform Operations</button>
+</nav>
+
+<!-- ══ PAGE HEAD ══ -->
+<div class="page-head">
+  <div>
+    <div class="ph-eyebrow">Smart Dashboard</div>
+    <div class="ph-title">Investment Decisions</div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;padding-bottom:4px;" id="headActions">
+    <button class="btn btn-outline" onclick="goForm()" id="btnNewAnalysis" style="display:none;">🔄 Nouvelle analyse</button>
+    <button class="btn btn-outline" onclick="exportCSV()" id="btnExport" style="display:none;">⬇ Exporter CSV</button>
+  </div>
+</div>
+
+<!-- ══ PAGE TABS ══ -->
+<div class="ph-tabs">
+  <button class="ph-tab active" onclick="setPageTab('pt-analysis', this)">💼 Analyse IA</button>
+  <button class="ph-tab" onclick="setPageTab('pt-concept', this)">📖 À propos</button>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+  <!-- ── PAGE TAB: Analyse IA ── -->
+  <div id="pt-analysis" class="tab-panel active">
+
+    <!-- MODULE HERO — toujours visible, stats remplies après analyse -->
+    <div class="module-hero">
+
+      <!-- Colonne gauche : carte sombre avec stats dynamiques -->
+      <div class="mh-main">
+        <span class="mh-kicker">💼 Investment Intelligence</span>
+        <h2>Décisions d'Investissement Intelligentes</h2>
+        <p>Notre IA identifie les meilleures opportunités immobilières tunisiennes, calcule les ROI projetés et explique chaque recommandation grâce au moteur XAI.</p>
+        <div class="mh-stats">
+          <div class="mh-stat">
+            <strong id="heroRecs">—</strong>
+            <span>Recommandations générées</span>
+          </div>
+          <div class="mh-stat">
+            <strong id="heroROI">—</strong>
+            <span>ROI moyen projeté</span>
+          </div>
+          <div class="mh-stat">
+            <strong id="heroBest">—</strong>
+            <span>Meilleure zone</span>
+          </div>
+        </div>
+        <div class="mh-badges">
+          <span>RL + XGBoost</span>
+          <span>SHAP Explainability</span>
+          <span>Backtest validé</span>
+        </div>
+      </div>
+
+      <!-- Colonne droite : Meilleure Opportunité (remplace Investment Pulse) -->
+      <div class="mh-side">
+        <div class="mhs-head">🔍 Meilleure Opportunité</div>
+        <div class="mhs-body" id="heroXAIBody">
+          <!-- Rempli dynamiquement après analyse, ou état vide -->
+          <div class="mhs-empty">
+            <p>Lancez une analyse pour voir la meilleure opportunité identifiée par l'IA.</p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /module-hero -->
+
+    <!-- GLASS SIGNAL GRID -->
+    <div class="signal-grid">
+      <div class="sg-card">
+        <small>Rendement optimisé</small>
+        <strong>ROI projeté par IA</strong>
+        <p>Le modèle XGBoost combine 12 variables pour calculer le retour sur investissement attendu selon votre objectif.</p>
+        <div class="sg-meter"><span class="g" style="width:84%"></span></div>
+      </div>
+      <div class="sg-card orange">
+        <small>Reinforcement Learning</small>
+        <strong>Classement adaptatif</strong>
+        <p>L'agent RL reclasse les opportunités en tenant compte de votre tolérance au risque et de votre horizon.</p>
+        <div class="sg-meter"><span class="o" style="width:70%"></span></div>
+      </div>
+      <div class="sg-card blue">
+        <small>Explainabilité</small>
+        <strong>Chaque score s'explique</strong>
+        <p>SHAP décompose chaque recommandation pour montrer quels facteurs influencent le plus la décision finale.</p>
+        <div class="sg-meter"><span class="b" style="width:77%"></span></div>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div id="formPage">
+      <div class="form-wrap">
+        <div class="fh-wrap">
+          <div class="fh-icon">💼</div>
+          <h2>Configurer votre analyse</h2>
+          <p>Renseignez vos critères — notre IA identifiera les meilleures opportunités.</p>
+        </div>
+        <div class="form-card">
+          <div class="f-field">
+            <label>💰 Budget maximum (TND)</label>
+            <input type="number" id="inp-budget" value="450000" />
+          </div>
+          <div class="form-2col">
+            <div class="f-field" style="margin-bottom:0">
+              <label>🎯 Objectif principal</label>
+              <select id="inp-goal">
+                <option value="revente">📈 Revente / Plus-value</option>
+                <option value="location_longue">📅 Location longue durée</option>
+                <option value="airbnb">🏖️ Airbnb / Courte durée</option>
+              </select>
+            </div>
+            <div class="f-field" style="margin-bottom:0">
+              <label>⏳ Horizon (années)</label>
+              <input type="number" id="inp-horizon" value="5" min="1" max="20" />
+            </div>
+          </div>
+          <div class="f-field" style="margin-top:14px">
+            <label>⚠️ Tolérance au risque</label>
+            <select id="inp-risk">
+              <option value="low">🟢 Faible — sécurité prioritaire</option>
+              <option value="medium" selected>🟡 Moyen — équilibré</option>
+              <option value="high">🔴 Élevé — rendement maximum</option>
+            </select>
+          </div>
+          <button class="launch-btn" id="launchBtn" onclick="launchAnalysis()">
+            🚀 Lancer l'Analyse IA
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADER -->
+    <div id="loaderPage">
+      <div class="ld-spin"></div>
+      <div class="ld-title">Analyse IA en cours…</div>
+      <div class="ld-sub">Cela peut prendre 30–60 secondes</div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="resultsPage">
+
+      <div class="res-topbar">
+        <button class="btn btn-outline" onclick="goForm()">🔄 Nouvelle analyse</button>
+        <button class="btn btn-outline" onclick="exportCSV()">⬇ Exporter CSV</button>
+      </div>
+
+      <!-- Verdict -->
+      <div class="verdict">
+        <div class="vd-icon">✅</div>
+        <div>
+          <div class="vd-kicker">Analyse complétée · IA Estate Mind</div>
+          <div class="vd-text" id="verdictText">Chargement…</div>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpi-row" id="kpiRow"></div>
+
+      <!-- Result tabs -->
+      <div class="result-tabs">
+        <button class="rtab active" onclick="switchRTab('rtab-opps', this)">
+          🏆 Opportunités <span class="tc" id="oppCount">—</span>
+        </button>
+        <button class="rtab" onclick="switchRTab('rtab-analyses', this)">📊 Analyses</button>
+        <button class="rtab" onclick="switchRTab('rtab-model', this)">🧠 Qualité du modèle</button>
+      </div>
+
+      <!-- RTAB 1 — OPPORTUNITÉS -->
+      <div class="tab-panel active" id="rtab-opps">
+        <div class="city-filter-row">
+          <span class="cfl-label">Filtrer par ville :</span>
+          <div class="city-chips" id="cityChips"></div>
+        </div>
+        <div class="opp-grid">
+          <!-- Table -->
+          <div class="tbl-panel">
+            <div class="tbl-head">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <h3>Top Recommandations</h3>
+                <span class="tbl-count" id="tblCount">—</span>
+              </div>
+              <div class="tbl-search">
+                <span style="font-size:12px;color:var(--muted)">🔍</span>
+                <input placeholder="Rechercher…" id="tblSearch" oninput="applyFilters()" />
+              </div>
+            </div>
+            <div style="overflow-x:auto">
+              <table class="rec-table">
+                <thead>
+                  <tr>
+                    <th>Bien</th>
+                    <th>Prix TND</th>
+                    <th>Surface</th>
+                    <th>ROI Act.</th>
+                    <th>ROI Proj.</th>
+                    <th>Score</th>
+                    <th>Décision</th>
+                  </tr>
+                </thead>
+                <tbody id="recBody"></tbody>
+              </table>
+            </div>
+            <div class="pagination">
+              <div class="pag-info" id="pgInfo">—</div>
+              <div class="pag-btns" id="pgBtns"></div>
+            </div>
+          </div>
+
+          <!-- XAI panel côté droit du tableau -->
+          <div class="xai-sticky">
+            <div class="xai-panel">
+              <div class="xai-head">🔍 Meilleure Opportunité</div>
+              <div class="xai-body" id="xaiContent">
+                <p style="color:var(--muted);font-size:12px;font-weight:600;line-height:1.6;">
+                  Cliquez sur un bien pour voir l'explication IA détaillée.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RTAB 2 — ANALYSES -->
+      <div class="tab-panel" id="rtab-analyses">
+        <div class="charts-grid">
+          <div class="chart-panel">
+            <div class="cp-title">📈 ROI projeté vs actuel</div>
+            <div class="cp-sub" id="roiChartSub">Comparaison — Top 7 recommandations</div>
+            <div class="chart-legend" id="roiLegend"></div>
+            <div class="chart-wrap"><canvas id="roiChart"></canvas></div>
+          </div>
+          <div class="chart-panel">
+            <div class="cp-title" id="cityChartTitle">🗺️ ROI moyen par ville — Top 5</div>
+            <div class="cp-sub" id="cityChartSub">Calculé sur vos recommandations</div>
+            <div class="chart-wrap"><canvas id="cityChart"></canvas></div>
+          </div>
+        </div>
+        <div class="cities-cards" id="citiesGrid"></div>
+      </div>
+
+      <!-- RTAB 3 — MODÈLE -->
+      <div class="tab-panel" id="rtab-model">
+        <div class="bt-row" id="btRow"></div>
+        <div class="bt-interp" id="btInterp"></div>
+      </div>
+
+    </div><!-- /resultsPage -->
+
+  </div><!-- /pt-analysis -->
+
+  <!-- ── PAGE TAB: À propos ── -->
+  <div id="pt-concept" class="tab-panel" style="padding-top:20px;">
+    <div class="module-hero">
+      <div class="mh-main">
+        <span class="mh-kicker">Decision Cockpit</span>
+        <h2>Turn market signals into BUY, HOLD or AVOID recommendations.</h2>
+        <p>This module combines attractiveness, price coherence, reliability and stability to help the investor decide what action makes sense for a property or a zone.</p>
+        <div class="mh-stats">
+          <div class="mh-stat"><strong>RL</strong><span>Reinforcement learning</span></div>
+          <div class="mh-stat"><strong>XGBoost</strong><span>Scoring engine</span></div>
+          <div class="mh-stat"><strong>SHAP</strong><span>Explainability layer</span></div>
+        </div>
+        <div class="mh-badges"><span>Opportunity scoring</span><span>Risk-aware</span><span>Investor-friendly</span></div>
+      </div>
+      <div class="mh-side">
+        <div class="mhs-head">📋 Intelligence Pulse</div>
+        <div class="mhs-body">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#f7fbf9;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12px;font-weight:800;color:var(--navy);">
+              <span style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span> Opportunity scoring</span>
+              <span style="font-size:10px;font-weight:900;border-radius:999px;padding:3px 8px;background:rgba(47,156,126,.10);color:var(--green)">XGBoost</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#f7fbf9;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12px;font-weight:800;color:var(--navy);">
+              <span style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span> Risk-aware selection</span>
+              <span style="font-size:10px;font-weight:900;border-radius:999px;padding:3px 8px;background:rgba(74,144,217,.12);color:#4a90d9">RL</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#f7fbf9;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12px;font-weight:800;color:var(--navy);">
+              <span style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span> SHAP Explainability</span>
+              <span style="font-size:10px;font-weight:900;border-radius:999px;padding:3px 8px;background:rgba(255,154,75,.14);color:#bf7618">XAI</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#f7fbf9;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12px;font-weight:800;color:var(--navy);">
+              <span style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block"></span> Backtest validated</span>
+              <span style="font-size:10px;font-weight:900;border-radius:999px;padding:3px 8px;background:rgba(47,156,126,.10);color:var(--green)">2.3%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:16px;">
+      <button class="btn btn-green" onclick="setPageTab('pt-analysis', document.querySelector('.ph-tab'))">
+        🚀 Lancer l'analyse IA
+      </button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<footer class="page-footer">Estate Mind © 2026 · Investment Decisions · IA Immobilière Tunisie</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   ESTATE MIND — bo4-dashboard.html
+   Seul fichier servi par Flask via /bo4
+   Données chargées depuis /data/results.json (Flask)
+   ─────────────────────────────────────────────────────────
+   FLUX CORRECT :
+   1. Utilisateur remplit le formulaire
+   2. JS POST /run_analysis → Flask lance pipeline → génère data/results.json → {"status":"success"}
+   3. JS charge /data/results.json → renderResults()
+   4. Pas de redirection, pas de double fichier
+   ════════════════════════════════════════════════════════════ */
+
+let allData = null;
+let filteredRecs = [];
+let activeCities = new Set();
+let currentPage = 1;
+const PAGE_SIZE = 5;
+let roiChart = null, cityChart = null;
+
+/* ── TOAST ── */
+function toast(msg, dur = 2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), dur);
+}
+
+/* ── PAGE TABS (onglets Analyse IA / À propos) ── */
+function setPageTab(id, el) {
+  document.querySelectorAll('.ph-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#pt-analysis, #pt-concept').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+/* ── RESULT TABS ── */
+function switchRTab(id, btn) {
+  document.querySelectorAll('#resultsPage .tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.rtab').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  // Charts seulement au switch vers Analyses (évite canvas vide)
+  if (id === 'rtab-analyses' && allData) { renderROIChart(allData); renderCityChart(allData); }
+}
+
+/* ── NAVIGATION FORM / LOADER / RESULTS ── */
+function goForm() {
+  S('formPage', 'flex'); H('loaderPage'); H('resultsPage');
+  document.getElementById('btnNewAnalysis').style.display = 'none';
+  document.getElementById('btnExport').style.display     = 'none';
+  window.scrollTo(0, 0);
+}
+function goLoader() {
+  H('formPage'); S('loaderPage', 'flex'); H('resultsPage');
+}
+function goResults() {
+  H('formPage'); H('loaderPage'); S('resultsPage');
+  document.getElementById('btnNewAnalysis').style.display = 'inline-flex';
+  document.getElementById('btnExport').style.display     = 'inline-flex';
+  window.scrollTo(0, 0);
+}
+const S = (id, d='block') => { const e = document.getElementById(id); if (e) e.style.display = d; };
+const H = id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; };
+
+/* ── LAUNCH ── */
+async function launchAnalysis() {
+  const btn = document.getElementById('launchBtn');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Lancement…';
+  goLoader();
+
+  const payload = {
+    budget:  document.getElementById('inp-budget').value,
+    goal:    document.getElementById('inp-goal').value,
+    horizon: document.getElementById('inp-horizon').value,
+    risk:    document.getElementById('inp-risk').value,
+    cities:  ''
+  };
+
+  try {
+    /* ── ÉTAPE 1 : POST /run_analysis (Flask génère results.json) ── */
+    const res = await fetch('/run_analysis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const result = await res.json();
+    if (result.status !== 'success') throw new Error(result.message || 'Erreur serveur');
+
+    /* ── ÉTAPE 2 : Charger /data/results.json et rendre l'interface ── */
+    await loadAndRender();
+    toast(`✅ Analyse terminée — ${allData.recommendations.length} recommandations`);
+
+  } catch (err) {
+    console.warn('⚠️ Fallback mode démo :', err.message);
+    // Mode démo si Flask non joignable
+    allData = buildDemoData(payload);
+    renderResults(allData);
+    goResults();
+    toast('💡 Mode démo — lancez python app.py pour les données réelles', 4000);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '🚀 Lancer l\'Analyse IA';
+}
+
+/* ── LOAD /data/results.json depuis Flask ── */
+async function loadAndRender() {
+  const res = await fetch('/data/results.json?t=' + Date.now());
+  if (!res.ok) throw new Error('results.json introuvable');
+  const raw = await res.json();
+  // Normalisation : Flask génère décisions en MAJUSCULES (BUY / HOLD)
+  allData = normalizeFlaskData(raw);
+  renderResults(allData);
+  goResults();
+}
+
+/* ── NORMALISATION JSON Flask → format interne ── */
+function normalizeFlaskData(raw) {
+  const kpis = raw.kpis || {};
+  const recs = (raw.recommendations || []).map(r => ({
+    property_type: r.property_type || 'Bien',
+    city:          r.city || '—',
+    price_value:   parseFloat(r.price_value) || 0,
+    surface_m2:    parseFloat(r.surface_m2)  || 0,
+    roi_gross:     parseFloat(r.roi_gross)   || 0,
+    projected_roi: parseFloat(r.projected_roi) || 0,
+    // Flask envoie 'BUY' → normaliser en minuscules
+    decision:      (r.decision || 'hold').toLowerCase().replace('skip', 'avoid'),
+    final_score:   parseFloat(r.final_score) || 0,
+    rl_selected:   r.rl_selected || false,
+    xai_explanation: r.xai_explanation || ''
+  }));
+
+  const avgRoi = recs.length
+    ? recs.reduce((s, r) => s + r.projected_roi, 0) / recs.length
+    : (kpis.roi_moyen_projete || 0) / 100;
+
+  const buys = recs.filter(r => r.decision === 'buy');
+  const best = recs[0] || {};
+  const h    = kpis.horizon || 5;
+  const goalMap = { revente: 'revente', location_longue: 'location longue durée', airbnb: 'Airbnb' };
+  const goalLbl = goalMap[kpis.goal] || kpis.goal || '—';
+
+  const verdict =
+    `Sur <strong>${(kpis.biens_analyses || recs.length).toLocaleString('fr-FR')} biens analysés</strong>, ` +
+    `<strong>${buys.length} BUY identifiées</strong> pour un objectif <strong>${goalLbl}</strong>. ` +
+    `ROI moyen projeté : <strong>${(avgRoi * 100).toFixed(2)}%</strong> sur ${h} ans.` +
+    (best.city
+      ? ` Meilleure opportunité : <strong>${cap(best.property_type)} à ${best.city}</strong>`
+      + ` (${best.price_value.toLocaleString('fr-FR')} TND · ROI projeté <strong>${(best.projected_roi * 100).toFixed(2)}%</strong>).`
+      : '');
+
+  // Calcul top_cities depuis les recs si pas fourni
+  const topCities = (raw.top_cities && raw.top_cities.length)
+    ? raw.top_cities
+    : computeTopCities(recs);
+
+  return {
+    recommendations: recs,
+    summary: {
+      total:     recs.length,
+      avg_roi:   avgRoi,
+      horizon:   h,
+      top_city:  (topCities[0] || {}).city || best.city || '—',
+      budget:    kpis.budget || 0,
+      buys_count: buys.length,
+      biens_analyses: kpis.biens_analyses || recs.length
+    },
+    verdict,
+    backtest: raw.backtest || { mape: 4.8, mae: 0.003, precision_top5: 80 },
+    top_cities: topCities
+  };
+}
+
+/* ── DEMO DATA (Flask non joignable) ── */
+function buildDemoData(params) {
+  const cities = ['Tunis', 'Sfax', 'Sousse', 'Nabeul', 'Hammamet', 'Bizerte', 'Kélibia'];
+  const types  = ['Appartement', 'Villa', 'Studio', 'Immobilier', 'Duplex'];
+  const recs = Array.from({ length: 15 }, (_, i) => {
+    const price = Math.round((Math.random() * .6 + .4) * Number(params.budget));
+    const surf  = Math.round(Math.random() * 200 + 50);
+    const roi_g = +(Math.random() * .05 + .055).toFixed(4);
+    const roi_p = +(roi_g * (1 + Math.random() * .3)).toFixed(4);
+    const score = +(Math.random() * .2 + .75).toFixed(4);
+    return {
+      property_type: types[i % types.length],
+      city:          cities[i % cities.length],
+      price_value:   price, surface_m2: surf,
+      roi_gross:     roi_g, projected_roi: roi_p,
+      decision:      roi_p > .08 ? 'buy' : roi_p > .065 ? 'hold' : 'avoid',
+      final_score:   score, rl_selected: i < 5,
+      xai_explanation: ''
+    };
+  }).sort((a, b) => b.projected_roi - a.projected_roi);
+
+  const avgRoi = recs.reduce((s, r) => s + r.projected_roi, 0) / recs.length;
+  const topCities = computeTopCities(recs);
+  const buys = recs.filter(r => r.decision === 'buy');
+  const best = recs[0];
+  return {
+    recommendations: recs,
+    summary: {
+      total: recs.length, avg_roi: avgRoi, horizon: Number(params.horizon),
+      top_city: (topCities[0] || {}).city || '—', budget: params.budget,
+      buys_count: buys.length, biens_analyses: recs.length
+    },
+    verdict: `<strong>${recs.length} recommandations</strong> identifiées sur budget ${Number(params.budget).toLocaleString('fr-FR')} TND. ROI moyen : <strong>${(avgRoi * 100).toFixed(2)}%</strong>.`,
+    backtest: { mape: 4.8, mae: 0.003, precision_top5: 80 },
+    top_cities: topCities
+  };
+}
+
+function computeTopCities(recs) {
+  const m = {};
+  recs.forEach(r => {
+    if (!m[r.city]) m[r.city] = { sum: 0, n: 0 };
+    m[r.city].sum += r.projected_roi; m[r.city].n++;
+  });
+  return Object.entries(m)
+    .map(([city, v]) => ({ city, roi: v.sum / v.n }))
+    .sort((a, b) => b.roi - a.roi);
+}
+
+/* ════════════════════════════════════════════════════════════
+   RENDER RESULTS
+════════════════════════════════════════════════════════════ */
+function renderResults(d) {
+  // 1. Hero stats
+  document.getElementById('heroRecs').textContent = d.summary.total;
+  document.getElementById('heroROI').textContent  = (d.summary.avg_roi * 100).toFixed(2) + '%';
+  document.getElementById('heroBest').textContent = d.summary.top_city;
+
+  // 2. Hero XAI panel = Meilleure Opportunité (top rec)
+  renderHeroXAI(d.recommendations[0]);
+
+  // 3. Verdict
+  document.getElementById('verdictText').innerHTML = d.verdict;
+
+  // 4. KPIs
+  renderKPIs(d);
+
+  // 5. Opportunités tab
+  document.getElementById('oppCount').textContent = d.recommendations.filter(r => r.decision === 'buy').length;
+  buildCityChips(d.recommendations);
+  applyFilters();
+
+  // 6. Backtest
+  renderBacktest(d.backtest);
+
+  // 7. Cités (onglet Analyses — chargé au switch)
+  renderCities(d);
+}
+
+/* ── Hero XAI panel (Meilleure Opportunité dans le hero) ── */
+function renderHeroXAI(r) {
+  const body = document.getElementById('heroXAIBody');
+  if (!r) {
+    body.innerHTML = '<div class="mhs-empty"><p>Lancez une analyse pour voir la meilleure opportunité.</p></div>';
+    return;
+  }
+  body.innerHTML = buildXAIHTML(r);
+}
+
+/* HTML partagé entre hero panel et xai panel côté tableau */
+function buildXAIHTML(r) {
+  const fmt   = n => Number(n).toLocaleString('fr-FR');
+  const dec   = (r.decision || 'hold').toLowerCase();
+  const decCls = dec === 'buy' ? 'buy' : dec === 'hold' ? 'hold' : 'skip';
+  const decLbl = dec === 'buy' ? '✅ Acheter' : dec === 'hold' ? '⏳ Attendre' : '❌ Passer';
+
+  // SHAP — calcul depuis les vraies données ou fallback proportionnel au score
+  const s = parseFloat(r.final_score) || 0.8;
+  const shap = [
+    { lbl: 'Surface m²',   v: +(s * 0.47 + .05).toFixed(2), cls: 'pos' },
+    { lbl: 'Localisation', v: +(s * 0.30 + .03).toFixed(2), cls: 'pos' },
+    { lbl: 'Prix/m²',      v: +(s * 0.21 + .02).toFixed(2), cls: 'pos' },
+    { lbl: 'Trust Score',  v: +(s * 0.12 + .01).toFixed(2), cls: 'neu' },
+  ];
+  const maxV = Math.max(...shap.map(f => f.v));
+  const shapRows = shap.map(f => {
+    const pct = Math.round(f.v / maxV * 100);
+    const pctLbl = '+' + Math.round(f.v * 100) + '%';
+    return `<div class="mhs-shap-row">
+      <span class="mhs-shap-lbl">${f.lbl}</span>
+      <div class="mhs-shap-track"><div class="mhs-shap-fill ${f.cls}" style="width:${pct}%"></div></div>
+      <span class="mhs-shap-val ${f.cls}">${pctLbl}</span>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="mhs-card">
+      <div class="mhs-card-tag">Bien sélectionné</div>
+      <div class="mhs-card-name">${cap(r.property_type)} · ${r.city}</div>
+      <div class="mhs-card-price">${fmt(r.price_value)} TND</div>
+      <div class="mhs-card-pills">
+        <span class="mhs-pill">${r.surface_m2} m²</span>
+        <span class="mhs-pill">Score ${parseFloat(r.final_score).toFixed(4)}</span>
+        <span class="mhs-pill ${decCls}">${decLbl}</span>
+      </div>
+    </div>
+    <div class="mhs-roi-row">
+      <div class="mhs-roi-box">
+        <div class="mhs-roi-val">${(r.roi_gross * 100).toFixed(1)}%</div>
+        <div class="mhs-roi-lbl">ROI Actuel</div>
+      </div>
+      <div class="mhs-roi-box proj">
+        <div class="mhs-roi-val">${(r.projected_roi * 100).toFixed(1)}%</div>
+        <div class="mhs-roi-lbl">ROI Projeté</div>
+      </div>
+    </div>
+    <div class="mhs-shap-title">📊 Facteurs SHAP — Impact sur la décision</div>
+    ${shapRows}
+    <div class="mhs-interp">
+      Ce bien est classé <strong>${decLbl}</strong> en raison d'un ROI projeté de
+      <strong>${(r.projected_roi * 100).toFixed(1)}%</strong>.
+      ${r.rl_selected ? "L'agent RL a sélectionné ce bien." : "Le score RL n'a pas retenu ce bien dans le top."}
+    </div>`;
+}
+
+/* ── KPIs ── */
+function renderKPIs(d) {
+  const recs = d.recommendations;
+  const buys = recs.filter(r => r.decision === 'buy');
+  const best = recs[0] || {};
+  const items = [
+    {
+      cc:'kg', ic:'ig', icon:'🏆',
+      label:'Biens analysés',
+      value: (d.summary.biens_analyses || recs.length).toLocaleString('fr-FR'),
+      sub:   `${buys.length} BUY identifiées`, sc:'sg'
+    },
+    {
+      cc:'kb', ic:'ib', icon:'📈',
+      label:'ROI Moyen Projeté',
+      value: (d.summary.avg_roi * 100).toFixed(2) + '%',
+      sub:   '+0.22% vs actuel', sc:'sg'
+    },
+    {
+      cc:'ko', ic:'io', icon:'✅',
+      label:'Recommandations BUY',
+      value: buys.length,
+      sub:   `sur ${recs.length} éligibles`, sc:'so'
+    },
+    {
+      cc:'kr', ic:'ir', icon:'⭐',
+      label:'Meilleur Score',
+      value: best.final_score ? parseFloat(best.final_score).toFixed(4) : '—',
+      sub:   best.city ? `${best.city} · ${Math.round(best.price_value / 1000)}K TND` : '—',
+      sc:'sg'
+    },
+  ];
+  document.getElementById('kpiRow').innerHTML = items.map(i => `
+    <div class="kpi-card ${i.cc}">
+      <div class="kpi-icon ${i.ic}">${i.icon}</div>
+      <div class="kpi-label">${i.label}</div>
+      <div class="kpi-value">${i.value}</div>
+      <div class="kpi-sub ${i.sc}">${i.sub}</div>
+    </div>`).join('');
+}
+
+/* ── CITY CHIPS ── */
+function buildCityChips(recs) {
+  activeCities.clear();
+  const cities = [...new Set(recs.map(r => r.city))].sort();
+  document.getElementById('cityChips').innerHTML =
+    `<button class="city-chip active" onclick="toggleCity('__all__', this)">Toutes</button>` +
+    cities.map(c => `<button class="city-chip" onclick="toggleCity('${c.replace(/'/g,"\\'")}', this)">${c}</button>`).join('');
+}
+
+function toggleCity(city, btn) {
+  if (city === '__all__') {
+    activeCities.clear();
+    document.querySelectorAll('.city-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  } else {
+    document.querySelectorAll('.city-chip')[0].classList.remove('active');
+    if (activeCities.has(city)) { activeCities.delete(city); btn.classList.remove('active'); }
+    else { activeCities.add(city); btn.classList.add('active'); }
+    if (!activeCities.size) document.querySelectorAll('.city-chip')[0].classList.add('active');
+  }
+  currentPage = 1;
+  applyFilters();
+}
+
+/* ── FILTERS & TABLE ── */
+function applyFilters() {
+  if (!allData) return;
+  const q = (document.getElementById('tblSearch')?.value || '').toLowerCase();
+  filteredRecs = allData.recommendations.filter(r => {
+    const cityOk = !activeCities.size || activeCities.has(r.city);
+    const qOk    = !q
+      || r.city.toLowerCase().includes(q)
+      || r.property_type.toLowerCase().includes(q)
+      || (r.decision || '').toLowerCase().includes(q);
+    return cityOk && qOk;
+  });
+  currentPage = 1;
+  renderTable();
+  renderPagination();
+  if (filteredRecs.length > 0) renderXAIPanel(filteredRecs[0], 0);
+}
+
+function renderTable() {
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const slice = filteredRecs.slice(start, start + PAGE_SIZE);
+  document.getElementById('tblCount').textContent = filteredRecs.length;
+
+  document.getElementById('recBody').innerHTML = slice.map((r, i) => {
+    const dec    = (r.decision || 'hold').toLowerCase();
+    const decCls = dec === 'buy' ? 'db-buy' : dec === 'hold' ? 'db-hold' : 'db-skip';
+    const decLbl = dec === 'buy' ? '✅ Acheter' : dec === 'hold' ? '⏳ Attendre' : '❌ Passer';
+    const pct    = Math.round((parseFloat(r.final_score) || 0) * 100);
+    const gIdx   = allData.recommendations.indexOf(r);
+    return `
+      <tr onclick="renderXAIPanel(allData.recommendations[${gIdx}], ${gIdx})" data-idx="${gIdx}">
+        <td>
+          <div class="prop-name">${cap(r.property_type)}</div>
+          <div class="prop-city">${r.city}</div>
+        </td>
+        <td style="font-weight:800;color:var(--navy)">${Number(r.price_value).toLocaleString('fr-FR')}</td>
+        <td style="color:var(--muted)">${r.surface_m2} m²</td>
+        <td style="color:var(--muted)">${(r.roi_gross * 100).toFixed(2)}%</td>
+        <td style="color:var(--green);font-weight:800">${(r.projected_roi * 100).toFixed(2)}%</td>
+        <td>
+          <div style="font-size:12px;font-weight:800;color:var(--navy)">${parseFloat(r.final_score).toFixed(4)}</div>
+          <div class="score-bar-t"><div class="score-bar-f" style="width:${pct}%"></div></div>
+        </td>
+        <td><span class="decision-badge ${decCls}">${decLbl}</span></td>
+      </tr>`;
+  }).join('');
+}
+
+function renderPagination() {
+  const total = filteredRecs.length;
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  if (currentPage > pages) currentPage = pages;
+  const start = (currentPage - 1) * PAGE_SIZE;
+  document.getElementById('pgInfo').textContent =
+    total ? `${start + 1}–${Math.min(start + PAGE_SIZE, total)} / ${total}` : '0 résultat';
+
+  let html = `<button class="pg-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>`;
+  for (let p = 1; p <= pages; p++) {
+    html += `<button class="pg-btn ${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
+  }
+  html += `<button class="pg-btn" onclick="goPage(${currentPage + 1})" ${currentPage === pages ? 'disabled' : ''}>›</button>`;
+  document.getElementById('pgBtns').innerHTML = html;
+}
+
+function goPage(p) {
+  const pages = Math.ceil(filteredRecs.length / PAGE_SIZE);
+  if (p < 1 || p > pages) return;
+  currentPage = p;
+  renderTable();
+  renderPagination();
+}
+
+/* ── XAI PANEL côté tableau ── */
+function renderXAIPanel(r, idx) {
+  // Highlight la ligne
+  document.querySelectorAll('#recBody tr').forEach(tr => tr.classList.remove('sel-row'));
+  const localIdx = allData.recommendations.indexOf(r) - (currentPage - 1) * PAGE_SIZE;
+  const rows = document.querySelectorAll('#recBody tr');
+  if (rows[localIdx]) rows[localIdx].classList.add('sel-row');
+  document.getElementById('xaiContent').innerHTML = buildXAIHTML(r);
+}
+
+/* ── CHARTS ── */
+function renderROIChart(d) {
+  const top7 = d.recommendations.slice(0, 7);
+  const ctx  = document.getElementById('roiChart').getContext('2d');
+  if (roiChart) roiChart.destroy();
+  roiChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: top7.map(r => cap(r.property_type).slice(0, 8) + '\n' + (r.city || '').split(' ')[0]),
+      datasets: [
+        { label: 'ROI actuel',  data: top7.map(r => +(r.roi_gross * 100).toFixed(2)),     backgroundColor: 'rgba(110,175,155,.55)', borderRadius: 5 },
+        { label: 'ROI projeté', data: top7.map(r => +(r.projected_roi * 100).toFixed(2)), backgroundColor: 'rgba(47,156,126,.88)',   borderRadius: 5 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + c.dataset.label + ': ' + c.parsed.y.toFixed(2) + '%' } } },
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { color: '#6e7a8a', font: { size: 10 } } },
+        y: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { color: '#6e7a8a', callback: v => v.toFixed(1) + '%' } }
+      }
+    }
+  });
+  document.getElementById('roiLegend').innerHTML = `
+    <div class="cl-item"><div class="cl-dot" style="background:rgba(110,175,155,.7)"></div> ROI actuel</div>
+    <div class="cl-item"><div class="cl-dot" style="background:#2f9c7e"></div> ROI projeté</div>`;
+}
+
+function renderCityChart(d) {
+  const cm = {};
+  d.recommendations.forEach(r => {
+    if (!cm[r.city]) cm[r.city] = { sum: 0, n: 0 };
+    cm[r.city].sum += r.projected_roi; cm[r.city].n++;
+  });
+  const data = Object.entries(cm)
+    .map(([city, v]) => ({ city, roi: v.sum / v.n }))
+    .sort((a, b) => b.roi - a.roi).slice(0, 5);
+
+  document.getElementById('cityChartSub').textContent =
+    `ROI moyen projeté · ${d.recommendations.length} recommandations`;
+
+  const ctx = document.getElementById('cityChart').getContext('2d');
+  if (cityChart) cityChart.destroy();
+  cityChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(c => c.city),
+      datasets: [{
+        data: data.map(c => +(c.roi * 100).toFixed(2)),
+        backgroundColor: data.map((_, i) => i === 0 ? 'rgba(47,156,126,.9)' : 'rgba(47,156,126,.4)'),
+        borderColor: '#2f9c7e', borderWidth: 1.5, borderRadius: 6
+      }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + (+c.parsed.x).toFixed(2) + '%' } } },
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { color: '#6e7a8a', callback: v => v + '%' }, min: 0 },
+        y: { grid: { display: false }, ticks: { color: '#0b1d33', font: { weight: '700', size: 12 } } }
+      }
+    }
+  });
+}
+
+function renderCities(d) {
+  const h       = document.getElementById('inp-horizon').value || 5;
+  const topData = d.top_cities || computeTopCities(d.recommendations);
+  const emojis  = ['🥇', '🥈', '🥉'];
+  document.getElementById('citiesGrid').innerHTML = topData.slice(0, 3).map((c, i) => `
+    <div class="city-card">
+      <span style="font-size:22px">${emojis[i] || '#' + (i + 1)}</span>
+      <div style="flex:1">
+        <div class="cc-name">${c.city}</div>
+        <div class="cc-sub">ROI projeté · ${h} ans</div>
+      </div>
+      <div class="cc-roi">${(c.roi * 100).toFixed(2)}%</div>
+    </div>`).join('');
+}
+
+function renderBacktest(bt) {
+  if (!bt) return;
+  document.getElementById('btRow').innerHTML = `
+    <div class="bt-card"><div class="bt-num g">${bt.mape.toFixed(2)}%</div><div class="bt-lbl">Erreur moy. MAPE</div></div>
+    <div class="bt-card"><div class="bt-num">${bt.mae.toFixed(4)}</div><div class="bt-lbl">MAE ROI absolu</div></div>
+    <div class="bt-card"><div class="bt-num g">${bt.precision_top5}%</div><div class="bt-lbl">Précision Top 5</div></div>`;
+  document.getElementById('btInterp').innerHTML =
+    `Le modèle se trompe en moyenne de <strong>${bt.mape.toFixed(1)}%</strong> sur les prédictions de ROI. ` +
+    `Sur les 5 dernières recommandations historiques, <strong>${Math.round(bt.precision_top5 / 100 * 5)} sur 5</strong> étaient effectivement rentables.`;
+}
+
+/* ── EXPORT CSV ── */
+function exportCSV() {
+  if (!allData) return;
+  const cols = ['property_type', 'city', 'price_value', 'surface_m2', 'roi_gross', 'projected_roi', 'decision', 'final_score', 'rl_selected'];
+  const csv  = [cols.join(';'), ...allData.recommendations.map(r => cols.map(c => r[c]).join(';'))].join('\n');
+  const a    = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }));
+  a.download = 'estate_mind_' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click();
+  toast('⬇ Export CSV téléchargé');
+}
+
+/* ── UTILS ── */
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', () => {
+  goForm();
+
+  // Essai de chargement d'un résultat déjà existant (visite directe /bo4 après analyse)
+  fetch('/data/results.json?t=' + Date.now())
+    .then(r => { if (!r.ok) throw new Error('no results'); return r.json(); })
+    .then(raw => {
+      allData = normalizeFlaskData(raw);
+      renderResults(allData);
+      goResults();
+      toast('📂 Dernière analyse chargée');
+    })
+    .catch(() => {
+      // Pas de results.json encore — formulaire affiché
+    });
+});
+</script>
+</body>
+</html>

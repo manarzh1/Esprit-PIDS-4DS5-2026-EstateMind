@@ -183,22 +183,45 @@ def compute_scores(df: pd.DataFrame, user_profile: dict) -> pd.DataFrame:
     # --------------------------
     df["decision"] = "HOLD"
 
+    # ── Fallback: use projected_roi when roi_gross is near-zero across the dataset
+    # (happens when no rent data is available, causing all roi_gross = 0 → 0 BUY)
+    roi_col = "roi_gross"
+    if df["roi_gross"].median() < 0.01 and "projected_roi" in df.columns and df["projected_roi"].median() > 0.01:
+        print("   ⚠️  roi_gross near-zero → fallback to projected_roi for decisions")
+        roi_col = "projected_roi"
+
+    # ── Dynamic score threshold: only top 30% qualify as BUY
+    # This prevents min-max normalization from making everything look like a BUY
+    score_threshold = max(0.60, float(df["score"].quantile(0.70)))
+    roi_threshold   = max(0.05, float(df[roi_col].quantile(0.55)))
+    print(f"   📊 Seuils dynamiques → score≥{score_threshold:.3f} | {roi_col}≥{roi_threshold:.4f}")
+
+    # ── BUY: top-tier return + top-tier score + acceptable risk
     df.loc[
         (
-            (df["roi_gross"] >= 0.06) &
-            (df["score"] >= 0.60) &
+            (df[roi_col] >= roi_threshold) &
+            (df["score"] >= score_threshold) &
             (df["risk_score"] <= 0.55)
         ),
         "decision"
     ] = "BUY"
 
+    # ── AVOID: weak return OR weak score OR extreme risk
+    # Only overrides BUY if risk is truly extreme (>= 0.80)
+    avoid_roi   = float(df[roi_col].quantile(0.25))
+    avoid_score = float(df["score"].quantile(0.25))
     df.loc[
         (
-            (df["roi_gross"] < 0.035) |
-            (df["score"] < 0.40) |
-            (df["risk_score"] >= 0.70)
+            (df[roi_col] < avoid_roi) |
+            (df["score"] < avoid_score) |
+            (df["risk_score"] >= 0.80)
         ),
         "decision"
     ] = "AVOID"
+
+    buy_count   = (df["decision"] == "BUY").sum()
+    hold_count  = (df["decision"] == "HOLD").sum()
+    avoid_count = (df["decision"] == "AVOID").sum()
+    print(f"   ✅ Décisions → BUY: {buy_count} | HOLD: {hold_count} | AVOID: {avoid_count}")
 
     return df

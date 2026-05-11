@@ -105,7 +105,7 @@ def run_analysis():
         if "rl_selected" in df.columns:
             rec_cols.append("rl_selected")
 
-        recs = df.head(15)[rec_cols].round(4).to_dict(orient='records')
+        recs = df[rec_cols].round(4).to_dict(orient='records')
         for r in recs:
             r.setdefault("rl_selected", False)
 
