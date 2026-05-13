@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Estate Mind</title>
+  <link rel="stylesheet" href="common.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body class="dash-body">
+
+  <!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+  <aside class="dash-sidebar" id="sidebar">
+
+    <div class="dash-brand">
+      <span class="logo-mark">
+        <img src="assets/logo1.png" alt="Estate Mind">
+      </span>
+      <strong>Estate Mind</strong>
+    </div>
+
+    <button class="collapse-btn" onclick="document.body.classList.toggle('sidebar-collapsed')">☰</button>
+
+    <nav class="dash-nav">
+      <a onclick="setPage('BO 1 — Intelligence des annonces', this)">
+        <img src="assets/icons/search1.png">
+        <span>Market Reliability</span>
+      </a>
+      <a onclick="setPage('BO 2 — Intelligence territoriale', this)">
+        <img src="assets/icons/map1.png">
+        <span>Territorial Dynamics</span>
+      </a>
+      <a onclick="setPage('BO 3 — Prévision marché', this)">
+        <img src="assets/icons/chart1.png">
+        <span>Price Estimation</span>
+      </a>
+      <a onclick="setPage('BO 4 — Réglementaire', this)">
+        <img src="assets/icons/report1.png">
+        <span>Investment Decisions</span>
+      </a>
+      <a onclick="setPage('BO 5 — Clients & vendeurs', this)">
+        <img src="assets/icons/shield1.png">
+        <span>Legal Compliance</span>
+      </a>
+      <a class="active" onclick="setPage('BO 6 — Rapports IA', this)">
+        <img src="assets/icons/ai1.png">
+        <span>Plateform Operations</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-card">
+      <img src="assets/avatar-advisor.png" alt="">
+      <p>Besoin d'un insight rapide ?</p>
+      <!-- Ouvre le chatbot flottant -->
+      <button onclick="openChat()">Demander à l'IA</button>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════ MAIN ═══════════════════════════════ -->
+  <main class="dash-main">
+
+    <header class="dash-header">
+      <div>
+        <span class="eyebrow">Dashboard intelligent</span>
+        <h1 id="pageTitle">BO 6 — Rapports IA</h1>
+      </div>
+      <div class="header-actions">
+        <div class="dash-search">
+          <img src="assets/icons/house.png" class="icon">
+          <input placeholder="Rechercher une annonce, ville, score..." />
+        </div>
+        <button class="icon-btn">
+          <img src="assets/icons/bell.png" class="icon">
+        </button>
+        <div class="profile">
+          <img src="assets/avatar-director.png" alt="">
+          <span>Admin</span>
+          <b></b>
+        </div>
+      </div>
+    </header>
+
+    <!-- ──────────────── TABS ──────────────── -->
+    <section class="dash-tabs">
+      <button class="active" onclick="setTab(this, 'overview')">Vue globale</button>
+      <button onclick="setTab(this, 'map')">Carte</button>
+      <button onclick="setTab(this, 'models')">Modèles IA</button>
+      <button onclick="setTab(this, 'data')">Données</button>
+      <button onclick="setTab(this, 'alerts')">Alertes</button>
+      <!-- ✅ NOUVEAU : onglet Historique DSO3 -->
+      <button onclick="setTab(this, 'historique')">
+        🕐 Historique
+      </button>
+    </section>
+
+    <!-- ──────────────── TAB CONTENT ──────────────── -->
+
+    <!-- === VUE GLOBALE (défaut) === -->
+    <section class="dash-grid" id="tab-overview">
+      <article class="kpi-card">
+        <span>Score moyen</span>
+        <strong>87%</strong>
+        <small>+8.4% cette semaine</small>
+      </article>
+      <article class="kpi-card">
+        <span>Annonces analysées</span>
+        <strong>8,240</strong>
+        <small>4 sources connectées</small>
+      </article>
+      <article class="kpi-card">
+        <span>Doublons détectés</span>
+        <strong>312</strong>
+        <small>Exact + fuzzy + sémantique</small>
+      </article>
+      <article class="kpi-card">
+        <span>Zones émergentes</span>
+        <strong>8</strong>
+        <small>Signal fort marché</small>
+      </article>
+
+      <article class="panel big">
+        <div class="panel-head">
+          <h3>Carte intelligente du marché</h3>
+          <select><option>Tunis</option><option>Sousse</option><option>Ariana</option></select>
+        </div>
+        <div class="map-mock">
+          <span class="pin p1"></span>
+          <span class="pin p2"></span>
+          <span class="pin p3"></span>
+          <span class="pin p4"></span>
+          <div class="map-card"><strong>Lac 2</strong><br>Prix +14% · Forte demande</div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><h3>Évolution des prix</h3><button>Exporter</button></div>
+        <div class="line-chart"><i></i></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><h3>Répartition des sources</h3></div>
+        <div class="donut"></div>
+        <ul class="legend">
+          <li>Tayara</li><li>Mubawab</li><li>Remax</li><li>Tecnocasa</li>
+        </ul>
+      </article>
+
+      <article class="panel table-panel">
+        <div class="panel-head">
+          <h3>Dernières annonces suspectes</h3>
+          <button>Voir tout</button>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Bien</th><th>Ville</th><th>Score</th><th>Risque</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Appartement S+2</td><td>Ariana</td><td>42%</td><td><span class="risk high">Élevé</span></td></tr>
+            <tr><td>Villa moderne</td><td>La Marsa</td><td>58%</td><td><span class="risk mid">Moyen</span></td></tr>
+            <tr><td>Studio centre</td><td>Tunis</td><td>76%</td><td><span class="risk low">Faible</span></td></tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <!-- === CARTE === -->
+    <section class="dash-grid" id="tab-map" style="display:none">
+      <article class="panel big" style="grid-column:span 4">
+        <div class="panel-head"><h3>Carte du marché — Vue étendue</h3>
+          <select><option>Tunis</option><option>Sousse</option><option>Sfax</option></select>
+        </div>
+        <div class="map-mock" style="height:480px">
+          <span class="pin p1"></span><span class="pin p2"></span>
+          <span class="pin p3"></span><span class="pin p4"></span>
+          <div class="map-card"><strong>Analyse territoriale</strong><br>4 zones actives</div>
+        </div>
+      </article>
+    </section>
+
+    <!-- === MODÈLES IA === -->
+    <section class="dash-grid" id="tab-models" style="display:none">
+      <article class="kpi-card"><span>Modèles actifs</span><strong>6</strong><small>Tous opérationnels</small></article>
+      <article class="kpi-card"><span>Accuracy globale</span><strong>94.2%</strong><small>+1.2% vs mois dernier</small></article>
+      <article class="kpi-card"><span>Latence moyenne</span><strong>312ms</strong><small>En dessous du seuil</small></article>
+      <article class="kpi-card"><span>Requêtes / jour</span><strong>4,180</strong><small>Pic : 22h</small></article>
+      <article class="panel table-panel" style="grid-column:span 4">
+        <div class="panel-head"><h3>État des Agents BO6</h3></div>
+        <table>
+          <thead><tr><th>Agent</th><th>Rôle</th><th>Statut</th><th>Dernière activité</th></tr></thead>
+          <tbody id="agents-model-table">
+            <tr><td>BO1</td><td>Intelligence annonces</td><td><span class="risk low">Actif</span></td><td>Il y a 2 min</td></tr>
+            <tr><td>BO2</td><td>Analyse territoriale</td><td><span class="risk low">Actif</span></td><td>Il y a 5 min</td></tr>
+            <tr><td>BO3</td><td>Prévision prix</td><td><span class="risk mid">Dégradé</span></td><td>Il y a 18 min</td></tr>
+            <tr><td>BO4</td><td>Conformité légale</td><td><span class="risk low">Actif</span></td><td>Il y a 1 min</td></tr>
+            <tr><td>BO5</td><td>Relations clients</td><td><span class="risk high">Hors ligne</span></td><td>Il y a 2h</td></tr>
+            <tr><td>BO6</td><td>Rapports IA</td><td><span class="risk low">Actif</span></td><td>Il y a 30 sec</td></tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <!-- === DONNÉES === -->
+    <section class="dash-grid" id="tab-data" style="display:none">
+      <article class="panel table-panel" style="grid-column:span 4">
+        <div class="panel-head"><h3>Sources de données connectées</h3><button>Synchroniser</button></div>
+        <table>
+          <thead><tr><th>Source</th><th>Dernière sync</th><th>Annonces</th><th>Statut</th></tr></thead>
+          <tbody>
+            <tr><td>Tayara.tn</td><td>05/05/2026 08:00</td><td>3,140</td><td><span class="risk low">Connecté</span></td></tr>
+            <tr><td>Mubawab.tn</td><td>05/05/2026 07:45</td><td>2,890</td><td><span class="risk low">Connecté</span></td></tr>
+            <tr><td>Remax Tunisie</td><td>05/05/2026 06:30</td><td>1,210</td><td><span class="risk mid">Partiel</span></td></tr>
+            <tr><td>Tecnocasa</td><td>04/05/2026 22:00</td><td>1,000</td><td><span class="risk low">Connecté</span></td></tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <!-- === ALERTES === -->
+    <section class="dash-grid" id="tab-alerts" style="display:none">
+      <article class="kpi-card"><span>Alertes actives</span><strong style="color:#cc3b25">14</strong><small>+3 depuis hier</small></article>
+      <article class="kpi-card"><span>Alertes résolues</span><strong>231</strong><small>Ce mois-ci</small></article>
+      <article class="kpi-card"><span>Annonces bloquées</span><strong>47</strong><small>Fraude probable</small></article>
+      <article class="kpi-card"><span>Taux résolution</span><strong>94%</strong><small>Objectif : 95%</small></article>
+      <article class="panel table-panel" style="grid-column:span 4">
+        <div class="panel-head"><h3>Alertes récentes</h3></div>
+        <table>
+          <thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Priorité</th></tr></thead>
+          <tbody>
+            <tr><td>05/05 09:12</td><td>Doublon</td><td>3 annonces identiques — Sfax Centre</td><td><span class="risk high">Haute</span></td></tr>
+            <tr><td>05/05 08:44</td><td>Prix suspect</td><td>S+3 Lac 2 — Prix 40% sous marché</td><td><span class="risk high">Haute</span></td></tr>
+            <tr><td>05/05 07:30</td><td>Description vide</td><td>Annonce sans description — Ariana</td><td><span class="risk mid">Moyenne</span></td></tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════
+         ✅ HISTORIQUE DES INTERACTIONS (DSO3)
+         ════════════════════════════════════════════════════════════ -->
+    <section id="tab-historique" style="display:none" class="hist-section">
+
+      <!-- En-tête -->
+      <div class="hist-header">
+        <div class="hist-header__left">
+          <span class="hist-icon">🕐</span>
+          <div>
+            <h2 class="hist-title">Historique des Interactions <span class="hist-tag">DSO3</span></h2>
+            <p class="hist-subtitle">Toutes les interactions enregistrées sur la plateforme</p>
+          </div>
+        </div>
+        <div class="hist-header__right">
+          <button class="hist-btn" onclick="renderHistory()">
+            <span>↻</span> Rafraîchir
+          </button>
+          <button class="hist-btn hist-btn--export" onclick="exportHistory()">
+            ↓ Exporter CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtres -->
+      <div class="hist-filters">
+        <input type="text" class="hist-search" id="hist-search-input"
+               placeholder="🔍 Rechercher une interaction..."
+               oninput="filterHistory()">
+        <select class="hist-select" id="hist-filter-type" onchange="filterHistory()">
+          <option value="">Tous les types</option>
+          <option value="Chat">Chat</option>
+          <option value="Rapport">Rapport</option>
+          <option value="Analyse">Analyse</option>
+          <option value="Alerte">Alerte</option>
+        </select>
+        <select class="hist-select" id="hist-filter-status" onchange="filterHistory()">
+          <option value="">Tous les statuts</option>
+          <option value="Succès">Succès</option>
+          <option value="En attente">En attente</option>
+          <option value="Erreur">Erreur</option>
+        </select>
+      </div>
+
+      <!-- Tableau -->
+      <div class="hist-table-wrapper">
+        <table class="hist-table" id="hist-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Utilisateur</th>
+              <th>Type d'action</th>
+              <th>Description</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody id="hist-tbody">
+            <!-- Rempli par JS -->
+          </tbody>
+        </table>
+        <!-- Etat vide -->
+        <div class="hist-empty" id="hist-empty" style="display:none">
+          <span class="hist-empty__icon">📭</span>
+          <p>Aucune interaction disponible</p>
+          <small>Les interactions apparaîtront ici une fois enregistrées.</small>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="hist-footer">
+        <span id="hist-count" class="hist-count">0 interaction(s)</span>
+        <div class="hist-pagination" id="hist-pagination"></div>
+      </div>
+
+    </section>
+    <!-- ═══════════════════════ FIN HISTORIQUE ═══════════════════════ -->
+
+    <footer class="dash-footer">Estate Mind © 2026 · Dashboard SaaS IA immobilier</footer>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ✅ CHATBOT FLOTTANT — Assistant IA Estate Mind
+       ═══════════════════════════════════════════════════════════════ -->
+
+  <!-- Bouton déclencheur -->
+  <button class="ai-button" id="chat-toggle-btn" onclick="toggleChat()" title="Assistant IA Estate Mind">
+    <img src="assets/icons/ai.png" alt="IA">
+  </button>
+
+  <!-- Panel chatbot -->
+  <aside class="ai-panel" id="chat-panel">
+
+    <!-- Header -->
+    <div class="ai-head">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">🏠</span>
+        <div>
+          <strong>Assistant IA Estate Mind</strong>
+          <div style="font-size:11px;font-weight:400;opacity:.7;margin-top:1px">Analyse · Comparaison · Rapport</div>
+        </div>
+      </div>
+      <button onclick="toggleChat()" title="Fermer">×</button>
+    </div>
+
+    <!-- Messages -->
+    <div class="ai-chat" id="chat-messages">
+      <!-- Message initial -->
+      <p class="bot" id="chat-init-msg">
+        Bonjour 👋 Je peux expliquer un score, comparer deux zones ou générer un rapport.
+      </p>
+
+      <!-- Bouton CTA principal -->
+      <div id="chat-cta-wrapper" style="margin-top:4px">
+        <button class="chat-cta-btn" onclick="triggerSuspect()">
+          Pourquoi cette annonce est suspecte ?
+        </button>
+      </div>
+    </div>
+
+    <!-- Zone de saisie -->
+    <div class="ai-input">
+      <input id="chat-input-field"
+             placeholder="Posez une question..."
+             onkeydown="if(event.key==='Enter') sendMessage()">
+      <button onclick="sendMessage()">➜</button>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════ SCRIPTS ═══════════════════════════════════ -->
+  <script>
+    /* ──────────────────────────────────────────────
+       NAVIGATION : page title + nav active
+    ────────────────────────────────────────────── */
+    function setPage(title, el) {
+      document.getElementById('pageTitle').textContent = title;
+      document.querySelectorAll('.dash-nav a').forEach(a => a.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    /* ──────────────────────────────────────────────
+       TABS : affiche le bon contenu
+    ────────────────────────────────────────────── */
+    const ALL_TABS = ['overview','map','models','data','alerts','historique'];
+
+    function setTab(btn, type) {
+      // Buttons
+      document.querySelectorAll('.dash-tabs button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Panels
+      ALL_TABS.forEach(t => {
+        const el = document.getElementById('tab-' + t);
+        if (el) el.style.display = (t === type) ? '' : 'none';
+      });
+
+      // Pulse animation sur la grille principale
+      if (type === 'overview') {
+        const grid = document.getElementById('tab-overview');
+        grid.classList.add('pulse');
+        setTimeout(() => grid.classList.remove('pulse'), 250);
+      }
+
+      // Charger l'historique au premier affichage
+      if (type === 'historique') renderHistory();
+    }
+
+    /* ──────────────────────────────────────────────
+       CHATBOT : toggle ouverture/fermeture
+    ────────────────────────────────────────────── */
+    function toggleChat() {
+      document.body.classList.toggle('assistant-open');
+    }
+
+    function openChat() {
+      document.body.classList.add('assistant-open');
+    }
+
+    /* ──────────────────────────────────────────────
+       CHATBOT : envoi de message
+    ────────────────────────────────────────────── */
+    function sendMessage() {
+      const input = document.getElementById('chat-input-field');
+      const text  = input.value.trim();
+      if (!text) return;
+
+      appendUserMsg(text);
+      input.value = '';
+
+      // Simulation réponse IA (délai réaliste)
+      setTimeout(() => {
+        const reply = generateReply(text);
+        appendBotMsg(reply);
+      }, 700);
+    }
+
+    function appendUserMsg(text) {
+      const container = document.getElementById('chat-messages');
+      const p = document.createElement('p');
+      p.className = 'user';
+      p.textContent = text;
+      container.appendChild(p);
+      scrollChat();
+    }
+
+    function appendBotMsg(text) {
+      const container = document.getElementById('chat-messages');
+      const p = document.createElement('p');
+      p.className = 'bot';
+      p.innerHTML = text;
+      container.appendChild(p);
+      scrollChat();
+    }
+
+    function scrollChat() {
+      const c = document.getElementById('chat-messages');
+      c.scrollTop = c.scrollHeight;
+    }
+
+    /* Bouton CTA principal */
+    function triggerSuspect() {
+      // Masquer le bouton CTA après le clic
+      const wrapper = document.getElementById('chat-cta-wrapper');
+      if (wrapper) wrapper.style.display = 'none';
+
+      appendUserMsg('Pourquoi cette annonce est suspecte ?');
+
+      setTimeout(() => {
+        appendBotMsg(
+          'Son prix/m² est inférieur au marché local, la description est incomplète ' +
+          'et elle ressemble à deux annonces déjà publiées. ' +
+          '<br><br><span style="color:#ff9a4b;font-weight:800">Score de confiance : 34%</span>'
+        );
+      }, 700);
+    }
+
+    /* Réponses simulées selon mots-clés */
+    function generateReply(q) {
+      const lower = q.toLowerCase();
+      if (lower.includes('prix') || lower.includes('coût') || lower.includes('marché')) {
+        return 'Le prix moyen au m² à Tunis est de <strong style="color:#ff9a4b">2 840 TND</strong>. ' +
+               'Ariana affiche +14% par rapport à la même période l\'an dernier.';
+      }
+      if (lower.includes('doublon') || lower.includes('suspect') || lower.includes('fraude')) {
+        return '🔍 <strong>312 doublons</strong> détectés ce mois. Les critères : ' +
+               'correspondance exacte, floue et sémantique. Taux de fraude estimé : <strong style="color:#cc3b25">4.2%</strong>.';
+      }
+      if (lower.includes('rapport') || lower.includes('exporter')) {
+        return '📄 Rapport IA généré. Il contient : analyse de marché, score de confiance, ' +
+               'doublons et zones émergentes. <strong style="color:#ff9a4b">Téléchargement disponible.</strong>';
+      }
+      if (lower.includes('zone') || lower.includes('quartier') || lower.includes('ariana') ||
+          lower.includes('sfax') || lower.includes('sousse') || lower.includes('tunis')) {
+        return '🗺️ Zones émergentes identifiées : <strong>Lac 2, Ennasr, Menzah 9</strong>. ' +
+               'Signal de demande fort et croissance des prix > 10% sur 6 mois.';
+      }
+      return '🤖 Analyse en cours… Je peux <strong>expliquer un score</strong>, ' +
+             '<strong>comparer des zones</strong> ou <strong>générer un rapport</strong>. ' +
+             'Précisez votre demande.';
+    }
+
+    /* ──────────────────────────────────────────────
+       HISTORIQUE DSO3 : données + rendu
+    ────────────────────────────────────────────── */
+
+    // Dataset de démonstration (remplaçable par un appel API)
+    const HISTORY_DATA = [
+      {
+        date: '05/05/2026 09:14',
+        user: 'Admin',
+        type: 'Chat',
+        description: 'Pourquoi cette annonce est suspecte ?',
+        status: 'Succès'
+      },
+      {
+        date: '05/05/2026 08:52',
+        user: 'Analyste IA',
+        type: 'Analyse',
+        description: 'Détection de 3 doublons — Sfax Centre',
+        status: 'Succès'
+      },
+      {
+        date: '05/05/2026 08:30',
+        user: 'Admin',
+        type: 'Rapport',
+        description: 'Génération rapport marché Tunis — Mai 2026',
+        status: 'Succès'
+      },
+      {
+        date: '05/05/2026 07:44',
+        user: 'Système',
+        type: 'Alerte',
+        description: 'Prix anormal détecté — S+3 Lac 2 (40% sous marché)',
+        status: 'En attente'
+      },
+      {
+        date: '04/05/2026 22:10',
+        user: 'Admin',
+        type: 'Chat',
+        description: 'Analyse investissement Ariana vs Menzah',
+        status: 'Succès'
+      },
+      {
+        date: '04/05/2026 20:05',
+        user: 'Analyste IA',
+        type: 'Analyse',
+        description: 'Scan conformité légale — 1 200 annonces Sousse',
+        status: 'Succès'
+      },
+      {
+        date: '04/05/2026 18:33',
+        user: 'Système',
+        type: 'Alerte',
+        description: 'Timeout connexion source Tecnocasa',
+        status: 'Erreur'
+      },
+      {
+        date: '04/05/2026 15:20',
+        user: 'Admin',
+        type: 'Rapport',
+        description: 'Export CSV annonces suspectes — Semaine 18',
+        status: 'Succès'
+      }
+    ];
+
+    let currentPage = 1;
+    const PAGE_SIZE = 5;
+    let filteredData = [...HISTORY_DATA];
+
+    function renderHistory() {
+      filteredData = applyFilters();
+      renderPage(1);
+    }
+
+    function applyFilters() {
+      const search = (document.getElementById('hist-search-input')?.value || '').toLowerCase();
+      const typeF  = document.getElementById('hist-filter-type')?.value  || '';
+      const statF  = document.getElementById('hist-filter-status')?.value || '';
+
+      return HISTORY_DATA.filter(row => {
+        const matchSearch = !search ||
+          row.description.toLowerCase().includes(search) ||
+          row.user.toLowerCase().includes(search) ||
+          row.type.toLowerCase().includes(search);
+        const matchType = !typeF || row.type === typeF;
+        const matchStat = !statF || row.status === statF;
+        return matchSearch && matchType && matchStat;
+      });
+    }
+
+    function filterHistory() {
+      filteredData = applyFilters();
+      renderPage(1);
+    }
+
+    function renderPage(page) {
+      currentPage = page;
+      const tbody  = document.getElementById('hist-tbody');
+      const empty  = document.getElementById('hist-empty');
+      const count  = document.getElementById('hist-count');
+      const pagDiv = document.getElementById('hist-pagination');
+
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+
+      if (filteredData.length === 0) {
+        empty.style.display  = 'flex';
+        tbody.closest('table').style.display = 'none';
+        count.textContent = '0 interaction(s)';
+        pagDiv.innerHTML  = '';
+        return;
+      }
+
+      empty.style.display = 'none';
+      tbody.closest('table').style.display = '';
+
+      const start = (page - 1) * PAGE_SIZE;
+      const slice = filteredData.slice(start, start + PAGE_SIZE);
+
+      slice.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="hist-date">${row.date}</td>
+          <td>${row.user}</td>
+          <td><span class="hist-type-badge hist-type-${row.type.toLowerCase()}">${row.type}</span></td>
+          <td class="hist-desc">${row.description}</td>
+          <td><span class="hist-status hist-status-${statusClass(row.status)}">${row.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      count.textContent = `${filteredData.length} interaction(s)`;
+
+      // Pagination
+      const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
+      pagDiv.innerHTML = '';
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'hist-page-btn' + (i === page ? ' active' : '');
+        btn.textContent = i;
+        btn.onclick = () => renderPage(i);
+        pagDiv.appendChild(btn);
+      }
+    }
+
+    function statusClass(s) {
+      if (s === 'Succès')     return 'success';
+      if (s === 'Erreur')     return 'error';
+      if (s === 'En attente') return 'pending';
+      return 'default';
+    }
+
+    function exportHistory() {
+      const rows = [['Date','Utilisateur','Type','Description','Statut']];
+      filteredData.forEach(r => rows.push([r.date, r.user, r.type, r.description, r.status]));
+      const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = 'historique_dso3.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    /* ──────────────────────────────────────────────
+       INIT
+    ────────────────────────────────────────────── */
+    document.addEventListener('DOMContentLoaded', () => {
+      // Ouvrir l'onglet Vue Globale par défaut
+      document.getElementById('tab-overview').style.display = '';
+    });
+  </script>
+</body>
+</html>

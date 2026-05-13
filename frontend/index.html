@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Mind — Plateforme Immobilière Intelligente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<style>
+:root{--orange:#FF6B00;--orange2:#FF8C00;--bg:#0A0A0A;--bg2:#111111;--card:#1A1A1A;--border:#2A2A2A;--white:#FFFFFF;--gray:#888888;--gray2:#444444}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;min-height:100vh}
+/* HEADER */
+header{background:var(--bg2);border-bottom:2px solid var(--orange);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-icon{width:36px;height:36px;background:var(--orange);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.logo-text{font-size:20px;font-weight:700;color:var(--orange)}
+.logo-sub{font-size:11px;color:var(--gray);margin-top:1px}
+nav{display:flex;gap:4px}
+nav button{background:none;border:none;color:var(--gray);padding:8px 16px;border-radius:6px;cursor:pointer;font-size:14px;font-family:inherit;transition:all 0.2s}
+nav button.active,nav button:hover{color:var(--white);background:var(--border)}
+nav button.active{color:var(--orange)}
+/* MAIN */
+main{display:flex;gap:0;height:calc(100vh - 64px)}
+/* SIDEBAR */
+.sidebar{width:280px;background:var(--bg2);border-right:1px solid var(--border);padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.sidebar h3{font-size:12px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.stat-value{font-size:24px;font-weight:700;color:var(--orange)}
+.stat-label{font-size:11px;color:var(--gray);margin-top:2px}
+.quick-btn{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--white);cursor:pointer;font-size:12px;font-family:inherit;text-align:left;transition:all 0.2s;width:100%}
+.quick-btn:hover{border-color:var(--orange);color:var(--orange)}
+/* CHAT AREA */
+.chat-area{flex:1;display:flex;flex-direction:column;min-width:0}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.msg{max-width:85%;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-self:flex-end}
+.msg.bot{align-self:flex-start}
+.msg-bubble{padding:12px 16px;border-radius:12px;font-size:14px;line-height:1.6}
+.msg.user .msg-bubble{background:var(--orange);color:var(--bg);border-radius:12px 12px 2px 12px;font-weight:500}
+.msg.bot .msg-bubble{background:var(--card);border:1px solid var(--border);border-radius:12px 12px 12px 2px}
+.msg-bubble table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px}
+.msg-bubble th{background:var(--orange);color:var(--bg);padding:6px 10px;text-align:left}
+.msg-bubble td{padding:5px 10px;border-bottom:1px solid var(--border)}
+.msg-bubble tr:nth-child(even) td{background:rgba(255,107,0,0.05)}
+.msg-bubble h2{color:var(--orange);margin:8px 0 6px;font-size:15px}
+.msg-bubble blockquote{border-left:3px solid var(--orange);padding-left:10px;color:var(--gray);font-size:12px;margin-top:8px}
+/* META */
+.msg-meta{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;background:var(--border)}
+.badge.intent{background:rgba(255,107,0,0.15);color:var(--orange);border:1px solid rgba(255,107,0,0.3)}
+.badge.agent{background:rgba(255,255,255,0.08);color:var(--white)}
+.badge.lang{background:rgba(136,136,136,0.15);color:var(--gray)}
+.badge.ms{color:var(--gray);font-size:10px}
+.confidence-bar{height:4px;background:var(--border);border-radius:2px;width:100px;overflow:hidden;margin-top:6px}
+.confidence-fill{height:100%;background:var(--orange);border-radius:2px;transition:width 0.5s}
+/* EXPLAIN BTN */
+.explain-btn{background:none;border:1px solid var(--border);color:var(--gray);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:inherit;transition:all 0.2s}
+.explain-btn:hover{border-color:var(--orange);color:var(--orange)}
+/* ACCORDION */
+.accordion{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-top:8px;font-size:12px;overflow:hidden;display:none}
+.accordion.open{display:block}
+.acc-step{padding:8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:8px}
+.acc-step:last-child{border-bottom:none}
+.acc-step-num{width:22px;height:22px;border-radius:50%;background:var(--orange);color:var(--bg);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.acc-step-content{flex:1}
+.acc-step-title{font-weight:600;color:var(--white);margin-bottom:2px}
+.acc-step-detail{color:var(--gray)}
+/* INPUT */
+.chat-input-area{padding:16px 20px;border-top:1px solid var(--border);background:var(--bg2)}
+.input-row{display:flex;gap:8px;align-items:flex-end}
+.chat-input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--white);font-size:14px;font-family:inherit;resize:none;min-height:44px;max-height:120px;line-height:1.5;transition:border-color 0.2s;outline:none}
+.chat-input:focus{border-color:var(--orange)}
+.chat-input::placeholder{color:var(--gray2)}
+.send-btn{background:var(--orange);border:none;border-radius:10px;width:44px;height:44px;cursor:pointer;color:var(--bg);font-size:16px;transition:all 0.2s;flex-shrink:0}
+.send-btn:hover{background:var(--orange2)}
+.send-btn:disabled{opacity:0.4;cursor:not-allowed}
+/* HISTORY TAB */
+.history-table{width:100%;border-collapse:collapse;font-size:13px}
+.history-table th{background:var(--card);color:var(--orange);padding:10px 12px;text-align:left;border-bottom:2px solid var(--orange);font-size:12px}
+.history-table td{padding:8px 12px;border-bottom:1px solid var(--border)}
+.history-table tr:hover td{background:rgba(255,107,0,0.04)}
+/* TABS */
+.tab-panel{display:none;flex:1;overflow-y:auto;padding:20px}
+.tab-panel.active{display:block}
+/* TYPING */
+.typing-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--orange);animation:blink 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:0}40%{opacity:1}}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* RESPONSIVE */
+@media(max-width:768px){.sidebar{display:none}.msg{max-width:95%}}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#">
+    <div class="logo-icon">🏠</div>
+    <div>
+      <div class="logo-text">Estate Mind</div>
+      <div class="logo-sub">Plateforme Immobilière Intelligente — Tunisie</div>
+    </div>
+  </a>
+  <nav>
+    <button class="active" onclick="showTab('chat')"><i class="fa fa-comments"></i> Chat</button>
+    <button onclick="showTab('history')"><i class="fa fa-history"></i> Historique</button>
+    <button onclick="window.open('http://localhost:8000/docs','_blank')"><i class="fa fa-code"></i> API</button>
+    <button onclick="window.open('http://localhost:8050','_blank')"><i class="fa fa-chart-bar"></i> Dashboard</button>
+  </nav>
+</header>
+
+<main>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div>
+      <h3>Statistiques</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
+        <div class="stat-card"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Requêtes</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-acc">—</div><div class="stat-label">Accuracy</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-lat">—</div><div class="stat-label">Lat. moy.</div></div>
+        <div class="stat-card"><div class="stat-value" id="stat-darija" style="font-size:16px">100%</div><div class="stat-label">Darija</div></div>
+      </div>
+    </div>
+
+    <div>
+      <h3>Suggestions rapides</h3>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
+        <button class="quick-btn" onclick="sendQuick('Quel est le prix d\'un S+2 à Ariana ?')">💰 Prix S+2 Ariana</button>
+        <button class="quick-btn" onclick="sendQuick('Investir à Sfax est-il rentable ?')">📊 Investir à Sfax</button>
+        <button class="quick-btn" onclick="sendQuick('Meilleur quartier à Tunis centre ?')">🗺️ Quartiers Tunis</button>
+        <button class="quick-btn" onclick="sendQuick('Ce bien est-il légalement conforme ?')">⚖️ Conformité légale</button>
+        <button class="quick-btn" onclick="sendQuick('Générer rapport marché Sousse')">📄 Rapport Sousse</button>
+        <button class="quick-btn" onclick="sendQuick('chnowa soum dar fi tunis bhi')">🇹🇳 Darija test</button>
+        <button class="quick-btn" onclick="sendQuick('ما هو سعر الشقة في سوسة؟')">🌍 Arabe test</button>
+        <button class="quick-btn" onclick="sendQuick('average rent studio hammamet')">🏖️ Hammamet rent</button>
+      </div>
+    </div>
+
+    <div>
+      <h3>État des Agents</h3>
+      <div id="agents-status" style="display:flex;flex-direction:column;gap:4px;margin-top:6px;font-size:12px">
+        <div style="color:var(--gray)">Chargement...</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+
+    <!-- CHAT TAB -->
+    <div id="tab-chat" class="chat-area" style="display:flex;flex-direction:column;height:100%">
+      <div class="chat-messages" id="chat-messages">
+        <div class="msg bot">
+          <div class="msg-bubble">
+            <strong style="color:var(--orange)">🏠 Bonjour ! Je suis Estate Mind BO6.</strong><br><br>
+            Je suis votre assistant immobilier pour la Tunisie. Je parle <strong>Français, Anglais, Arabe et Darija</strong>.<br><br>
+            Posez-moi vos questions sur les <em>prix, investissements, quartiers</em> ou la <em>conformité légale</em>.
+          </div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <div class="input-row">
+          <textarea class="chat-input" id="chat-input" placeholder="Posez votre question en FR / EN / AR / Darija..." rows="1"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+          <button class="send-btn" id="send-btn" onclick="sendMessage()"><i class="fa fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div id="tab-history" class="tab-panel" style="display:none">
+      <h2 style="color:var(--orange);margin-bottom:16px"><i class="fa fa-history"></i> Historique des Interactions (DSO3)</h2>
+      <div id="history-container">
+        <div style="color:var(--gray)">Chargement...</div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const API = 'http://localhost:8000/api/v1';
+let sessionId = null;
+let msgCount = 0;
+
+function showTab(tab) {
+  document.querySelectorAll('nav button').forEach((b,i) => b.classList.toggle('active', ['chat','history'].indexOf(tab) === i));
+  document.getElementById('tab-chat').style.display = tab === 'chat' ? 'flex' : 'none';
+  document.getElementById('tab-history').style.display = tab === 'history' ? 'block' : 'none';
+  if (tab === 'history') loadHistory();
+}
+
+function sendQuick(query) {
+  document.getElementById('chat-input').value = query;
+  sendMessage();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const query = input.value.trim();
+  if (!query) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('send-btn').disabled = true;
+
+  appendMsg('user', query);
+  const typingId = appendTyping();
+
+  try {
+    const body = { query };
+    if (sessionId) body.session_id = sessionId;
+
+    const res = await fetch(`${API}/chat`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    removeTyping(typingId);
+    if (data.session_id) sessionId = data.session_id;
+    appendBotMsg(data);
+    updateStats();
+  } catch(e) {
+    removeTyping(typingId);
+    appendMsg('bot', `❌ **Erreur de connexion.** Vérifiez que BO6 tourne sur http://localhost:8000\n\n\`${e.message}\``);
+  }
+
+  document.getElementById('send-btn').disabled = false;
+}
+
+function appendMsg(role, text) {
+  const el = document.createElement('div');
+  el.className = `msg ${role}`;
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  if (role === 'bot') {
+    bubble.innerHTML = marked.parse(text);
+  } else {
+    bubble.textContent = text;
+  }
+  el.appendChild(bubble);
+  const container = document.getElementById('chat-messages');
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+  msgCount++;
+  document.getElementById('stat-total').textContent = msgCount;
+}
+
+function appendBotMsg(data) {
+  const el = document.createElement('div');
+  el.className = 'msg bot';
+  const id = 'msg-' + Date.now();
+  el.id = id;
+
+  // Badge intent color
+  const conf = Math.round((data.confidence || 0) * 100);
+  const confColor = conf >= 80 ? '#22c55e' : conf >= 60 ? '#f59e0b' : '#ef4444';
+
+  el.innerHTML = `
+    <div class="msg-bubble">${marked.parse(data.response || '')}</div>
+    <div class="msg-meta">
+      <span class="badge intent"><i class="fa fa-brain"></i> ${data.intent || 'unknown'}</span>
+      <span class="badge agent"><i class="fa fa-robot"></i> ${data.agent_used || '?'}</span>
+      <span class="badge lang"><i class="fa fa-globe"></i> ${data.language || '?'}</span>
+      <span class="badge ms"><i class="fa fa-clock"></i> ${data.processing_ms || 0}ms</span>
+    </div>
+    <div style="margin-top:6px;display:flex;align-items:center;gap:8px">
+      <div class="confidence-bar"><div class="confidence-fill" style="width:${conf}%;background:${confColor}"></div></div>
+      <span style="font-size:11px;color:${confColor}">${conf}%</span>
+      <button class="explain-btn" onclick="toggleExplain('${id}')"><i class="fa fa-info-circle"></i> Explication</button>
+    </div>
+    <div class="accordion" id="acc-${id}">${buildAccordion(data)}</div>
+  `;
+
+  const container = document.getElementById('chat-messages');
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+  msgCount++;
+  document.getElementById('stat-total').textContent = msgCount;
+}
+
+function buildAccordion(data) {
+  const exp = data.explanation;
+  if (!exp || !exp.pipeline_steps) return '<div style="padding:12px;color:var(--gray)">Pas d\'explication disponible.</div>';
+
+  const stepIcons = ['🌍','🇹🇳','🔤','🧠','🔀','🤖','📝','💾'];
+  return exp.pipeline_steps.map((s, i) => `
+    <div class="acc-step">
+      <div class="acc-step-num">${s.step}</div>
+      <div class="acc-step-content">
+        <div class="acc-step-title">${stepIcons[i]||''} ${s.name} <span style="color:var(--gray);font-weight:400">(${s.ms}ms)</span></div>
+        <div class="acc-step-detail">${formatStepDetail(s)}</div>
+      </div>
+    </div>
+  `).join('') + `
+    <div class="acc-step" style="background:rgba(255,107,0,0.05)">
+      <div class="acc-step-num" style="background:var(--gray)">✓</div>
+      <div class="acc-step-content">
+        <div class="acc-step-title" style="color:#22c55e">${exp.hallucination_check || 'PASSED'}</div>
+        <div class="acc-step-detail">${exp.data_source || ''}</div>
+      </div>
+    </div>
+  `;
+}
+
+function formatStepDetail(s) {
+  if (!s.result && !s.details) return '';
+  let out = s.result !== null ? `<strong>${s.result}</strong>` : '';
+  if (s.confidence) out += ` (${Math.round(s.confidence*100)}%)`;
+  if (s.details) {
+    const d = s.details;
+    if (d.terms_replaced && d.terms_replaced.length) out += `<br>Darija: ${d.terms_replaced.slice(0,3).join(', ')}`;
+    if (d.top_ngrams) out += `<br>Top N-grammes: ${(Array.isArray(d.top_ngrams)?d.top_ngrams:Object.keys(d.top_ngrams||{})).slice(0,3).join(', ')}`;
+    if (d.agent_url) out += `<br>URL: <code style="color:var(--orange)">${d.agent_url}</code>`;
+  }
+  return out;
+}
+
+function toggleExplain(id) {
+  const acc = document.getElementById('acc-' + id);
+  if (acc) acc.classList.toggle('open');
+}
+
+function appendTyping() {
+  const id = 'typing-' + Date.now();
+  const el = document.createElement('div');
+  el.className = 'msg bot'; el.id = id;
+  el.innerHTML = '<div class="msg-bubble"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
+  document.getElementById('chat-messages').appendChild(el);
+  document.getElementById('chat-messages').scrollTop = 9999;
+  return id;
+}
+
+function removeTyping(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+async function updateStats() {
+  try {
+    const r = await fetch(`${API}/metrics`);
+    const d = await r.json();
+    document.getElementById('stat-acc').textContent = Math.round((d.accuracy||0)*100) + '%';
+    document.getElementById('stat-lat').textContent = Math.round(d.avg_latency_ms||0) + 'ms';
+  } catch(e) {}
+}
+
+async function checkAgents() {
+  try {
+    const r = await fetch(`${API}/health`);
+    const d = await r.json();
+    const agents = d.agents || {};
+    const el = document.getElementById('agents-status');
+    el.innerHTML = Object.entries(agents).map(([name, status]) =>
+      `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)">
+        <span>${name}</span>
+        <span style="color:${status==='ok'?'#22c55e':'#ef4444'}">${status==='ok'?'✅':'❌'} ${status}</span>
+      </div>`
+    ).join('');
+  } catch(e) {
+    document.getElementById('agents-status').innerHTML = '<div style="color:#ef4444">BO6 non connecté</div>';
+  }
+}
+
+async function loadHistory() {
+  const container = document.getElementById('history-container');
+  try {
+    const r = await fetch(`${API}/history?page_size=50`);
+    const d = await r.json();
+    if (!d.interactions || !d.interactions.length) {
+      container.innerHTML = '<div style="color:var(--gray)">Aucune interaction enregistrée.</div>';
+      return;
+    }
+    container.innerHTML = `
+      <p style="color:var(--gray);margin-bottom:12px;font-size:13px">
+        ${d.total} interaction(s) — Page ${d.page}
+      </p>
+      <table class="history-table">
+        <thead><tr>
+          <th>Date</th><th>Requête</th><th>Langue</th><th>Intention</th><th>Confiance</th><th>Agent</th><th>Temps</th>
+        </tr></thead>
+        <tbody>
+          ${d.interactions.map(i => `<tr>
+            <td style="color:var(--gray);white-space:nowrap">${new Date(i.created_at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td>
+            <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${i.original_query}">${i.original_query.substring(0,50)}${i.original_query.length>50?'...':''}</td>
+            <td><span class="badge lang">${i.detected_language||'?'}</span></td>
+            <td><span class="badge intent" style="font-size:10px">${(i.detected_intent||'?').replace('_',' ')}</span></td>
+            <td>${i.confidence_score?Math.round(i.confidence_score*100)+'%':'—'}</td>
+            <td>—</td>
+            <td style="color:var(--gray)">${i.processing_ms||'—'}ms</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch(e) {
+    container.innerHTML = `<div style="color:#ef4444">Erreur: ${e.message}</div>`;
+  }
+}
+
+// Auto-resize textarea
+document.getElementById('chat-input').addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+// Init
+checkAgents();
+setInterval(checkAgents, 30000);
+updateStats();
+</script>
+</body>
+</html>
