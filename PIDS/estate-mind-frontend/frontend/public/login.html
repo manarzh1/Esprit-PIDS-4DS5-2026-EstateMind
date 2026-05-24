@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in — Estate Mind</title>
+  <link rel="stylesheet" href="common.css" />
+  <link rel="stylesheet" href="login.css" />
+</head>
+
+<body class="login-body">
+  <section class="login-layout">
+
+    <aside class="login-left">
+      <a class="brand light" href="index.html">
+        <span class="logo-mark">
+          <img src="assets/logo1.png" alt="Estate Mind">
+        </span>
+        <span>Estate Mind</span>
+      </a>
+
+      <div class="login-copy">
+        <h1>Welcome <span>back</span></h1>
+        <p>
+          Continue your journey with Estate Mind. Track reliable listings,
+          explore market signals and make smarter real estate decisions with confidence.
+        </p>
+      </div>
+    </aside>
+
+    <main class="login-right">
+
+      <form class="login-card">
+        <h2>Sign in</h2>
+        <p>Access your real estate intelligence dashboard</p>
+
+        <!-- EMAIL -->
+        <label>Email address</label>
+        <div class="input-group">
+          <img src="assets/icons/email.png" class="input-icon" alt="Email icon">
+          <input type="email" placeholder="you@email.com" />
+        </div>
+
+        <!-- PASSWORD -->
+        <div class="label-row">
+          <label>Password</label>
+          <a href="#">Forgot password?</a>
+        </div>
+
+        <div class="input-group">
+          <img src="assets/icons/password.png" class="input-icon" alt="Password icon">
+          <input type="password" placeholder="Enter your password" />
+          <img src="assets/icons/password2.png" class="input-icon" alt="Show password icon">
+        </div>
+
+        <!-- REMEMBER -->
+        <label class="remember">
+          <input type="checkbox" /> Keep me signed in
+        </label>
+
+        <button class="btn btn-primary full" type="button" onclick="window.location.href='dashboard.html'">
+          Enter the platform
+        </button>
+
+        <!-- SOCIAL -->
+        <div class="separator">
+          <span></span>or continue with<span></span>
+        </div>
+
+        <button class="social" type="button" onclick="window.location.href='dashboard.html'">
+          <img src="assets/icons/google.png" class="input-icon" alt="Google icon">
+          <span>Continue with Google</span>
+        </button>
+
+        <button class="social" type="button" onclick="window.location.href='dashboard.html'">
+          <img src="assets/icons/apple.png" class="input-icon" alt="Apple icon">
+          <span>Continue with Apple</span>
+        </button>
+
+        <p class="signup">
+          New to Estate Mind?
+          <a href="#">Create an account</a>
+        </p>
+
+      </form>
+
+      <!-- SECURITY -->
+      <div class="secure-card">
+        <img src="assets/icons/security.png" class="secure-icon" alt="Security icon">
+        <p>
+          <strong>Built for trusted decisions</strong><br>
+          Estate Mind protects your data while helping you understand the market,
+          detect risks and move with confidence.
+        </p>
+      </div>
+
+    </main>
+  </section>
+</body>
+</html>

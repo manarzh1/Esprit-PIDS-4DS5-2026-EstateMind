@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Mind — Évaluation des modèles</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --or:#F7941D;--or2:#FF9B2A;
+  --d1:#0B0F19;--d2:#111827;--d3:#1C2231;--d4:#242D3E;
+  --b1:#1E2A3A;--b2:#263042;--b3:#2E3A4E;
+  --g1:#F0F4FF;--g2:#9BA8C0;--g3:#5A6880;--g4:#3A4558;
+  --red:#E24B4A;--amb:#F59E0B;--grn:#22C55E;
+  --r:12px;--r2:8px;--sidebar:240px;
+}
+body{background:var(--d1);color:var(--g1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;min-height:100vh;line-height:1.5;display:flex}
+
+/* ===== SIDEBAR ===== */
+.dash-sidebar{width:var(--sidebar);min-height:100vh;background:var(--d2);border-right:1px solid var(--b1);display:flex;flex-direction:column;padding:20px 14px;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:width .3s;overflow:hidden}
+body.sidebar-collapsed .dash-sidebar{width:64px}
+.dash-brand{display:flex;align-items:center;gap:10px;padding:0 4px;margin-bottom:28px;flex-shrink:0}
+.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--or),var(--or2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.dash-brand strong{font-size:14px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;transition:opacity .2s}
+body.sidebar-collapsed .dash-brand strong{opacity:0}
+.collapse-btn{background:var(--d3);border:1px solid var(--b1);border-radius:var(--r2);color:var(--g2);width:28px;height:28px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;margin-bottom:22px;align-self:flex-end;flex-shrink:0;transition:all .2s}
+.collapse-btn:hover{background:var(--b1);color:var(--or)}
+.dash-nav{display:flex;flex-direction:column;gap:2px;flex:1;overflow:hidden}
+.dash-nav a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r2);cursor:pointer;color:var(--g3);font-size:13px;font-weight:500;text-decoration:none;transition:all .2s;white-space:nowrap;overflow:hidden;border:1px solid transparent}
+.dash-nav a:hover{background:var(--b1);color:var(--g1)}
+.dash-nav a.active{background:rgba(247,148,29,.12);color:var(--or);border-color:rgba(247,148,29,.2)}
+.nav-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center}
+.nav-label{white-space:nowrap;overflow:hidden;transition:opacity .2s}
+body.sidebar-collapsed .nav-label{opacity:0;width:0}
+.sidebar-card{background:rgba(247,148,29,.07);border:1px solid rgba(247,148,29,.15);border-radius:var(--r);padding:14px;margin-top:16px;text-align:center;flex-shrink:0}
+.sidebar-card .sc-av{width:36px;height:36px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:18px;background:linear-gradient(135deg,var(--or),var(--or2))}
+.sidebar-card p{font-size:11px;color:var(--g2);margin-bottom:8px;line-height:1.4}
+.sidebar-card button{width:100%;padding:8px;background:var(--or);border:none;border-radius:var(--r2);color:#fff;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit}
+body.sidebar-collapsed .sidebar-card{display:none}
+
+/* ===== MAIN ===== */
+.dash-main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh;transition:margin-left .3s}
+body.sidebar-collapsed .dash-main{margin-left:64px}
+
+/* ===== HEADER ===== */
+.dash-header{background:rgba(11,15,25,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--b1);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:90;gap:16px;flex-shrink:0}
+.dash-header .eyebrow{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--or);display:block;margin-bottom:2px}
+.dash-header h1{font-size:16px;font-weight:700;color:#fff}
+.header-actions{display:flex;align-items:center;gap:10px}
+.profile{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 10px;border-radius:var(--r2);transition:background .2s}
+.profile:hover{background:var(--b1)}
+.profile-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--or2));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+.profile span{font-size:13px;color:var(--g1);font-weight:500}
+.back-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--d3);border:1px solid var(--b1);border-radius:var(--r2);color:var(--g2);font-size:12px;font-weight:500;text-decoration:none;transition:all .2s;cursor:pointer}
+.back-btn:hover{background:var(--b1);color:var(--or);border-color:rgba(247,148,29,.3)}
+
+/* ===== CONTENT ===== */
+.page-inner{padding:24px 28px}
+.q-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.q-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+.q-grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:1000px){.q-grid4,.q-grid3{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.q-grid2{grid-template-columns:1fr}}
+.q-kpi{background:var(--d2);border:1px solid var(--b1);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.q-kpi:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.q-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
+.q-kpi.green::before{background:linear-gradient(90deg,#22c55e,#4ade80)}
+.q-kpi.teal::before{background:linear-gradient(90deg,#14b8a6,#2dd4bf)}
+.q-kpi.blue::before{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.q-kpi.purple::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa)}
+.q-kpi.amber::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.kv{font-size:26px;font-weight:700;margin-bottom:2px;letter-spacing:-.5px}
+.q-kpi.green .kv{color:#22c55e}.q-kpi.teal .kv{color:#14b8a6}
+.q-kpi.blue .kv{color:#3b82f6}.q-kpi.purple .kv{color:#8b5cf6}.q-kpi.amber .kv{color:#f59e0b}
+.kl{font-size:12px;color:var(--g3);margin-bottom:4px;font-weight:500}
+.ks{font-size:11px;color:var(--g4)}
+.quality-bar{height:5px;border-radius:3px;background:rgba(255,255,255,.08);margin-top:8px;overflow:hidden}
+.quality-fill{height:100%;border-radius:3px;transition:width .8s ease}
+.q-card{background:var(--d2);border:1px solid var(--b1);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.q-ct{font-size:14px;font-weight:600;color:#fff;margin-bottom:4px}
+.q-cs{font-size:12px;color:var(--g3);margin-bottom:14px}
+.sec-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--g4);margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.06)}
+.rec{display:flex;gap:12px;padding:10px 0;border-bottom:.5px solid rgba(255,255,255,.05);align-items:flex-start}
+.rec:last-child{border-bottom:none}
+.rn{width:24px;height:24px;border-radius:8px;background:linear-gradient(135deg,rgba(139,92,246,.25),rgba(59,130,246,.2));color:#a78bfa;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(139,92,246,.2)}
+.rb{font-size:12px;color:var(--g2);line-height:1.6}
+.src-table{width:100%;border-collapse:collapse}
+.src-table th{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--g4);font-weight:600;padding:12px 18px;text-align:left;background:var(--d3)}
+.src-table td{padding:11px 18px;border-top:1px solid var(--b1);font-size:12px;color:var(--g2);vertical-align:middle}
+.dash-footer{padding:20px 28px;text-align:center;font-size:11px;color:var(--g4);border-top:1px solid var(--b1)}
+</style>
+</head>
+<body>
+
+<aside class="dash-sidebar">
+  <div class="dash-brand">
+    <span class="logo-mark">⚖</span>
+    <strong>Estate Mind</strong>
+  </div>
+  <button class="collapse-btn" onclick="document.body.classList.toggle('sidebar-collapsed')">◀</button>
+  <nav class="dash-nav">
+    <a href="Tunistate_ui.html">
+      <span class="nav-icon">⚖</span>
+      <span class="nav-label">Conformité juridique</span>
+    </a>
+    <a href="Tunistate_ui.html">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Tableau de bord qualité</span>
+    </a>
+    <a class="active">
+      <span class="nav-icon">🧪</span>
+      <span class="nav-label">Évaluation modèles</span>
+    </a>
+    <a href="Tunistate_ui.html">
+      <span class="nav-icon">📚</span>
+      <span class="nav-label">Base de connaissances</span>
+    </a>
+    <a href="Tunistate_ui.html">
+      <span class="nav-icon">📄</span>
+      <span class="nav-label">Rapports PDF</span>
+    </a>
+    <a href="Tunistate_ui.html">
+      <span class="nav-icon">🔔</span>
+      <span class="nav-label">Alertes réglementaires</span>
+    </a>
+    <a href="Tunistate_ui.html">
+      <span class="nav-icon">🤖</span>
+      <span class="nav-label">Assistant IA</span>
+    </a>
+  </nav>
+  <div class="sidebar-card">
+    <div class="sc-av">⚖</div>
+    <p>Retourner au tableau de bord principal</p>
+    <button onclick="window.location='Tunistate_ui.html'">← Dashboard</button>
+  </div>
+</aside>
+
+<main class="dash-main">
+
+  <header class="dash-header">
+    <div>
+      <span class="eyebrow">Analyse de performance · Modèles IA</span>
+      <h1>Évaluation des modèles — TuniState</h1>
+    </div>
+    <div class="header-actions">
+      <a class="back-btn" href="Tunistate_ui.html">← Dashboard principal</a>
+      <div class="profile">
+        <div class="profile-av">AB</div>
+        <span>Admin</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-inner">
+
+    <!-- Grade Banner -->
+    <div style="background:linear-gradient(135deg,#0d1f0d 0%,#111827 60%,#0d1a2e 100%);border:1px solid rgba(34,197,94,.25);border-radius:var(--r);padding:24px 32px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(34,197,94,.08),transparent 70%);pointer-events:none"></div>
+      <div style="display:flex;align-items:center;gap:18px">
+        <div style="width:56px;height:56px;border-radius:14px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">✅</div>
+        <div>
+          <div style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#22c55e;margin-bottom:4px">Certification qualité</div>
+          <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:4px">Base de connaissances certifiée — Niveau d'excellence</div>
+          <div style="font-size:12px;color:var(--g2)">38 règles juridiques validées · Aucune erreur détectée · Prête pour la production · Mise à jour 18 avril 2026</div>
+        </div>
+      </div>
+      <div style="text-align:center;flex-shrink:0">
+        <div style="font-size:48px;font-weight:800;color:#22c55e;letter-spacing:-2px;line-height:1">100</div>
+        <div style="font-size:13px;color:var(--g3)"><span style="color:#22c55e">/100</span> · Indice de fiabilité</div>
+        <div style="display:inline-block;margin-top:6px;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3)">✓ Excellence</div>
+      </div>
+    </div>
+
+    <!-- KPIs Row 1 -->
+    <div class="sec-title">📊 Indicateurs de performance</div>
+    <div class="q-grid4">
+      <div class="q-kpi green"><div class="kl">Précision des réponses</div><div class="kv">100%</div><div class="ks">Aucune réponse incorrecte</div><div class="quality-bar"><div class="quality-fill" style="width:100%;background:linear-gradient(90deg,#22c55e,#4ade80)"></div></div></div>
+      <div class="q-kpi green"><div class="kl">Règles juridiques valides</div><div class="kv">100%</div><div class="ks">38 règles sur 38 conformes</div><div class="quality-bar"><div class="quality-fill" style="width:100%;background:linear-gradient(90deg,#22c55e,#4ade80)"></div></div></div>
+      <div class="q-kpi teal"><div class="kl">Unicité des réponses</div><div class="kv">100%</div><div class="ks">Aucun doublon identifié</div><div class="quality-bar"><div class="quality-fill" style="width:100%;background:linear-gradient(90deg,#14b8a6,#2dd4bf)"></div></div></div>
+      <div class="q-kpi blue"><div class="kl">Score de qualité moyen</div><div class="kv">8.4/10</div><div class="ks">Min 7 · Max 9 · Objectif 8+</div><div class="quality-bar"><div class="quality-fill" style="width:84%;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></div></div>
+    </div>
+    <div class="q-grid4">
+      <div class="q-kpi purple"><div class="kl">Règles analysées</div><div class="kv">38</div><div class="ks">Après validation et nettoyage</div></div>
+      <div class="q-kpi teal"><div class="kl">Correspondance acteurs</div><div class="kv">73.7%</div><div class="ks">Profils juridiques reconnus</div></div>
+      <div class="q-kpi green"><div class="kl">Indice de fiabilité global</div><div class="kv">100/100</div><div class="ks">Niveau : Excellence</div></div>
+      <div class="q-kpi blue" style="position:relative"><div style="position:absolute;top:10px;right:12px;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(247,148,29,.15);color:var(--or);border:1px solid rgba(247,148,29,.2)">LLM</div><div class="kl">Méthode d'analyse</div><div class="kv">Hybride</div><div class="ks">RAG + IA juridique Mistral</div></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="sec-title">📈 Analyses détaillées</div>
+    <div class="q-grid3">
+      <div class="q-card" style="margin-bottom:0"><div class="q-ct">Qualité des réponses</div><div class="q-cs">Répartition valides / à corriger</div><div style="position:relative;height:185px"><canvas id="cD"></canvas></div></div>
+      <div class="q-card" style="margin-bottom:0"><div class="q-ct">Répartition par type de règle</div><div class="q-cs">Classification des obligations légales</div><div style="position:relative;height:185px"><canvas id="cS"></canvas></div></div>
+      <div class="q-card" style="margin-bottom:0"><div class="q-ct">Niveaux d'alerte juridique</div><div class="q-cs">Score de vigilance par règle</div><div style="position:relative;height:185px"><canvas id="cR"></canvas></div></div>
+    </div>
+    <div style="height:14px"></div>
+    <div class="q-grid2">
+      <div class="q-card" style="margin-bottom:0"><div class="q-ct">Profils juridiques couverts</div><div class="q-cs">Nombre de règles par profil</div><div style="position:relative;height:200px"><canvas id="cA"></canvas></div></div>
+      <div class="q-card" style="margin-bottom:0"><div class="q-ct">Couverture qualité multi-axes</div><div class="q-cs">Performance actuelle vs objectifs cibles</div><div style="position:relative;height:200px"><canvas id="cRad"></canvas></div></div>
+    </div>
+
+    <!-- Hallucination eval -->
+    <div class="sec-title" style="margin-top:20px">🧠 Évaluation anti-hallucination &amp; robustesse</div>
+    <div class="q-grid4" style="margin-bottom:20px">
+      <div style="background:var(--d2);border:1px solid var(--b1);border-radius:var(--r);padding:18px;position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#22c55e,#4ade80);border-radius:var(--r) var(--r) 0 0"></div><div class="kl">Taux d'hallucination</div><div class="kv" style="color:#22c55e">0%</div><div class="ks">Aucune réponse inventée</div><div class="quality-bar" style="margin-top:10px"><div class="quality-fill" style="width:0%;background:#ef4444"></div></div></div>
+      <div style="background:var(--d2);border:1px solid var(--b1);border-radius:var(--r);padding:18px;position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:var(--r) var(--r) 0 0"></div><div class="kl">Couverture références</div><div class="kv" style="color:#3b82f6">90%</div><div class="ks">Articles cités et vérifiés</div><div class="quality-bar" style="margin-top:10px"><div class="quality-fill" style="width:90%;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></div></div>
+      <div style="background:var(--d2);border:1px solid var(--b1);border-radius:var(--r);padding:18px;position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#f59e0b,#fbbf24);border-radius:var(--r) var(--r) 0 0"></div><div class="kl">Pertinence domaine</div><div class="kv" style="color:#f59e0b">95%</div><div class="ks">Questions hors domaine filtrées</div><div class="quality-bar" style="margin-top:10px"><div class="quality-fill" style="width:95%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div></div>
+      <div style="background:var(--d2);border:1px solid var(--b1);border-radius:var(--r);padding:18px;position:relative;overflow:hidden"><div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#8b5cf6,#a78bfa);border-radius:var(--r) var(--r) 0 0"></div><div class="kl">Cohérence réponses</div><div class="kv" style="color:#8b5cf6">97%</div><div class="ks">Réponses reproductibles</div><div class="quality-bar" style="margin-top:10px"><div class="quality-fill" style="width:97%;background:linear-gradient(90deg,#8b5cf6,#a78bfa)"></div></div></div>
+    </div>
+
+    <!-- Scores table -->
+    <div class="sec-title">📋 Scores détaillés par règle juridique (échantillon)</div>
+    <div class="q-card" style="padding:0;overflow:hidden;margin-bottom:14px">
+      <table class="src-table">
+        <thead><tr><th>Article</th><th>Domaine</th><th>Acteur</th><th>Statut</th><th>Score qualité</th><th>Validation</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--or);font-weight:600">Art. 14</td><td>Bail · CDR</td><td>Preneur</td><td><span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.2)">Interdit</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="quality-bar" style="width:80px;margin:0"><div class="quality-fill" style="width:90%;background:linear-gradient(90deg,#22c55e,#4ade80)"></div></div><span style="font-size:11px;color:#22c55e">9/10</span></div></td><td><span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.2)">✓ Validé</span></td></tr>
+          <tr><td style="color:var(--or);font-weight:600">Art. 23</td><td>Urbanisme · CATU</td><td>Constructeur</td><td><span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.2)">Interdit</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="quality-bar" style="width:80px;margin:0"><div class="quality-fill" style="width:90%;background:linear-gradient(90deg,#22c55e,#4ade80)"></div></div><span style="font-size:11px;color:#22c55e">9/10</span></div></td><td><span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.2)">✓ Validé</span></td></tr>
+          <tr><td style="color:var(--or);font-weight:600">Art. 83</td><td>Propriété · CDR</td><td>Propriétaire</td><td><span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.2)">Autorisé</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="quality-bar" style="width:80px;margin:0"><div class="quality-fill" style="width:80%;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></div><span style="font-size:11px;color:#3b82f6">8/10</span></div></td><td><span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.2)">✓ Validé</span></td></tr>
+          <tr><td style="color:var(--or);font-weight:600">Art. 228</td><td>Gage · CDR</td><td>Créancier</td><td><span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.2)">Obligation</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="quality-bar" style="width:80px;margin:0"><div class="quality-fill" style="width:80%;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></div><span style="font-size:11px;color:#3b82f6">8/10</span></div></td><td><span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.2)">✓ Validé</span></td></tr>
+          <tr><td style="color:var(--or);font-weight:600">Art. 264</td><td>Vente · CDR</td><td>Créancier</td><td><span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.2)">Autorisé</span></td><td><div style="display:flex;align-items:center;gap:8px"><div class="quality-bar" style="width:80px;margin:0"><div class="quality-fill" style="width:70%;background:linear-gradient(90deg,#3b82f6,#60a5fa)"></div></div><span style="font-size:11px;color:#3b82f6">7/10</span></div></td><td><span style="padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.2)">✓ Validé</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="sec-title">💡 Plan d'amélioration continue</div>
+    <div class="q-card">
+      <div class="q-ct">Recommandations prioritaires</div>
+      <div class="q-cs">Objectif : maintenir un indice de fiabilité ≥ 85/100 · erreurs &lt; 5%</div>
+      <div class="rec"><span class="rn">1</span><div class="rb">La base de connaissances est au niveau d'excellence. Reconduire cette validation à chaque mise à jour des textes juridiques tunisiens.</div></div>
+      <div class="rec"><span class="rn">2</span><div class="rb">Enrichir la couverture des profils utilisateurs (actuellement 73.7%) pour améliorer la personnalisation des conseils juridiques.</div></div>
+      <div class="rec"><span class="rn">3</span><div class="rb">Intégrer les nouvelles dispositions réglementaires dès leur publication officielle pour maintenir la pertinence de la plateforme.</div></div>
+      <div class="rec"><span class="rn">4</span><div class="rb">Étendre l'évaluation anti-hallucination à l'ensemble des 38 règles avec des cas de test edge-case pour consolider le taux de 0%.</div></div>
+    </div>
+
+  </div>
+  <footer class="dash-footer">Estate Mind © 2026 · Évaluation des modèles IA · Droit immobilier tunisien</footer>
+</main>
+
+<script>
+var DEF={responsive:true,maintainAspectRatio:false};
+var G=function(id){return document.getElementById(id)};
+new Chart(G("cD"),{type:"doughnut",data:{labels:["Valides","À corriger"],datasets:[{data:[38,0],backgroundColor:["#22c55e","#ef4444"],borderColor:"#111827",borderWidth:3}]},options:{...DEF,cutout:"65%",plugins:{legend:{position:"bottom",labels:{color:"#9BA8C0",font:{size:11},usePointStyle:true,padding:14}}}}});
+new Chart(G("cS"),{type:"bar",data:{labels:["Interdit","Obligation","Autorisé"],datasets:[{data:[10,15,13],backgroundColor:["#ef4444","#f59e0b","#22c55e"],borderRadius:8,borderSkipped:false}]},options:{...DEF,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:"#5A6880"}},y:{grid:{color:"rgba(255,255,255,.05)"},ticks:{color:"#5A6880"}}}}});
+new Chart(G("cR"),{type:"bar",data:{labels:["0-25","26-50","51-70","71-85","86-100"],datasets:[{data:[10,15,9,2,2],backgroundColor:["#22c55e","#14b8a6","#f59e0b","#ef4444","#dc2626"],borderRadius:8,borderSkipped:false}]},options:{...DEF,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:"#5A6880"}},y:{grid:{color:"rgba(255,255,255,.05)"},ticks:{color:"#5A6880"}}}}});
+new Chart(G("cA"),{type:"bar",data:{labels:["Propriétaire","Créancier","Locataire","État","Possesseur","Collectivité"],datasets:[{data:[7,5,4,4,4,2],backgroundColor:"#F7941D",borderRadius:6,borderSkipped:false}]},options:{indexAxis:"y",...DEF,plugins:{legend:{display:false}},scales:{x:{grid:{color:"rgba(255,255,255,.05)"},ticks:{color:"#5A6880"}},y:{grid:{display:false},ticks:{color:"#9BA8C0"}}}}});
+new Chart(G("cRad"),{type:"radar",data:{labels:["Fiabilité","Unicité","Références","Qualité","Acteurs","Domaine"],datasets:[{label:"Actuel",data:[100,100,90,84,74,95],backgroundColor:"rgba(247,148,29,.1)",borderColor:"#F7941D",borderWidth:2,pointBackgroundColor:"#F7941D",pointRadius:4},{label:"Objectif",data:[90,95,95,90,100,98],backgroundColor:"rgba(34,197,94,.07)",borderColor:"rgba(34,197,94,.4)",borderWidth:1.5,borderDash:[5,3],pointRadius:2}]},options:{...DEF,plugins:{legend:{position:"bottom",labels:{color:"#9BA8C0",font:{size:11},usePointStyle:true,padding:12}}},scales:{r:{min:0,max:100,ticks:{stepSize:25,backdropColor:"transparent",color:"#3A4558",font:{size:9}},grid:{color:"rgba(255,255,255,.07)"},angleLines:{color:"rgba(255,255,255,.07)"},pointLabels:{color:"#9BA8C0",font:{size:10,weight:"500"}}}}}});
+</script>
+</body>
+</html>

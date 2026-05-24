@@ -1,0 +1,5 @@
+"0","if (all(c(""prix"", ""surface"") %in% names(df))) {"
+"0","  df <- df %>%"
+"0","    filter(!is.na(prix), !is.na(surface)) %>%"
+"0","    filter(prix > 10000, surface > 10)"
+"0","}"

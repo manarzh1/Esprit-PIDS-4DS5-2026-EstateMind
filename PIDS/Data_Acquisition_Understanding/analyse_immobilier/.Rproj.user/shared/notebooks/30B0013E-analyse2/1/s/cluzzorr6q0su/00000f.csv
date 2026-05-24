@@ -1,0 +1,3 @@
+"0","if (""prix"" %in% names(df)) {"
+"0","  df$prix[is.na(df$prix)] <- median(df$prix, na.rm = TRUE)"
+"0","}"

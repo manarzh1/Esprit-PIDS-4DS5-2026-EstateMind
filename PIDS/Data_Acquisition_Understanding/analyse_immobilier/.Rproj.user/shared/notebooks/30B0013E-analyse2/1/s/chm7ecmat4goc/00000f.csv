@@ -1,0 +1,7 @@
+"0","if (""prix"" %in% names(df)) {"
+"0","  df$prix <- extract_number(df$prix)"
+"0","}"
+"0",""
+"0","if (""surface"" %in% names(df)) {"
+"0","  df$surface <- extract_number(df$surface)"
+"0","}"

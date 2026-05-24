@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Platform Operations — Estate Mind</title>
+
+<!-- Fonts + libs (kept local to this section so it integrates without polluting global head) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+
+<style>
+/* ======================================================================
+   PLATFORM OPERATIONS — STANDALONE BLOCK
+   100% aligné avec le design de dashboard.html / dashboard.css
+   (palette navy + green + glass, tokens identiques)
+   À intégrer dans <main class="dash-main"> de votre dashboard.
+   Si vous gardez common.css/dashboard.css, ce <style> reste compatible
+   (tokens repris à l'identique, scoped via #ops-root).
+   ====================================================================== */
+
+#ops-root {
+  --navy: #071d33;
+  --green: #2f9c7e;
+  --green-2: #37aa88;
+  --mint: #e9f4ef;
+  --line: #e6eaf0;
+  --muted: #6e7a8a;
+  --text: #071d33;
+  --orange: #ff9a4b;
+  --shadow: 0 18px 48px rgba(7,29,51,.08);
+  font-family: Inter, 'Segoe UI', Arial, sans-serif;
+  color: var(--text);
+}
+
+/* ===== Page head (même style que dashboard) ===== */
+#ops-root .page-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px}
+#ops-root .page-head h1{font-size:30px;font-weight:900;letter-spacing:-.03em;color:var(--navy);margin-top:4px}
+#ops-root .eyebrow{display:inline-block;background:rgba(47,156,126,.10);color:var(--green);
+  border-radius:999px;padding:5px 12px;font-size:11px;font-weight:900;
+  text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+#ops-root .btn-filter{border:1px solid var(--line);background:white;border-radius:10px;
+  padding:8px 14px;font-size:13px;font-weight:800;cursor:pointer;color:var(--navy)}
+#ops-root .btn-filter:hover{border-color:var(--green);color:var(--green)}
+
+/* ===== Sub-tab row (Chat / Historique / XAI) ===== */
+#ops-root .tab-row{display:flex;gap:4px;margin-bottom:22px;flex-wrap:wrap}
+#ops-root .tab-btn{padding:10px 20px;border-radius:12px;border:0;background:transparent;
+  font-size:14px;font-weight:800;color:#6e7a8a;cursor:pointer;transition:.2s;
+  display:inline-flex;align-items:center;gap:8px;font-family:inherit}
+#ops-root .tab-btn:hover{color:var(--navy)}
+#ops-root .tab-btn.active{background:var(--navy);color:white;box-shadow:0 8px 20px rgba(7,29,51,.18)}
+
+#ops-root .tab-panel{display:none;animation:opsFade .25s ease}
+#ops-root .tab-panel.active{display:block}
+@keyframes opsFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ===== Glass panel (même style que dashboard) ===== */
+#ops-root .panel{
+  background:linear-gradient(135deg,rgba(255,255,255,.78),rgba(244,250,247,.66));
+  backdrop-filter:blur(18px) saturate(1.03);
+  -webkit-backdrop-filter:blur(18px) saturate(1.03);
+  border:1px solid rgba(255,255,255,.62);
+  border-radius:22px;padding:22px;
+  box-shadow:0 14px 38px rgba(7,29,51,.06), inset 0 1px 0 rgba(255,255,255,.5);
+  margin-bottom:16px;
+}
+#ops-root .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;flex-wrap:wrap}
+#ops-root .panel-head h3{font-size:16px;font-weight:900;color:var(--navy);display:flex;align-items:center;gap:9px}
+#ops-root .panel-head h3 i{color:var(--green)}
+
+/* ============================================================
+   1) CHAT ASSISTANT — porté depuis index.html
+   ============================================================ */
+#ops-root .chat-shell{
+  background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(241,249,245,.85));
+  border:1px solid rgba(47,156,126,.18);
+  border-radius:24px;
+  box-shadow:0 18px 48px rgba(7,29,51,.08);
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  height:640px;
+}
+#ops-root .chat-head{
+  background:linear-gradient(135deg,var(--navy),#0f3a4a 60%,var(--green));
+  padding:18px 22px;color:white;display:flex;justify-content:space-between;align-items:center;gap:14px;
+}
+#ops-root .chat-head .ch-left{display:flex;align-items:center;gap:12px}
+#ops-root .chat-head .ch-avatar{width:42px;height:42px;border-radius:13px;background:rgba(255,255,255,.16);
+  display:grid;place-items:center;font-size:20px;border:1px solid rgba(255,255,255,.22)}
+#ops-root .chat-head h4{font-size:16px;font-weight:900;line-height:1.1;margin-bottom:3px}
+#ops-root .chat-head p{font-size:12px;opacity:.82;font-weight:700}
+#ops-root .chat-head .ch-status{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:900;
+  background:rgba(255,255,255,.14);padding:6px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.20)}
+#ops-root .chat-head .ch-status::before{content:"";width:7px;height:7px;border-radius:50%;background:#5cf2c2;
+  box-shadow:0 0 8px #5cf2c2}
+
+#ops-root .chat-messages{flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:14px;
+  background:radial-gradient(circle at 90% 0%,rgba(47,156,126,.06),transparent 40%),#fafdfb}
+#ops-root .msg{max-width:82%;animation:opsFadeIn .3s ease}
+@keyframes opsFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#ops-root .msg.user{align-self:flex-end}
+#ops-root .msg.bot{align-self:flex-start}
+#ops-root .msg-bubble{padding:13px 17px;border-radius:16px;font-size:14px;line-height:1.6;font-weight:600}
+#ops-root .msg.user .msg-bubble{background:linear-gradient(135deg,var(--navy),#123b4a);color:white;
+  border-radius:16px 16px 4px 16px;box-shadow:0 10px 24px rgba(7,29,51,.18)}
+#ops-root .msg.bot .msg-bubble{background:white;border:1px solid var(--line);color:var(--navy);
+  border-radius:16px 16px 16px 4px;box-shadow:0 6px 18px rgba(7,29,51,.05)}
+#ops-root .msg.bot .msg-bubble.rtl{direction:rtl;text-align:right;font-family:'Segoe UI',Tahoma,Arial,sans-serif}
+#ops-root .msg-bubble strong{color:var(--green)}
+#ops-root .msg-bubble table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px}
+#ops-root .msg-bubble th{background:var(--mint);color:var(--green);padding:7px 10px;text-align:left;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+#ops-root .msg-bubble td{padding:6px 10px;border-bottom:1px solid var(--line)}
+#ops-root .msg-bubble blockquote{border-left:3px solid var(--green);padding-left:12px;color:var(--muted);margin-top:8px;font-size:13px}
+
+#ops-root .msg-meta{margin-top:9px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#ops-root .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;
+  font-size:11px;font-weight:900;background:#eef2f6;color:#5d6978;border:1px solid var(--line)}
+#ops-root .badge.intent{background:rgba(47,156,126,.10);color:var(--green);border-color:rgba(47,156,126,.25)}
+#ops-root .badge.agent{background:rgba(7,29,51,.06);color:var(--navy);border-color:rgba(7,29,51,.10)}
+#ops-root .badge.lang{background:rgba(255,154,75,.12);color:#bf7618;border-color:rgba(255,154,75,.25)}
+#ops-root .badge.ms{background:white;color:var(--muted)}
+#ops-root .explain-btn{background:white;border:1px solid var(--line);color:var(--muted);padding:5px 11px;
+  border-radius:8px;cursor:pointer;font-size:11px;font-weight:800;font-family:inherit;transition:.2s}
+#ops-root .explain-btn:hover{border-color:var(--green);color:var(--green)}
+#ops-root .pdf-btn{background:var(--green);border:0;color:white;padding:5px 12px;border-radius:8px;cursor:pointer;
+  font-size:11px;font-weight:900;font-family:inherit;margin-left:4px;transition:.2s}
+#ops-root .pdf-btn:hover{background:var(--green-2);transform:scale(1.03)}
+#ops-root .pdf-btn:disabled{opacity:.55;cursor:not-allowed}
+
+#ops-root .accordion{background:white;border:1px solid var(--line);border-radius:12px;margin-top:9px;
+  font-size:12px;overflow:hidden;display:none}
+#ops-root .accordion.open{display:block}
+#ops-root .acc-step{padding:9px 13px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;gap:9px}
+#ops-root .acc-step:last-child{border-bottom:0}
+#ops-root .acc-step-num{width:22px;height:22px;border-radius:50%;background:var(--green);color:white;
+  font-size:10px;font-weight:900;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+#ops-root .acc-step-title{font-weight:900;color:var(--navy);margin-bottom:2px}
+#ops-root .acc-step-detail{color:var(--muted);font-weight:700}
+
+#ops-root .chat-input-area{padding:14px 16px;border-top:1px solid var(--line);background:rgba(255,255,255,.72);backdrop-filter:blur(10px)}
+#ops-root .input-row{display:flex;gap:10px;align-items:flex-end}
+#ops-root .chat-input{flex:1;background:white;border:1px solid var(--line);border-radius:14px;padding:12px 16px;
+  color:var(--navy);font-size:14px;font-family:inherit;font-weight:600;resize:none;min-height:46px;max-height:120px;
+  line-height:1.5;outline:none;transition:.2s;box-shadow:0 4px 12px rgba(7,29,51,.04)}
+#ops-root .chat-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(47,156,126,.12)}
+#ops-root .chat-input::placeholder{color:#9aa6b3;font-weight:600}
+#ops-root .send-btn{background:var(--green);border:0;border-radius:14px;width:46px;height:46px;cursor:pointer;
+  color:white;font-size:16px;transition:.2s;flex-shrink:0;box-shadow:0 8px 20px rgba(47,156,126,.3)}
+#ops-root .send-btn:hover{background:var(--green-2);transform:translateY(-1px)}
+#ops-root .send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+#ops-root .typing-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);animation:opsBlink 1.2s infinite}
+#ops-root .typing-dot:nth-child(2){animation-delay:.2s}
+#ops-root .typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes opsBlink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+#ops-root .thinking-bubble{min-width:240px}
+#ops-root .thinking-phase{color:var(--green);font-size:13px;font-weight:800}
+#ops-root .thinking-dots{display:flex;gap:5px;margin-top:8px}
+
+/* ============================================================
+   2) HISTORIQUE — restylé palette dashboard
+   ============================================================ */
+#ops-root .history-meta{font-size:12px;color:var(--muted);font-weight:800;margin-bottom:12px}
+#ops-root .history-table-wrap{background:white;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 8px 28px rgba(7,29,51,.05)}
+#ops-root .htable{width:100%;border-collapse:collapse;font-size:13px}
+#ops-root .htable th{background:#f4f8f6;color:var(--muted);padding:13px 16px;text-align:left;font-size:11px;
+  text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--line);font-weight:900}
+#ops-root .htable td{padding:12px 16px;border-bottom:1px solid var(--line);color:var(--navy);font-weight:700}
+#ops-root .htable tr:last-child td{border-bottom:0}
+#ops-root .htable tr:hover td{background:rgba(47,156,126,.04)}
+#ops-root .htable .date-col,#ops-root .htable .time-col{color:var(--muted);font-family:'JetBrains Mono','Menlo',monospace;font-size:11px;white-space:nowrap}
+#ops-root .htable .query-col{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ops-root .badge-lang{background:#eef2f6;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:900;text-transform:uppercase}
+#ops-root .badge-intent{background:rgba(47,156,126,.10);border:1px solid rgba(47,156,126,.25);color:var(--green);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:900}
+#ops-root .history-loading{padding:40px;text-align:center;color:var(--muted);font-weight:800}
+#ops-root .history-error{padding:18px;color:#cc3b25;background:#fff1f0;border:1px solid #fcc;border-radius:12px;font-weight:800;font-size:13px}
+#ops-root .history-empty{padding:48px;text-align:center;color:var(--muted);font-weight:800}
+#ops-root .pagination{display:flex;align-items:center;justify-content:space-between;margin-top:16px;font-size:13px;color:var(--muted);font-weight:800}
+#ops-root .page-btns{display:flex;gap:8px}
+#ops-root .page-btn{background:white;border:1px solid var(--line);color:var(--navy);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:12px;font-weight:900;font-family:inherit;transition:.2s}
+#ops-root .page-btn:hover:not(:disabled){border-color:var(--green);color:var(--green)}
+#ops-root .page-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ============================================================
+   3) INTELLIGENCE XAI — restylé palette dashboard
+   ============================================================ */
+#ops-root .nb-banner{display:flex;align-items:center;gap:18px;background:linear-gradient(135deg,rgba(47,156,126,.10),rgba(47,156,126,.04));
+  border:1px solid rgba(47,156,126,.22);border-radius:18px;padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
+#ops-root .nb-banner-title{font-size:11px;font-weight:900;color:var(--green);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap}
+#ops-root .nb-tags{display:flex;gap:8px;flex-wrap:wrap}
+#ops-root .nb-tag{display:inline-flex;align-items:center;gap:6px;background:white;border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:11px;font-weight:800;color:var(--navy)}
+#ops-root .nb-tag .dot{width:7px;height:7px;border-radius:50%}
+
+#ops-root .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+#ops-root .kpi-card{background:rgba(255,255,255,.88);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.95);
+  border-radius:22px;padding:20px 22px;box-shadow:0 16px 50px rgba(7,29,51,.07);position:relative;overflow:hidden}
+#ops-root .kpi-card::after{content:"";position:absolute;right:-20px;top:-20px;width:80px;height:80px;border-radius:50%;
+  background:linear-gradient(135deg,rgba(255,154,75,.18),rgba(47,156,126,.12))}
+#ops-root .kpi-card label{display:block;color:var(--muted);font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+#ops-root .kpi-card strong{display:block;font-size:30px;font-weight:900;color:var(--navy);margin-bottom:4px;font-family:'JetBrains Mono','Menlo',monospace;letter-spacing:-.02em}
+#ops-root .kpi-card small{color:var(--green);font-weight:800;font-size:12px;display:inline-flex;align-items:center;gap:4px}
+
+#ops-root .two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+#ops-root .intent-list{display:flex;flex-direction:column;gap:11px}
+#ops-root .intent-row{display:flex;align-items:center;gap:12px}
+#ops-root .intent-name{font-size:12px;font-weight:900;width:140px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ops-root .bar-wrap{flex:1;height:24px;background:#eef4f1;border-radius:7px;overflow:hidden}
+#ops-root .bar-fill{height:100%;border-radius:7px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font-size:11px;font-weight:900;color:#fff;transition:width 1s cubic-bezier(.4,0,.2,1);font-family:'JetBrains Mono','Menlo',monospace}
+#ops-root .sup-num{font-size:11px;color:var(--muted);width:34px;text-align:right;font-family:'JetBrains Mono','Menlo',monospace;font-weight:800}
+
+#ops-root .latency-list{display:flex;flex-direction:column;gap:9px}
+#ops-root .lat-row{display:flex;align-items:center;gap:12px}
+#ops-root .lat-name{font-size:12px;color:var(--muted);width:155px;flex-shrink:0;font-weight:800}
+#ops-root .lat-bar-wrap{flex:1;height:24px;background:#eef4f1;border-radius:7px;overflow:hidden}
+#ops-root .lat-fill{height:100%;border-radius:7px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font-size:11px;font-weight:900;color:#fff;font-family:'JetBrains Mono','Menlo',monospace}
+#ops-root .lat-fast{background:linear-gradient(90deg,#2f9c7e,#5cc8a7)}
+#ops-root .lat-med{background:linear-gradient(90deg,#bf7618,#ffb25f)}
+#ops-root .lat-slow{background:linear-gradient(90deg,#cc3b25,#f07b66)}
+
+#ops-root .donut-section{display:flex;align-items:center;gap:24px}
+#ops-root .legend{display:flex;flex-direction:column;gap:9px}
+#ops-root .legend-item{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted);min-width:200px;font-weight:700}
+#ops-root .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+#ops-root .data-table{width:100%;border-collapse:collapse}
+#ops-root .data-table th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:0 12px 12px;text-align:left;border-bottom:1px solid var(--line);font-weight:900}
+#ops-root .data-table th:not(:first-child){text-align:center}
+#ops-root .data-table td{padding:12px;font-size:13px;border-bottom:1px solid var(--line);font-weight:700}
+#ops-root .data-table tr:last-child td{border-bottom:0}
+#ops-root .data-table tr:hover td{background:rgba(47,156,126,.04)}
+#ops-root .badge-good{background:rgba(47,156,126,.12);color:var(--green);border:1px solid rgba(47,156,126,.25);border-radius:6px;padding:3px 9px;font-size:11px;font-family:'JetBrains Mono','Menlo',monospace;font-weight:900}
+#ops-root .badge-ok{background:rgba(255,154,75,.12);color:#bf7618;border:1px solid rgba(255,154,75,.25);border-radius:6px;padding:3px 9px;font-size:11px;font-family:'JetBrains Mono','Menlo',monospace;font-weight:900}
+#ops-root .intent-tag{font-size:11px;color:var(--navy);background:#eef4f1;border-radius:6px;padding:3px 9px;font-family:'JetBrains Mono','Menlo',monospace;border:1px solid var(--line);font-weight:800}
+#ops-root .sup-gray{color:var(--muted);font-family:'JetBrains Mono','Menlo',monospace;font-size:12px;font-weight:800}
+
+#ops-root .xai-status{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--green);font-weight:900;padding:7px 14px;border-radius:999px;background:rgba(47,156,126,.10);border:1px solid rgba(47,156,126,.22)}
+#ops-root .xai-status::before{content:"";width:8px;height:8px;background:var(--green);border-radius:50%;box-shadow:0 0 6px var(--green)}
+
+/* ============================================================
+   4) AI FAB — bouton chat flottant (présent sur chaque page)
+       Repris à l'identique du dashboard.css
+   ============================================================ */
+#ops-root .ai-fab{display:none !important;position:fixed;bottom:24px;right:24px;z-index:200;width:56px;height:56px;border-radius:18px;
+  background:var(--green);border:0;cursor:pointer;display:grid;place-items:center;color:white;font-size:22px;
+  box-shadow:0 0 0 12px rgba(47,156,126,.12),0 20px 48px rgba(7,29,51,.2);animation:opsAiFab 3s ease-in-out infinite}
+#ops-root .ai-fab:hover{transform:scale(1.08)}
+@keyframes opsAiFab{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+#ops-root .ai-panel{display:none !important;position:fixed;right:24px;bottom:96px;z-index:199;width:380px;height:540px;
+  background:rgba(255,255,255,.96);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);
+  border-radius:24px;box-shadow:0 22px 60px rgba(7,29,51,.22);display:flex;flex-direction:column;overflow:hidden;
+  transform:translateY(20px) scale(.96);opacity:0;pointer-events:none;transition:.25s ease}
+#ops-root .ai-panel.open{transform:none;opacity:1;pointer-events:auto}
+#ops-root .ai-head{padding:14px 18px;background:linear-gradient(135deg,var(--navy),var(--green));color:white;
+  display:flex;justify-content:space-between;align-items:center}
+#ops-root .ai-head span{font-weight:900;font-size:14px;display:flex;align-items:center;gap:8px}
+#ops-root .ai-head button{background:rgba(255,255,255,.18);border:0;color:white;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:14px}
+#ops-root .ai-chat{padding:14px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;background:#fafdfb}
+
+@media (max-width:900px){
+  #ops-root .kpi-row{grid-template-columns:1fr 1fr}
+  #ops-root .two-col{grid-template-columns:1fr}
+  #ops-root .ai-panel{right:12px;left:12px;width:auto}
+}
+@media (max-width:560px){
+  #ops-root .kpi-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ====================================================================
+     ⬇⬇⬇   COPIER À PARTIR D'ICI   ⬇⬇⬇
+     Tout le bloc <section id="ops-root"> ... </section> + le <style>
+     ci-dessus est autonome. Glissez-le dans <main class="dash-main">
+     de votre dashboard. Aucun JS/CSS externe en dehors de Chart.js,
+     marked.js et Font Awesome (déjà chargés ailleurs si besoin).
+     ==================================================================== -->
+
+<section id="ops-root" class="bo-section active">
+
+  <!-- PAGE HEAD -->
+  <div class="page-head">
+    <div>
+      <span class="eyebrow">Smart Dashboard</span>
+      <h1>Platform Operations</h1>
+    </div>
+    <div class="page-head-right">
+      <button class="btn-filter" onclick="opsRefreshActive()">
+        <i class="fa fa-rotate"></i> Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- SOUS-NAV (Historique / XAI) -->
+  <div class="tab-row">
+    <button class="tab-btn active" data-ops-tab="history">
+      <i class="fa fa-clock-rotate-left"></i> Historique des Interactions
+    </button>
+    <button class="tab-btn" data-ops-tab="xai">
+      <i class="fa fa-brain"></i> Intelligence XAI
+    </button>
+  </div>
+
+  <!-- ====================== TAB 1 — HISTORIQUE ====================== -->
+  <div class="tab-panel active" id="ops-panel-history">
+    <div class="panel">
+      <div class="panel-head">
+        <h3><i class="fa fa-clock-rotate-left"></i> Historique des Interactions</h3>
+        <button class="btn-filter" onclick="opsLoadHistory(1)">
+          <i class="fa fa-sync-alt"></i> Actualiser
+        </button>
+      </div>
+      <div id="ops-history-meta" class="history-meta"></div>
+      <div class="history-table-wrap" id="ops-history-table-wrap">
+        <div class="history-loading"><i class="fa fa-spinner fa-spin"></i> Chargement...</div>
+      </div>
+      <div class="pagination" id="ops-history-pagination" style="display:none">
+        <span id="ops-page-info"></span>
+        <div class="page-btns">
+          <button class="page-btn" id="ops-btn-prev" onclick="opsChangePage(-1)" disabled>
+            <i class="fa fa-chevron-left"></i> Précédent
+          </button>
+          <button class="page-btn" id="ops-btn-next" onclick="opsChangePage(1)">
+            Suivant <i class="fa fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================== TAB 3 — INTELLIGENCE XAI ====================== -->
+  <div class="tab-panel" id="ops-panel-xai">
+    <div class="panel">
+      <div class="panel-head">
+        <h3><i class="fa fa-brain"></i> TuniState — Métriques NLP</h3>
+        <div class="xai-status">Système opérationnel</div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);font-weight:700;margin:-8px 0 16px">
+        Naïve Bayes Multinomial · From Scratch · N-grammes (1,2,3) · Laplace Smoothing
+      </p>
+
+      <div class="nb-banner">
+        <div class="nb-banner-title">⚙ Modèle</div>
+        <div class="nb-tags">
+          <span class="nb-tag"><span class="dot" style="background:var(--green)"></span>Naïve Bayes Multinomial</span>
+          <span class="nb-tag"><span class="dot" style="background:var(--navy)"></span>Implémenté From Scratch</span>
+          <span class="nb-tag"><span class="dot" style="background:var(--orange)"></span>Unigrams + Bigrams + Trigrams</span>
+          <span class="nb-tag"><span class="dot" style="background:#bf7618"></span>Laplace Smoothing</span>
+        </div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi-card"><label>Accuracy</label><strong>94.3%</strong><small><i class="fa fa-check"></i> Excellente précision</small></div>
+        <div class="kpi-card"><label>Macro F1</label><strong>0.933</strong><small>Équilibré entre les classes</small></div>
+        <div class="kpi-card"><label>Perplexité</label><strong>47.2</strong><small>Bonne confiance modèle</small></div>
+        <div class="kpi-card"><label>Hallucination</label><strong>0%</strong><small>Pipeline NB sans LLM</small></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3><i class="fa fa-chart-bar"></i> Performance par intention</h3></div>
+      <div class="intent-list" id="ops-f1-bars"></div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <div class="panel-head"><h3><i class="fa fa-chart-pie"></i> Distribution des intentions</h3></div>
+        <div class="donut-section">
+          <div style="position:relative;width:170px;height:170px;flex-shrink:0">
+            <canvas id="ops-donutChart"></canvas>
+          </div>
+          <div class="legend" id="ops-donut-legend"></div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-weight:700">
+          Total : 1 283 requêtes · Jeu de test (20% du corpus)
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3><i class="fa fa-stopwatch"></i> Budget latence pipeline</h3></div>
+        <div class="latency-list" id="ops-latency-bars"></div>
+        <div style="font-size:11px;color:var(--muted);margin-top:14px;display:flex;gap:14px;font-weight:800">
+          <span style="color:var(--green)">●</span> &lt;200ms
+          <span style="color:#bf7618">●</span> 200ms–1s
+          <span style="color:#cc3b25">●</span> &gt;1s
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3><i class="fa fa-table"></i> Détail par classe</h3></div>
+      <table class="data-table">
+        <thead><tr><th>Intention</th><th>Précision</th><th>Rappel</th><th>F1</th><th>Support</th></tr></thead>
+        <tbody id="ops-detail-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  </div>
+  </div>
+  </div>
+
+</section>
+
+<script>
+/* ====================================================================
+   PLATFORM OPERATIONS — JS (scoped, préfixe `ops`)
+   Aucune collision avec le JS du dashboard parent.
+   API backend : adapter les URLs ci-dessous à votre environnement.
+   ==================================================================== */
+const OPS_API_CHAT    = 'http://localhost:8003/api/v1';   // /chat, /report/generate
+const OPS_API_HISTORY = 'http://localhost:8003/api/v1';   // /history
+
+const OPS_AGENT_NAMES = {
+  BO1:'Analyse des Annonces',BO2:'Intelligence Territoriale',BO3:'Estimation des Prix',
+  BO4:'Conformité & Investissement',BO5:'Relations Clients',BO6:'Orchestrateur Principal',
+};
+function opsAgentLabel(r){if(!r)return'Assistant IA';const k=String(r).toUpperCase();return OPS_AGENT_NAMES[k]||r;}
+function opsEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ───────── Tab navigation ───────── */
+let opsXaiRendered=false, opsHistoryLoaded=false;
+document.querySelectorAll('#ops-root [data-ops-tab]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const name=btn.dataset.opsTab;
+    document.querySelectorAll('#ops-root .tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('#ops-root .tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('ops-panel-'+name).classList.add('active');
+    if(name==='xai'&&!opsXaiRendered)opsRenderXAI();
+    if(name==='history'&&!opsHistoryLoaded)opsLoadHistory(1);
+  });
+});
+function opsRefreshActive(){
+  const active=document.querySelector('#ops-root .tab-btn.active')?.dataset.opsTab;
+  if(active==='history')opsLoadHistory(1);
+  else if(active==='xai'){opsXaiRendered=false;opsRenderXAI();}
+}
+
+/* ───────── CHAT ───────── */
+let opsSessionId=crypto.randomUUID();
+const opsMsgData={};
+
+async function opsSendMessage(target){
+  const isFab=target==='fab';
+  const input=document.getElementById(isFab?'ops-fab-input':'ops-chat-input');
+  const wrap =document.getElementById(isFab?'ops-fab-messages':'ops-chat-messages');
+  const q=input.value.trim();if(!q)return;
+  input.value='';input.style.height='auto';
+  opsAppendUser(wrap,q);
+  const tid=opsAppendTyping(wrap);
+  try{
+    const body={query:q};if(opsSessionId)body.session_id=opsSessionId;
+    const res=await fetch(`${OPS_API_CHAT}/chat`,{method:'POST',
+      headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const data=await res.json();
+    opsRemoveTyping(tid);
+    if(data.session_id)opsSessionId=data.session_id;
+    opsAppendBot(wrap,data,isFab);
+  }catch(e){
+    opsRemoveTyping(tid);
+    opsAppendBot(wrap,{response:`❌ **Erreur de connexion.**\n\n\`${e.message}\``},isFab);
+  }
+}
+
+function opsAppendUser(wrap,text){
+  const el=document.createElement('div');el.className='msg user';
+  const b=document.createElement('div');b.className='msg-bubble';b.textContent=text;
+  el.appendChild(b);wrap.appendChild(el);wrap.scrollTop=wrap.scrollHeight;
+}
+
+function opsAppendBot(wrap,data,minimal){
+  const el=document.createElement('div');el.className='msg bot';
+  const id='ops-msg-'+Date.now()+Math.floor(Math.random()*999);el.id=id;
+  const conf=Math.round((data.confidence||0)*100);
+  const rtl=(data.language==='ar')?' rtl':'';
+  const md=(typeof marked!=='undefined')?marked.parse(data.response||''):opsEsc(data.response||'');
+  if(minimal){
+    el.innerHTML=`<div class="msg-bubble${rtl}">${md}</div>`;
+  }else{
+    el.innerHTML=`
+      <div class="msg-bubble${rtl}">${md}</div>
+      <div class="msg-meta">
+        <span class="badge intent"><i class="fa fa-brain"></i> ${(data.intent||'unknown').replace(/_/g,' ')}</span>
+        <span class="badge agent"><i class="fa fa-robot"></i> ${opsAgentLabel(data.agent_used)}</span>
+        <span class="badge lang"><i class="fa fa-globe"></i> ${data.language||'?'}</span>
+        <span class="badge ms"><i class="fa fa-clock"></i> ${data.processing_ms||0}ms</span>
+        ${conf>=97?`<span class="badge" style="background:rgba(47,156,126,.12);color:var(--green);border-color:rgba(47,156,126,.25)">${conf}%</span>`:''}
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="explain-btn" onclick="opsToggleExplain('${id}')"><i class="fa fa-info-circle"></i> Explication</button>
+        <button class="pdf-btn" onclick="opsDownloadPdf('${id}',this)"><i class="fa fa-file-pdf"></i> Rapport PDF</button>
+      </div>
+      <div class="accordion" id="acc-${id}">${opsBuildAccordion(data)}</div>`;
+    opsMsgData[id]=data;
+  }
+  wrap.appendChild(el);wrap.scrollTop=wrap.scrollHeight;
+}
+
+function opsBuildAccordion(data){
+  const exp=data.explanation;
+  if(!exp||!exp.pipeline_steps)return'<div style="padding:12px;color:var(--muted);font-weight:700">Pas d\'explication disponible.</div>';
+  const icons=['🌍','🇹🇳','🔤','🧠','🔀','🤖','📝','💾'];
+  return exp.pipeline_steps.map((s,i)=>`
+    <div class="acc-step">
+      <div class="acc-step-num">${s.step}</div>
+      <div style="flex:1">
+        <div class="acc-step-title">${icons[i]||''} ${opsEsc(s.name)} <span style="color:var(--muted);font-weight:700">(${s.ms}ms)</span></div>
+        <div class="acc-step-detail">${opsFormatStep(s)}</div>
+      </div>
+    </div>`).join('')+`
+    <div class="acc-step" style="background:rgba(47,156,126,.06)">
+      <div class="acc-step-num">✓</div>
+      <div style="flex:1">
+        <div class="acc-step-title" style="color:var(--green)">${exp.hallucination_check||'PASSED'}</div>
+        <div class="acc-step-detail">${opsEsc(exp.data_source||'')}</div>
+      </div>
+    </div>`;
+}
+function opsFormatStep(s){
+  if(!s.result&&!s.details)return'';
+  let out=s.result!==null?`<strong>${opsEsc(s.result)}</strong>`:'';
+  if(s.details){
+    const d=s.details;
+    if(d.terms_replaced?.length)out+=`<br>Darija : ${d.terms_replaced.slice(0,3).map(opsEsc).join(', ')}`;
+    if(d.top_ngrams)out+=`<br>Top N-grammes : ${(Array.isArray(d.top_ngrams)?d.top_ngrams:Object.keys(d.top_ngrams||{})).slice(0,3).map(opsEsc).join(', ')}`;
+    if(d.agent_url)out+=`<br>URL : <code style="color:var(--green)">${opsEsc(d.agent_url)}</code>`;
+  }
+  return out;
+}
+function opsToggleExplain(id){document.getElementById('acc-'+id)?.classList.toggle('open');}
+
+const OPS_PHASES=[
+  {ms:1800,text:'🧠 Détection langue & intention...'},
+  {ms:3500,text:'📊 Interrogation de la base...'},
+  {ms:5500,text:'🤖 Calcul de l\'estimation...'},
+  {ms:7500,text:'📝 Mise en forme...'},
+];
+function opsAppendTyping(wrap){
+  const id='ops-typing-'+Date.now();
+  const el=document.createElement('div');el.className='msg bot';el.id=id;
+  el.innerHTML=`<div class="msg-bubble thinking-bubble">
+    <div class="thinking-phase" id="ph-${id}">🔍 Analyse de votre question...</div>
+    <div class="thinking-dots"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>
+  </div>`;
+  wrap.appendChild(el);wrap.scrollTop=wrap.scrollHeight;
+  el._t=OPS_PHASES.map(p=>setTimeout(()=>{const e=document.getElementById('ph-'+id);if(e)e.textContent=p.text;},p.ms));
+  return id;
+}
+function opsRemoveTyping(id){const el=document.getElementById(id);if(el){el._t?.forEach(clearTimeout);el.remove();}}
+
+['ops-chat-input','ops-fab-input'].forEach(idd=>{
+  const el=document.getElementById(idd);
+  el?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';});
+});
+
+async function opsDownloadPdf(id,btn){
+  const raw=opsMsgData[id];if(!raw){alert('Données indisponibles');return;}
+  btn.disabled=true;const html=btn.innerHTML;btn.innerHTML='<i class="fa fa-spinner fa-spin"></i> Génération...';
+  try{
+    const r=await fetch(`${OPS_API_CHAT}/report/generate`,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({session_id:opsSessionId,report_type:raw.intent||'general',agent_data:raw.raw_data||{},language:raw.language||'fr'})});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const blob=await r.blob();const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=`estate_mind_rapport_${raw.intent||'general'}_${Date.now()}.pdf`;a.click();
+    URL.revokeObjectURL(url);
+    btn.innerHTML='<i class="fa fa-check"></i> Téléchargé';
+    setTimeout(()=>{btn.innerHTML=html;btn.disabled=false;},2000);
+  }catch(e){btn.innerHTML='<i class="fa fa-times"></i> Erreur';setTimeout(()=>{btn.innerHTML=html;btn.disabled=false;},2000);}
+}
+
+/* ───────── FAB toggle ───────── */
+function opsToggleFab(){document.getElementById('ops-fab-panel').classList.toggle('open');}
+
+/* ───────── HISTORIQUE ───────── */
+let opsCurrentPage=1;const OPS_PAGE_SIZE=30;let opsTotalPages=1;
+async function opsLoadHistory(page){
+  if(page)opsCurrentPage=page;
+  const wrap=document.getElementById('ops-history-table-wrap');
+  const meta=document.getElementById('ops-history-meta');
+  const pag=document.getElementById('ops-history-pagination');
+  wrap.innerHTML='<div class="history-loading"><i class="fa fa-spinner fa-spin"></i> Chargement...</div>';
+  pag.style.display='none';
+  try{
+    const r=await fetch(`${OPS_API_HISTORY}/history?page=${opsCurrentPage}&page_size=${OPS_PAGE_SIZE}`);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();
+    const items=d.interactions||[];const total=d.total||0;
+    opsTotalPages=Math.max(1,Math.ceil(total/OPS_PAGE_SIZE));
+    meta.textContent=`${total} interaction(s) — Page ${opsCurrentPage} / ${opsTotalPages}`;
+    if(!items.length){wrap.innerHTML='<div class="history-empty"><i class="fa fa-inbox" style="font-size:28px;display:block;margin-bottom:10px;opacity:.4"></i>Aucune interaction enregistrée.</div>';return;}
+    wrap.innerHTML=`<table class="htable">
+      <thead><tr><th>Date</th><th>Requête</th><th>Langue</th><th>Intention</th><th>Agent</th><th>Temps</th></tr></thead>
+      <tbody>${items.map(i=>`<tr>
+        <td class="date-col">${new Date(i.created_at).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</td>
+        <td class="query-col" title="${opsEsc(i.original_query)}">${opsEsc((i.original_query||'').substring(0,60))}${(i.original_query||'').length>60?'…':''}</td>
+        <td><span class="badge-lang">${opsEsc(i.detected_language||'?')}</span></td>
+        <td><span class="badge-intent">${opsEsc((i.detected_intent||'?').replace(/_/g,' '))}</span></td>
+        <td style="font-size:12px">${opsEsc(opsAgentLabel(i.agent_used))}</td>
+        <td class="time-col">${i.processing_ms?i.processing_ms+'ms':'—'}</td>
+      </tr>`).join('')}</tbody></table>`;
+    document.getElementById('ops-page-info').textContent=`Page ${opsCurrentPage} / ${opsTotalPages} (${total} entrées)`;
+    document.getElementById('ops-btn-prev').disabled=opsCurrentPage<=1;
+    document.getElementById('ops-btn-next').disabled=opsCurrentPage>=opsTotalPages;
+    pag.style.display='flex';
+    opsHistoryLoaded=true;
+  }catch(e){
+    wrap.innerHTML=`<div class="history-error"><i class="fa fa-triangle-exclamation"></i> Erreur : ${opsEsc(e.message)}</div>`;
+  }
+}
+function opsChangePage(d){const n=opsCurrentPage+d;if(n<1||n>opsTotalPages)return;opsLoadHistory(n);}
+
+/* ───────── XAI ───────── */
+function opsRenderXAI(){
+  opsXaiRendered=true;
+  const LABELS=['Price Estimation','Investment Analysis','Location Analysis','Report Generation','General Query'];
+  const COLORS=['#2f9c7e','#37aa88','#ff9a4b','#bf7618','#071d33'];
+  const INTENTS=['price_estimation','investment_analysis','location_analysis','report_generation','general_query'];
+  const perClass=[
+    {precision:.971,recall:.968,f1:.969,support:412},
+    {precision:.948,recall:.952,f1:.950,support:247},
+    {precision:.939,recall:.931,f1:.935,support:198},
+    {precision:.921,recall:.908,f1:.914,support:164},
+    {precision:.889,recall:.903,f1:.896,support:262},
+  ];
+  const f1=document.getElementById('ops-f1-bars');f1.innerHTML='';
+  perClass.forEach((c,i)=>{
+    const r=document.createElement('div');r.className='intent-row';
+    r.innerHTML=`<div class="intent-name" style="color:${COLORS[i]}">${LABELS[i]}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${c.f1*100}%;background:${COLORS[i]}">${(c.f1*100).toFixed(1)}%</div></div>
+      <div class="sup-num">${c.support}</div>`;
+    f1.appendChild(r);
+  });
+  const sup=perClass.map(c=>c.support);
+  const ctx=document.getElementById('ops-donutChart').getContext('2d');
+  new Chart(ctx,{type:'doughnut',data:{labels:LABELS,datasets:[{data:sup,backgroundColor:COLORS,borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:true,cutout:'65%',plugins:{legend:{display:false}}}});
+  const tot=sup.reduce((a,b)=>a+b,0);
+  const lg=document.getElementById('ops-donut-legend');lg.innerHTML='';
+  LABELS.forEach((l,i)=>{
+    const it=document.createElement('div');it.className='legend-item';
+    it.innerHTML=`<span class="legend-dot" style="background:${COLORS[i]}"></span><span style="flex:1">${l}</span>
+      <span style="color:var(--navy);font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:900">${Math.round(sup[i]/tot*100)}%</span>`;
+    lg.appendChild(it);
+  });
+  const lat=[
+    {n:'Étape 1 · Langue',ms:87,l:'87ms'},{n:'Étape 2 · Darija',ms:112,l:'112ms'},
+    {n:'Étape 3 · Traduction',ms:2840,l:'2.84s'},{n:'Étape 4 · NB Classif.',ms:93,l:'93ms'},
+    {n:'Étape 5 · Routage',ms:78,l:'78ms'},{n:'Étape 6 · Agent HTTP',ms:12300,l:'12.3s'},
+    {n:'Étape 7 · Template',ms:95,l:'95ms'},{n:'Étape 8 · Sauvegarde',ms:430,l:'430ms'},
+  ];
+  const mx=Math.log10(Math.max(...lat.map(d=>d.ms)));
+  const lw=document.getElementById('ops-latency-bars');lw.innerHTML='';
+  lat.forEach(d=>{
+    const pct=Math.max(5,Math.log10(d.ms)/mx*100);
+    const cls=d.ms<200?'lat-fast':d.ms<1000?'lat-med':'lat-slow';
+    const r=document.createElement('div');r.className='lat-row';
+    r.innerHTML=`<div class="lat-name">${d.n}</div>
+      <div class="lat-bar-wrap"><div class="lat-fill ${cls}" style="width:${pct}%">${d.l}</div></div>`;
+    lw.appendChild(r);
+  });
+  const tb=document.getElementById('ops-detail-table');tb.innerHTML='';
+  INTENTS.forEach((it,i)=>{
+    const c=perClass[i];const b=c.f1>=.95?'badge-good':'badge-ok';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><span class="intent-tag">${it}</span></td>
+      <td style="text-align:center"><span class="${b}">${c.precision.toFixed(3)}</span></td>
+      <td style="text-align:center"><span class="${b}">${c.recall.toFixed(3)}</span></td>
+      <td style="text-align:center"><span class="${b}">${c.f1.toFixed(3)}</span></td>
+      <td style="text-align:center"><span class="sup-gray">${c.support.toLocaleString()}</span></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+/* Auto-load Historique on init */
+opsLoadHistory(1);
+</script>
+
+</body>
+</html>

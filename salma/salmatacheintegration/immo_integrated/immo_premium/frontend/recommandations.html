@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EstateMind — Où acheter selon mon budget ?</title>
+<link rel="stylesheet" href="common.css"/>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+.reco-layout { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; }
+.results-hidden { display: none; }
+.results-visible { display: block; animation: fadeInUp 0.4s ease; }
+.zone-card {
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.95);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.zone-card:hover { border-color: var(--accent); transform: translateX(4px); }
+.zone-card.best { border-color: var(--green); background: var(--green-lt); }
+.zone-rank {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  flex-shrink: 0;
+  background: var(--bg2);
+  color: var(--dim);
+}
+.zone-rank.gold { background: var(--gold-lt); color: var(--gold); }
+.zone-info { flex: 1; }
+.zone-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.zone-sub { font-size: 12px; color: var(--dim); margin-top: 2px; }
+.zone-price { text-align: right; }
+.zone-price-val { font-size: 18px; font-weight: 800; color: var(--text); }
+.zone-price-unit { font-size: 11px; color: var(--dim); }
+.score-circle {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.score-high { border-color: var(--green); color: var(--green); }
+.score-med  { border-color: var(--gold); color: var(--gold); }
+.score-low  { border-color: #E74C3C; color: #E74C3C; }
+
+.advantage-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--blue-lt);
+  color: var(--blue);
+  margin: 2px;
+}
+
+.period-module {
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.95);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+.occasion-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+.occasion-btn {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: white;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+  font-family: 'Outfit', sans-serif;
+  color: var(--text2);
+}
+.occasion-btn.selected { border-color: var(--accent); background: var(--accent-lt); color: var(--accent); }
+.occasion-btn:hover:not(.selected) { border-color: var(--border2); }
+
+.priority-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.priority-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 12px; border-radius: 999px;
+  border: 1.5px solid var(--line); background: white;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  color: var(--text); font-family: inherit;
+  transition: all 0.2s;
+}
+.priority-pill:hover:not(.selected) { border-color: var(--green); color: var(--green); }
+.priority-pill.selected { border-color: var(--green); background: var(--mint); color: var(--green); }
+
+.forecast-period-result {
+  background: var(--green-lt);
+  border: 1.5px solid rgba(13,155,107,0.2);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-top: 16px;
+  display: none;
+}
+.forecast-period-result.visible { display: block; animation: fadeInUp 0.4s ease; }
+
+.best-choice-card {
+  background: linear-gradient(135deg, var(--navy), var(--navy2));
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  color: white;
+  margin-bottom: 20px;
+}
+.bc-star { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); font-weight: 600; margin-bottom: 8px; }
+.bc-zone { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 800; color: var(--accent); }
+.bc-reason { font-size: 13px; color: rgba(255,255,255,0.65); margin-top: 10px; line-height: 1.7; }
+.bc-tags { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+.bc-tag { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.75); }
+</style>
+</head>
+<body class="dash-body">
+
+
+<!-- ===== UNIFIED BO NAV ===== -->
+<nav class="bo-nav">
+  <a class="bo-item" href="estimation.html">Price Estimation</a>
+  <a class="bo-item active" href="recommandations.html">Recommandations</a>
+  <a class="bo-item" href="sarima.html">Market Trends</a>
+  <a class="bo-item" href="xia.html">Intelligence XAI</a>
+</nav>
+
+
+<div class="main-content">
+  <header class="page-header">
+    <div>
+      <div class="page-title">Où <span>acheter</span> ?</div>
+      <div class="page-subtitle">Recommandations personnalisées selon votre budget et vos priorités</div>
+    </div>
+    <div class="header-actions"></div>
+  </header>
+
+  <div class="page-body">
+    <div class="reco-layout">
+
+      <!-- PANNEAU GAUCHE -->
+      <div>
+        <!-- MODULE BUDGET -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">💡 Trouvez votre zone idéale</div>
+              <div class="card-subtitle">Entrez vos critères pour des recommandations personnalisées</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Votre budget (TND)</label>
+            <input type="number" id="budget" class="form-control" value="300000" min="50000" step="10000">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Région souhaitée</label>
+            <select id="ville" class="form-control">
+              <option value="Tunis">Grand Tunis</option>
+              <option value="Sousse">Sousse</option>
+              <option value="Sfax">Sfax</option>
+              <option value="Nabeul">Nabeul</option>
+              <option value="Monastir">Monastir</option>
+              <option value="Bizerte">Bizerte</option>
+              <option value="Ariana">Ariana</option>
+              <option value="Manouba">Manouba</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Type de bien</label>
+            <select id="typeBien" class="form-control">
+              <option value="appartement">Appartement</option>
+              <option value="maison">Maison</option>
+              <option value="terrain">Terrain</option>
+              <option value="villa">Villa</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Mes priorités</label>
+            <div class="priority-pills" id="priorityPills">
+              <button class="priority-pill selected" onclick="togglePriority(this,'prix')">💰 Prix</button>
+              <button class="priority-pill" onclick="togglePriority(this,'investissement')">📈 Investissement</button>
+              <button class="priority-pill" onclick="togglePriority(this,'centre')">🏙️ Proche centre</button>
+              <button class="priority-pill" onclick="togglePriority(this,'securite')">🛡️ Sécurité</button>
+              <button class="priority-pill" onclick="togglePriority(this,'transport')">🚌 Transport</button>
+            </div>
+          </div>
+
+          <button id="btnRecommend" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;" onclick="getRecommandations()">
+            🔍 Trouver mes opportunités
+          </button>
+        </div>
+
+        <!-- MODULE PÉRIODE -->
+        <div class="period-module">
+          <div class="card-title" style="margin-bottom:6px;">📅 Prévoir une période</div>
+          <div class="card-subtitle" style="margin-bottom:16px;">Choisissez un moment pour connaître les tendances de prix</div>
+
+          <div class="form-group">
+            <label class="form-label">Date ou occasion</label>
+            <div class="occasion-grid" id="occasionGrid">
+              <button class="occasion-btn" onclick="selectOccasion(this,'rentree')">📚 Rentrée scolaire</button>
+              <button class="occasion-btn" onclick="selectOccasion(this,'ete')">☀️ Été</button>
+              <button class="occasion-btn" onclick="selectOccasion(this,'ramadan')">🌙 Ramadan</button>
+              <button class="occasion-btn" onclick="selectOccasion(this,'vacances')">🏖️ Vacances</button>
+              <button class="occasion-btn" onclick="selectOccasion(this,'finyear')">🎉 Fin d'année</button>
+              <button class="occasion-btn" onclick="selectOccasion(this,'custom')">📆 Personnalisée</button>
+            </div>
+          </div>
+
+          <div id="customDateWrap" style="display:none;">
+            <div class="form-group">
+              <label class="form-label">Choisissez une date</label>
+              <input type="month" id="customDate" class="form-control">
+            </div>
+          </div>
+
+          <button id="btnPeriod" class="btn btn-dark" style="width:100%;justify-content:center;margin-top:4px;" onclick="getForecastByPeriod()">
+            📊 Analyser cette période
+          </button>
+
+          <div class="forecast-period-result" id="forecastPeriodResult">
+            <div id="forecastPeriodContent"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RÉSULTATS DROITE -->
+      <div>
+        <!-- PLACEHOLDER -->
+        <div id="placeholder" class="card" style="text-align:center;padding:60px 20px;">
+          <div style="font-size:48px;margin-bottom:16px;">💡</div>
+          <h3 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:8px;">Trouvez votre zone idéale</h3>
+          <p style="font-size:13px;color:var(--dim);">Renseignez votre budget et vos priorités,<br>puis cliquez sur <strong>Trouver mes opportunités</strong>.</p>
+        </div>
+
+        <!-- RÉSULTATS -->
+        <div id="resultsArea" class="results-hidden">
+          <!-- MEILLEUR CHOIX -->
+          <div class="best-choice-card" id="bestChoiceCard">
+            <div class="bc-star">⭐ Meilleur choix pour vous</div>
+            <div class="bc-zone" id="bcZone">—</div>
+            <div class="bc-reason" id="bcReason">—</div>
+            <div class="bc-tags" id="bcTags"></div>
+          </div>
+
+          <!-- ALERTE BUDGET -->
+          <div id="budgetAlert" style="display:none;background:var(--accent-lt);border:1.5px solid rgba(255,107,53,0.25);border-radius:var(--radius-lg);padding:18px;margin-bottom:16px;">
+            <div style="font-weight:700;color:var(--accent);margin-bottom:4px;">⚠️ Note sur votre budget</div>
+            <div id="budgetAlertMsg" style="font-size:13px;color:var(--text2);">—</div>
+          </div>
+
+          <!-- LISTE DES ZONES -->
+          <div class="chart-wrapper" style="margin-bottom:20px;">
+            <div class="chart-title">🏘️ Zones recommandées pour vous</div>
+            <div class="chart-subtitle">Classées selon vos priorités</div>
+            <div id="zonesContainer" style="margin-top:16px;"></div>
+          </div>
+
+          <!-- GRAPHIQUE COMPARATIF -->
+          <div class="chart-wrapper">
+            <div class="chart-title">📊 Comparaison des prix par zone</div>
+            <div class="chart-subtitle">Prix moyen au m² dans les zones recommandées</div>
+            <div id="chartZones" style="height:280px;margin-top:12px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   RECOMMANDATIONS — Script autonome (aucune dépendance externe)
+   Fonctionne sans serveur. S'enrichit avec l'API si disponible.
+   ═══════════════════════════════════════════════════════ */
+
+// ── Utilitaires inline (ne dépendent PAS de api.js) ──────────────────────
+function _fmt(n, d) {
+  d = d || 0;
+  if (n == null || isNaN(n)) return '—';
+  return Number(n).toLocaleString('fr-TN', { maximumFractionDigits: d });
+}
+function _toast(msg, type) {
+  var c = document.querySelector('.toast-container');
+  if (!c) { c = document.createElement('div'); c.className = 'toast-container'; document.body.appendChild(c); }
+  var t = document.createElement('div');
+  t.className = 'toast ' + (type || 'info');
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(function() { t.remove(); }, 4000);
+}
+var _CL = { paper_bgcolor:'transparent', plot_bgcolor:'#FAFAF8',
+  font:{family:'Outfit,sans-serif',color:'#4E4E4A'},
+  margin:{t:32,r:16,b:48,l:56},
+  xaxis:{gridcolor:'#E8E7E4',linecolor:'#DDDBD8',tickfont:{size:11}},
+  yaxis:{gridcolor:'#E8E7E4',linecolor:'#DDDBD8',tickfont:{size:11}},
+  hovermode:'x unified' };
+var _CC = { displayModeBar:true, modeBarButtonsToRemove:['select2d','lasso2d'], displaylogo:false, responsive:true };
+// ─────────────────────────────────────────────────────────────────────────
+
+var selectedPriorities = ['prix'];
+var selectedOccasion = null;
+
+// Vérification statut API (optionnel, ne bloque rien)
+setTimeout(function() {
+  var dot = document.querySelector('.status-dot');
+  var txt = document.querySelector('.status-text');
+  fetch('http://localhost:8000/api/status')
+    .then(function(r) { return r.json(); })
+    .then(function() {
+      if (dot) { dot.classList.remove('error'); dot.classList.add('online'); }
+      if (txt) txt.textContent = 'API connectée';
+    })
+    .catch(function() {
+      if (dot) dot.classList.add('error');
+      if (txt) txt.textContent = 'Mode hors-ligne';
+    });
+}, 500);
+
+function togglePriority(el, val) {
+  el.classList.toggle('selected');
+  if (el.classList.contains('selected')) {
+    selectedPriorities.push(val);
+  } else {
+    selectedPriorities = selectedPriorities.filter(function(p) { return p !== val; });
+  }
+}
+
+function selectOccasion(el, val) {
+  document.querySelectorAll('.occasion-btn').forEach(function(b) { b.classList.remove('selected'); });
+  el.classList.add('selected');
+  selectedOccasion = val;
+  document.getElementById('customDateWrap').style.display = val === 'custom' ? 'block' : 'none';
+}
+
+// ── Données locales (fallback garanti) ───────────────────────────────────
+var ZONES_DATA = {
+  "Tunis": [
+    { zone:"La Marsa",      price:320000, ppm2:2900, score:82, avantages:["Bord de mer","Bien cotée","Investissement"],         trend:5.2 },
+    { zone:"El Menzah",     price:285000, ppm2:2600, score:78, avantages:["Centre accessible","Calme","Écoles"],                trend:4.1 },
+    { zone:"Ariana Ville",  price:240000, ppm2:2200, score:74, avantages:["Bon rapport qualité/prix","Transport"],              trend:3.8 },
+    { zone:"Manouba",       price:190000, ppm2:1750, score:68, avantages:["Prix attractif","Spacieux"],                         trend:2.9 }
+  ],
+  "Sousse": [
+    { zone:"Sousse Centre",  price:295000, ppm2:2700, score:80, avantages:["Hyper centre","Forte demande"],                    trend:6.1 },
+    { zone:"Khzema Est",     price:230000, ppm2:2100, score:85, avantages:["Proche centre","Évolution forte","Locatif"],       trend:7.2 },
+    { zone:"Hammam Sousse",  price:210000, ppm2:1900, score:76, avantages:["Bon investissement","Calme"],                      trend:4.5 },
+    { zone:"Akouda",         price:180000, ppm2:1650, score:70, avantages:["Plus spacieux","Prix doux"],                       trend:3.1 }
+  ],
+  "Sfax": [
+    { zone:"Sfax Centre",    price:210000, ppm2:1900, score:79, avantages:["Économique","Locatif fort"],                       trend:5.8 },
+    { zone:"Route Teniour",  price:175000, ppm2:1600, score:83, avantages:["Meilleur rapport qualité/prix","Calme"],           trend:6.2 },
+    { zone:"Chihia",         price:150000, ppm2:1380, score:72, avantages:["Très abordable","Spacieux"],                       trend:3.4 }
+  ],
+  "Nabeul": [
+    { zone:"Nabeul Centre",  price:220000, ppm2:2000, score:77, avantages:["Bord de mer proche","Tourisme"],                  trend:4.9 },
+    { zone:"Hammamet",       price:280000, ppm2:2550, score:81, avantages:["Touristique","Forte demande","Été"],               trend:5.5 },
+    { zone:"Hammamet Nord",  price:240000, ppm2:2200, score:79, avantages:["Résidentiel","Calme"],                             trend:4.2 }
+  ],
+  "Monastir": [
+    { zone:"Monastir Centre",price:230000, ppm2:2100, score:80, avantages:["Bord de mer","Aéroport proche"],                  trend:5.1 },
+    { zone:"Ksar Hellal",    price:175000, ppm2:1600, score:74, avantages:["Abordable","En croissance"],                       trend:4.3 }
+  ],
+  "Bizerte": [
+    { zone:"Bizerte Centre",      price:195000, ppm2:1780, score:76, avantages:["Bord de mer","Calme"],                       trend:3.8 },
+    { zone:"Menzel Bourguiba",    price:155000, ppm2:1420, score:71, avantages:["Très abordable","Spacieux"],                  trend:2.9 }
+  ],
+  "Ariana": [
+    { zone:"Ariana Soghra",   price:260000, ppm2:2380, score:78, avantages:["Proche Tunis","Transport"],                      trend:4.6 },
+    { zone:"Riadh Andalous",  price:235000, ppm2:2150, score:82, avantages:["Résidentiel calme","Bon investissement"],        trend:5.3 },
+    { zone:"Ettadhamen",      price:185000, ppm2:1700, score:69, avantages:["Prix accessibles"],                               trend:2.8 }
+  ],
+  "Manouba": [
+    { zone:"Manouba Centre",  price:190000, ppm2:1750, score:72, avantages:["Abordable","Spacieux"],                          trend:3.1 },
+    { zone:"Oued Ellil",      price:165000, ppm2:1520, score:74, avantages:["Très abordable","Calme","En développement"],     trend:4.2 }
+  ]
+};
+
+var OCCASIONS_DATA = {
+  rentree:{ label:"Rentrée scolaire (Septembre)", message:"Les appartements familiaux S+3 et S+2 voient leur demande augmenter fortement en août-septembre. Les prix peuvent progresser de 4 à 7% dans les zones proches des écoles et universités.", conseil:"Anticiper votre achat avant fin juillet pour profiter des prix pré-rentrée.", variation:"+5.2%", color:"var(--blue)" },
+  ete:    { label:"Période estivale (Juillet–Août)", message:"La saison estivale booste la demande dans les zones côtières (Hammamet, Sousse, La Marsa). Les biens avec vue mer voient leurs prix augmenter de 8 à 12%.", conseil:"Idéal pour investir dans un bien locatif saisonnier avec fort rendement.", variation:"+8.5%", color:"var(--gold)" },
+  ramadan:{ label:"Période du Ramadan", message:"Traditionnellement une période de ralentissement des transactions immobilières en Tunisie. Les prix restent stables, voire légèrement plus négociables.", conseil:"Bonne période pour négocier — les vendeurs sont souvent plus flexibles.", variation:"−1.2%", color:"var(--green)" },
+  vacances:{ label:"Vacances scolaires", message:"Les zones résidentielles calmes et les biens familiaux sont plus recherchés pendant les vacances. Hausse modérée de la demande dans les villes secondaires.", conseil:"Profitez de cette période pour visiter les biens — plus disponible pour les rendez-vous.", variation:"+2.8%", color:"var(--accent)" },
+  finyear:{ label:"Fin d'année (Décembre–Janvier)", message:"Fin d'année rime souvent avec projets de vie. La demande augmente légèrement, surtout pour les appartements neufs et les biens en VEFA.", conseil:"Période favorable pour les primo-accédants — banques plus actives sur les crédits.", variation:"+3.1%", color:"var(--navy)" },
+  custom: { label:"Période personnalisée", message:"Sur la base des tendances historiques, le marché immobilier tunisien affiche une croissance annuelle moyenne de 4 à 6%. Les prix varient selon la saisonnalité et la région choisie.", conseil:"Consultez notre outil de tendances pour une analyse précise de votre période.", variation:"+4.0%", color:"var(--dim)" }
+};
+
+// ── Calcul et affichage des résultats ────────────────────────────────────
+function _scoreZones(zones, budget) {
+  return zones.map(function(z) {
+    var s = z.score;
+    if (selectedPriorities.indexOf('prix') >= 0 && z.price <= budget) s += 10;
+    if (selectedPriorities.indexOf('investissement') >= 0 && z.trend > 4) s += 8;
+    if (selectedPriorities.indexOf('centre') >= 0 && z.avantages.some(function(a){ return a.toLowerCase().indexOf('centre') >= 0; })) s += 5;
+    if (selectedPriorities.indexOf('securite') >= 0 && z.avantages.some(function(a){ return a.toLowerCase().indexOf('calme') >= 0 || a.toLowerCase().indexOf('résidentiel') >= 0; })) s += 6;
+    if (selectedPriorities.indexOf('transport') >= 0 && z.avantages.some(function(a){ return a.toLowerCase().indexOf('transport') >= 0 || a.toLowerCase().indexOf('aéroport') >= 0; })) s += 6;
+    return Object.assign({}, z, { score: Math.min(s, 99) });
+  }).sort(function(a,b){ return b.score - a.score; });
+}
+
+function _afficherResultats(budget, ville, scored) {
+  document.getElementById('placeholder').style.display = 'none';
+  document.getElementById('resultsArea').className = 'results-visible';
+
+  var best = scored[0];
+  document.getElementById('bcZone').textContent = best.zone;
+  var overB = best.price > budget;
+  document.getElementById('bcReason').textContent = overB
+    ? 'Légèrement au-dessus du budget (' + _fmt(best.price - budget) + ' TND de différence), mais c\'est la meilleure option selon vos priorités. Potentiel +' + best.trend + '%.'
+    : 'Dans votre budget avec une marge de ' + _fmt(budget - best.price) + ' TND. Fort potentiel d\'évolution de +' + best.trend + '% prévu.';
+  document.getElementById('bcTags').innerHTML = best.avantages.map(function(a){ return '<div class="bc-tag">' + a + '</div>'; }).join('');
+
+  var cOB = scored.find(function(z){ return z.avantages.some(function(a){ return a.toLowerCase().indexOf('centre') >= 0; }) && z.price > budget; });
+  if (cOB && selectedPriorities.indexOf('centre') >= 0) {
+    document.getElementById('budgetAlert').style.display = 'block';
+    document.getElementById('budgetAlertMsg').textContent = cOB.zone + ' dépasse votre budget de ' + _fmt(cOB.price - budget) + ' TND.';
+  } else {
+    document.getElementById('budgetAlert').style.display = 'none';
+  }
+
+  document.getElementById('zonesContainer').innerHTML = scored.map(function(z, i) {
+    var isBest = i === 0;
+    var overBz = z.price > budget;
+    var sc = z.score >= 80 ? 'score-high' : z.score >= 70 ? 'score-med' : 'score-low';
+    return '<div class="zone-card ' + (isBest ? 'best' : '') + '">'
+      + '<div class="zone-rank ' + (isBest ? 'gold' : '') + '">' + (isBest ? '🏆' : i+1) + '</div>'
+      + '<div class="zone-info">'
+      +   '<div class="zone-name">' + z.zone + '</div>'
+      +   '<div class="zone-sub" style="margin-top:4px;">' + z.avantages.map(function(a){ return '<span class="advantage-tag">' + a + '</span>'; }).join('') + '</div>'
+      +   '<div style="margin-top:6px;font-size:12px;color:' + (z.trend > 4 ? 'var(--green)' : 'var(--dim)') + '">↑ +' + z.trend + '% évolution estimée</div>'
+      + '</div>'
+      + '<div style="text-align:right;">'
+      +   '<div class="zone-price-val" style="color:' + (overBz ? '#E74C3C' : 'var(--text)') + '">' + _fmt(z.price) + '</div>'
+      +   '<div class="zone-price-unit">TND · ' + _fmt(z.ppm2) + ' TND/m²</div>'
+      +   '<div class="score-circle ' + sc + '" style="margin:8px 0 0 auto">' + z.score + '</div>'
+      + '</div></div>';
+  }).join('');
+
+  try {
+    var colors = scored.map(function(z,i){ return i===0?'#0D9B6B':z.price>budget?'#FF6B35':'#2B7BE5'; });
+    var avgP = Math.round(scored.reduce(function(s,z){ return s+z.ppm2; },0) / scored.length);
+    Plotly.newPlot('chartZones', [{
+      x: scored.map(function(z){ return z.zone; }),
+      y: scored.map(function(z){ return z.ppm2; }),
+      type:'bar', marker:{color:colors,opacity:0.85},
+      text: scored.map(function(z){ return _fmt(z.ppm2)+' TND/m²'; }),
+      textposition:'auto',
+      hovertemplate:'<b>%{x}</b><br>%{y:,.0f} TND/m²<extra></extra>'
+    }], Object.assign({}, _CL, {
+      yaxis: Object.assign({}, _CL.yaxis, {title:'Prix au m² (TND)'}),
+      shapes:[{type:'line',x0:-0.5,x1:scored.length-0.5,y0:avgP,y1:avgP,line:{color:'#FF6B35',width:1.5,dash:'dash'}}],
+      annotations:[{x:scored.length-1,y:avgP,text:'Moyenne',showarrow:false,font:{size:10,color:'#FF6B35'},yanchor:'bottom'}],
+      margin:{t:16,r:16,b:80,l:60}
+    }), _CC);
+  } catch(e) {
+    document.getElementById('chartZones').innerHTML = '<p style="text-align:center;color:var(--dim);padding:40px 0;">Graphique non disponible</p>';
+  }
+}
+
+// ── Bouton 1 : Trouver mes opportunités ──────────────────────────────────
+function getRecommandations() {
+  var budget = parseInt(document.getElementById('budget').value) || 300000;
+  var ville  = document.getElementById('ville').value || 'Tunis';
+  var typeBien = document.getElementById('typeBien').value || 'appartement';
+
+  // 1) Calcul local instantané — toujours garanti
+  var zones = ZONES_DATA[ville] || ZONES_DATA['Tunis'];
+  var scored = _scoreZones(zones, budget);
+  _afficherResultats(budget, ville, scored);
+  _toast(scored.length + ' zones analysées pour ' + ville, 'success');
+
+  // 2) Enrichissement API en arrière-plan (si serveur disponible)
+  var btn = document.getElementById('btnRecommend');
+  if (btn) btn.style.opacity = '0.7';
+  fetch('http://localhost:8000/api/recommend', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ budget:budget, ville:ville, type_bien:typeBien, priorities:selectedPriorities })
+  }).then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+    .then(function(data) {
+      if (data && data.zones && data.zones.length > 0) {
+        _afficherResultats(budget, ville, data.zones);
+        var lbl = data.data_source === 'sarima' ? '🟢 Données SARIMA' : '⚡ Données enrichies';
+        _toast('Mis à jour · ' + lbl, 'success');
+      }
+    })
+    .catch(function(){})
+    .finally(function(){ if (btn) btn.style.opacity = '1'; });
+}
+
+// ── Bouton 2 : Analyser cette période ────────────────────────────────────
+function getForecastByPeriod() {
+  var ville    = document.getElementById('ville').value;
+  var typeBien = document.getElementById('typeBien').value;
+
+  if (!selectedOccasion) {
+    _toast('Veuillez sélectionner une période ou occasion', 'error');
+    return;
+  }
+
+  var btn = document.getElementById('btnPeriod');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Analyse…'; }
+
+  var data = OCCASIONS_DATA[selectedOccasion];
+  var typeLabel = { appartement:'Appartements', maison:'Maisons', terrain:'Terrains', villa:'Villas' }[typeBien] || typeBien;
+
+  setTimeout(function() {
+    if (btn) { btn.disabled = false; btn.innerHTML = '📊 Analyser cette période'; }
+
+    var res = document.getElementById('forecastPeriodResult');
+    res.classList.remove('visible');
+
+    document.getElementById('forecastPeriodContent').innerHTML =
+      '<div style="font-weight:700;color:var(--green);font-size:14px;margin-bottom:10px;">📊 ' + data.label + ' — ' + ville + ' · ' + typeLabel + '</div>'
+      + '<div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px;">' + data.message + '</div>'
+      + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">'
+      +   '<span style="font-size:22px;font-weight:800;color:' + data.color + '">' + data.variation + '</span>'
+      +   '<span style="font-size:12px;color:var(--dim)">variation estimée des prix pendant cette période</span>'
+      + '</div>'
+      + '<div style="background:white;border-radius:10px;padding:14px;border:1px solid rgba(13,155,107,0.15);">'
+      +   '<div style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--green);font-weight:700;margin-bottom:6px;">💡 Conseil intelligent</div>'
+      +   '<div style="font-size:13px;color:var(--text2);">' + data.conseil + '</div>'
+      + '</div>';
+
+    res.classList.add('visible');
+  }, 300);
+}
+
+// ── Lancement automatique au chargement ──────────────────────────────────
+getRecommandations();
+</script>
+
+</body>
+</html>

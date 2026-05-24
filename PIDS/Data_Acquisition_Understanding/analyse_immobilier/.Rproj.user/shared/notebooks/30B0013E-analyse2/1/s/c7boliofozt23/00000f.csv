@@ -1,0 +1,6 @@
+"0","extract_number <- function(x) {"
+"0","  x <- as.character(x)"
+"0","  x <- str_replace_all(x, "","", ""."")"
+"0","  x <- str_extract(x, ""\\d+(?:\\.\\d+)?"")"
+"0","  as.numeric(x)"
+"0","}"

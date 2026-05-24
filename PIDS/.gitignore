@@ -1,0 +1,20 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+*.zip
+# Données — trop lourdes pour GitHub
+Modeling/data/raw/
+Modeling/data/processed/
+Modeling/data/vector_store/
+Modeling/mlflow.db
+Modeling/data/reports/
+
+
+
+# OS
+.DS_Store
+Thumbs.db
+

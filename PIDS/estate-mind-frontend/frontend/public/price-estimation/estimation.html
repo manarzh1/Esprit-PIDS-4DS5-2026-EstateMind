@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EstateMind — Estimer un bien</title>
+<link rel="stylesheet" href="common.css"/>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+.estim-layout { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; }
+.result-hero {
+  background: var(--navy);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  color: white;
+  margin-bottom: 20px;
+  display: none;
+  animation: fadeInUp 0.4s ease;
+}
+.result-hero.visible { display: block; }
+.result-price { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 800; color: var(--accent); letter-spacing: -2px; line-height: 1; }
+.result-unit { font-size: 13px; color: rgba(255,255,255,0.35); margin-top: 4px; }
+.result-range { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 8px; }
+.result-ppm2 { font-family: 'JetBrains Mono', monospace; font-size: 20px; color: rgba(255,154,75,0.85); }
+.tips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 0; }
+.tip-card {
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.95);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+.tip-title { font-size: 13px; font-weight: 700; margin-bottom: 5px; color: var(--text); }
+.tip-body { font-size: 12px; color: var(--dim); line-height: 1.5; }
+.train-notice {
+  background: var(--gold-lt);
+  border: 1px solid rgba(240,165,0,0.3);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-weight: 500;
+}
+.placeholder-state { text-align: center; padding: 60px 20px; }
+.placeholder-state .ph-icon { font-size: 48px; margin-bottom: 16px; }
+.placeholder-state h3 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.placeholder-state p { font-size: 13px; color: var(--dim); }
+.eq-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--light); margin-top: 4px; }
+</style>
+</head>
+<body class="dash-body">
+
+
+<!-- ===== UNIFIED BO NAV ===== -->
+<nav class="bo-nav">
+  <a class="bo-item active" href="estimation.html">Price Estimation</a>
+  <a class="bo-item" href="recommandations.html">Recommandations</a>
+  <a class="bo-item" href="sarima.html">Market Trends</a>
+  <a class="bo-item" href="xia.html">Intelligence XAI</a>
+</nav>
+
+
+<div class="main-content">
+  <header class="page-header">
+    <div>
+      <div class="page-title">Estimation <span>intelligente</span></div>
+      <div class="page-subtitle">Basée sur des milliers d'annonces immobilières tunisiennes</div>
+    </div>
+    <div class="header-actions"></div>
+  </header>
+
+  <div class="page-body">
+    <div id="trainNotice" class="train-notice" style="display:none;">
+      ⚠️ L'outil d'estimation nécessite une initialisation rapide avant la première utilisation.
+      <button class="btn btn-primary" onclick="trainML()">Initialiser maintenant</button>
+    </div>
+
+    <div class="estim-layout">
+      <!-- FORMULAIRE -->
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Caractéristiques du bien</div>
+              <div class="card-subtitle">Renseignez les détails pour obtenir une estimation précise</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Ville</label>
+            <select id="city" class="form-control"></select>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Surface (m²)</label>
+              <input type="number" id="surface" class="form-control" value="110" min="20" max="800">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Chambres</label>
+              <input type="number" id="bedrooms" class="form-control" value="2" min="0" max="10">
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Salles de bain</label>
+              <input type="number" id="bathrooms" class="form-control" value="1" min="0" max="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Étage (0 = RDC)</label>
+              <input type="number" id="etage" class="form-control" value="2" min="0" max="20">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Niveau des équipements : <strong id="eqVal" style="color:var(--accent)">5</strong>/10</label>
+            <input type="range" id="equipment" min="0" max="10" value="5"
+              oninput="document.getElementById('eqVal').textContent=this.value">
+            <div class="eq-labels"><span>Basique</span><span>Standard</span><span>Premium</span></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Votre budget maximum (TND)</label>
+            <input type="number" id="budget" class="form-control" value="400000" min="0">
+          </div>
+
+          <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center;" onclick="runEstimation()" id="btnEstim">
+            🔍 Obtenir mon estimation
+          </button>
+        </div>
+      </div>
+
+      <!-- RÉSULTATS -->
+      <div>
+        <!-- RÉSULTAT PRINCIPAL -->
+        <div class="result-hero" id="resultHero">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+            <div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Estimation intelligente</div>
+              <div class="result-price" id="rPrice">—</div>
+              <div class="result-unit">Dinars Tunisiens (TND)</div>
+              <div class="result-range" id="rCI">—</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="result-ppm2" id="rPPM2">—</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;">prix au m²</div>
+              <div style="margin-top:12px;"><span class="badge" id="rBadge"></span></div>
+            </div>
+          </div>
+          <div style="margin-top:20px;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.35);margin-bottom:6px;">
+              <span>Niveau de précision</span>
+              <span id="rConfPct">—</span>
+            </div>
+            <div class="conf-bar-bg"><div class="conf-bar" id="rConfBar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <!-- MÉTRIQUES -->
+        <div class="grid-3" id="metricCards" style="margin-bottom:20px;display:none;">
+          <div class="metric-card">
+            <div class="metric-label">Prix médian ville</div>
+            <div class="metric-value" id="mMediane" style="font-size:20px;">—</div>
+            <div class="metric-unit">TND</div>
+          </div>
+          <div class="metric-card" style="--accent:var(--blue)">
+            <div class="metric-label">Écart marché</div>
+            <div class="metric-value" id="mEcart" style="font-size:20px;">—</div>
+          </div>
+          <div class="metric-card" style="--accent:var(--green)">
+            <div class="metric-label">Surface avec votre budget</div>
+            <div class="metric-value" id="mSurface" style="font-size:20px;">—</div>
+            <div class="metric-unit">m²</div>
+          </div>
+        </div>
+
+        <!-- GRAPHIQUE -->
+        <div class="chart-wrapper" id="chartWrapper" style="display:none;margin-bottom:20px;">
+          <div class="chart-title">Distribution des prix — <span id="chartCity"></span></div>
+          <div class="chart-subtitle">Position de votre bien par rapport au marché local</div>
+          <div id="chartDistrib" style="height:260px;"></div>
+        </div>
+
+        <!-- CONSEILS -->
+        <div class="tips-grid" id="tipsGrid"></div>
+
+        <!-- PLACEHOLDER -->
+        <div id="placeholder" class="card placeholder-state">
+          <div class="ph-icon">💰</div>
+          <h3>Prêt à estimer votre bien</h3>
+          <p>Remplissez le formulaire à gauche et cliquez sur<br><strong>Obtenir mon estimation</strong> pour voir les résultats.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+let mlReady = false;
+
+async function init() {
+  const status = await checkStatus();
+  if (!status) return;
+  mlReady = status.ml_ready;
+  if (!mlReady) document.getElementById("trainNotice").style.display = "flex";
+  const sel = document.getElementById("city");
+  status.cities.forEach(c => {
+    const o = document.createElement("option");
+    o.value = c; o.textContent = c;
+    if (c === "Tunis") o.selected = true;
+    sel.appendChild(o);
+  });
+}
+
+async function trainML() {
+  showToast("Initialisation en cours — environ 30 secondes…", "info");
+  try {
+    await apiPost("/train-ml", {});
+    const poll = setInterval(async () => {
+      const s = await checkStatus();
+      if (s?.ml_ready) {
+        clearInterval(poll);
+        mlReady = true;
+        document.getElementById("trainNotice").style.display = "none";
+        const sel = document.getElementById("city"); sel.innerHTML = "";
+        s.cities.forEach(c => {
+          const o = document.createElement("option");
+          o.value = c; o.textContent = c;
+          if (c === "Tunis") o.selected = true;
+          sel.appendChild(o);
+        });
+        showToast("Outil d'estimation prêt !", "success");
+      }
+    }, 3000);
+  } catch(e) { showToast("Erreur : " + e.message, "error"); }
+}
+
+async function runEstimation() {
+  if (!mlReady) { showToast("Veuillez initialiser l'outil d'estimation d'abord", "error"); return; }
+  const body = {
+    city: document.getElementById("city").value,
+    surface: parseFloat(document.getElementById("surface").value),
+    bedrooms: parseFloat(document.getElementById("bedrooms").value),
+    bathrooms: parseFloat(document.getElementById("bathrooms").value),
+    budget: parseFloat(document.getElementById("budget").value) || 0,
+    etage: parseFloat(document.getElementById("etage").value),
+    equipment_score: parseFloat(document.getElementById("equipment").value),
+  };
+  const btn = document.getElementById("btnEstim");
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Calcul en cours…';
+  try {
+    const res = await apiPost("/estimate", body);
+    displayResults(body, res);
+    showToast(`Estimation : ${fmt(res.estimation.predicted)} TND`, "success");
+    sessionStorage.setItem("estimResults", JSON.stringify(res.estimation));
+  } catch(e) { showToast("Erreur : " + e.message, "error"); }
+  finally { btn.disabled = false; btn.innerHTML = "🔍 Obtenir mon estimation"; }
+}
+
+function displayResults(inp, res) {
+  const e = res.estimation; const d = res.distribution;
+  document.getElementById("placeholder").style.display = "none";
+  document.getElementById("resultHero").classList.add("visible");
+  document.getElementById("metricCards").style.display = "grid";
+  document.getElementById("chartWrapper").style.display = "block";
+
+  document.getElementById("rPrice").textContent = fmt(e.predicted);
+  document.getElementById("rCI").textContent = `Fourchette estimée : ${fmt(e.ci_lower)} – ${fmt(e.ci_upper)} TND`;
+  document.getElementById("rPPM2").textContent = `${fmt(e.price_per_m2)} TND/m²`;
+  document.getElementById("rConfPct").textContent = `${e.confidence}%`;
+  document.getElementById("rConfBar").style.width = e.confidence + "%";
+
+  const badge = document.getElementById("rBadge");
+  if (e.market_delta_pct != null) {
+    const dv = e.market_delta_pct;
+    if (Math.abs(dv) < 5) { badge.className = "badge badge-blue"; badge.textContent = "≈ Prix du marché"; }
+    else if (dv > 0) { badge.className = "badge badge-red"; badge.textContent = `↑ +${dv}% vs marché`; }
+    else { badge.className = "badge badge-green"; badge.textContent = `↓ ${dv}% vs marché`; }
+  }
+
+  document.getElementById("mMediane").textContent = fmt(e.city_median);
+  const ecartEl = document.getElementById("mEcart");
+  ecartEl.textContent = fmtPct(e.market_delta_pct);
+  ecartEl.style.color = e.market_delta_pct > 5 ? "#E74C3C" : e.market_delta_pct < -5 ? "var(--green)" : "var(--text)";
+  document.getElementById("mSurface").textContent = e.surface_possible ? `${e.surface_possible}` : "—";
+  document.getElementById("chartCity").textContent = inp.city;
+
+  if (d?.prices?.length > 3) {
+    Plotly.newPlot("chartDistrib", [
+      { x: d.prices, type: "histogram", nbinsx: 30, marker: { color: "#ff9a4b", opacity: 0.7 }, name: "Annonces du marché" },
+      { x: [e.predicted, e.predicted], y: [0, 1], yaxis: "y", xaxis: "x", mode: "lines", line: { color: "#071d33", width: 2.5, dash: "dash" }, name: "Votre bien" },
+      { x: [e.city_median, e.city_median], y: [0, 1], mode: "lines", line: { color: "#2f9c7e", width: 1.5 }, name: "Médiane" },
+    ], { ...CHART_LAYOUT, xaxis: { ...CHART_LAYOUT.xaxis, title: "Prix (TND)", tickformat: ",.0f" }, yaxis: { ...CHART_LAYOUT.yaxis, title: "Nombre d'annonces" }, margin: { t: 16, r: 10, b: 48, l: 56 } }, CHART_CONFIG);
+  }
+
+  const tips = generateTips(inp, e);
+  document.getElementById("tipsGrid").innerHTML = tips.map(([title, body, color]) => `
+    <div class="tip-card" style="border-left-color:${color||'var(--accent)'}">
+      <div class="tip-title">${title}</div>
+      <div class="tip-body">${body}</div>
+    </div>`).join("");
+}
+
+function generateTips(inp, e) {
+  const tips = [];
+  if (e.budget_delta != null && inp.budget > 0) {
+    if (e.budget_delta < -50000) tips.push(["💡 Budget serré", `Il manque ${fmt(Math.abs(e.budget_delta))} TND. Envisagez une ville voisine ou une surface légèrement réduite.`, "#E74C3C"]);
+    else if (e.budget_delta < 0) tips.push(["⚠️ Budget limite", `Écart de ${fmt(Math.abs(e.budget_delta))} TND — une négociation est recommandée.`, "#F0A500"]);
+    else tips.push(["✅ Budget confortable", `Marge de ${fmt(e.budget_delta)} TND après estimation — bonne position pour négocier.`, "var(--green)"]);
+  }
+  if (e.market_delta_pct != null) {
+    if (e.market_delta_pct > 15) tips.push(["🔴 Au-dessus du marché", `+${e.market_delta_pct}% par rapport au prix médian de ${inp.city}. Négociez à la baisse.`, "#E74C3C"]);
+    else if (e.market_delta_pct < -10) tips.push(["🟢 Belle opportunité", `${Math.abs(e.market_delta_pct)}% en dessous de la médiane — prix très attractif pour cette ville.`, "var(--green)"]);
+    else tips.push(["📊 Prix cohérent", `Ce bien est aligné avec le marché actuel de ${inp.city}.`, "var(--blue)"]);
+  }
+  tips.push(["🏡 Rendement locatif estimé", `Loyer potentiel ~${fmt(e.predicted * 0.055 / 12)} TND/mois, soit un rendement brut estimé à ~5.5%.`, "var(--accent)"]);
+  if (e.confidence >= 60) tips.push(["🎯 Estimation fiable", `Le niveau de précision de cette estimation est de ${e.confidence}% — basé sur des données réelles de votre zone.`, "var(--navy)"]);
+  else tips.push(["ℹ️ Données limitées", "Peu d'annonces disponibles dans cette zone. Consultez un agent immobilier local pour confirmation.", "#F0A500"]);
+  return tips;
+}
+
+init();
+</script>
+
+</body>
+</html>

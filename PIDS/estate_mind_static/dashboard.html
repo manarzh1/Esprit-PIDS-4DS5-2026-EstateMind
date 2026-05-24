@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Estate Mind</title>
+  <link rel="stylesheet" href="common.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body class="dash-body">
+<main class="dash-main">
+    
+
+    
+    <!-- ================= BO NAVIGATION ================= -->
+
+<section class="bo-nav" aria-label="Business objectives navigation">
+
+  <div class="bo-item active" onclick="setPage('BO 1 — Intelligence des annonces', this)">
+    <img src="assets/icons/search2.png" alt="">
+    <span>Market Reliability</span>
+  </div>
+
+  <div class="bo-item" onclick="setPage('BO 2 — Intelligence territoriale', this)">
+    <img src="assets/icons/map2.png" alt="">
+    <span>Territorial Dynamics</span>
+  </div>
+
+  <div class="bo-item" onclick="setPage('BO 3 — Prévision marché', this)">
+    <img src="assets/icons/chart2.png" alt="">
+    <span>Price Estimation</span>
+  </div>
+
+  <div class="bo-item" onclick="setPage('BO 4 — Décisions d’investissement', this)">
+    <img src="assets/icons/report2.png" alt="">
+    <span>Investment Decisions</span>
+  </div>
+
+  <div class="bo-item" onclick="setPage('BO 5 — Conformité légale', this)">
+    <img src="assets/icons/shield2.png" alt="">
+    <span>Legal Compliance</span>
+  </div>
+
+  <div class="bo-item" onclick="setPage('BO 6 — Plateforme & opérations', this)">
+    <img src="assets/icons/ai2.png" alt="">
+    <span>Platform Operations</span>
+  </div>
+
+</section>
+    
+<header class="dash-header">
+      <div>
+        <span class="eyebrow" style="background:#1e4d3a;color:#fff;font-size:11px;padding:5px 11px;letter-spacing:.1em">SMART DASHBOARD</span>
+        <h1 id="pageTitle" style="font-size:28px;margin-top:6px">BO1 — Market Reliability</h1>
+      </div>
+
+      <div class="header-actions">
+        <div class="dash-search">
+  <img src="assets/icons/house.png" class="icon">
+  <input placeholder="Rechercher une annonce, ville, score..." />
+</div>
+
+<button class="icon-btn">
+  <img src="assets/icons/bell.png" class="icon">
+</button>
+        <div class="profile">
+          <img src="assets/avatar-director.png" alt="">
+          <span>Admin</span>
+          <b></b>
+        </div>
+      </div>
+    </header>
+<section class="dash-tabs" id="tabsContainer">
+      <button class="active" onclick="setTab(this,'overview')">Overview</button>
+      <button onclick="setTab(this,'search')">Search</button>
+      <button onclick="setTab(this,'opportunities')">Opportunities</button>
+      <button onclick="setTab(this,'portfolio')">Portfolio</button>
+    </section>
+
+    <section class="dash-grid" id="tabContent">
+      <article class="kpi-card">
+        <span>Score moyen</span>
+        <strong>87%</strong>
+        <small>+8.4% cette semaine</small>
+      </article>
+      <article class="kpi-card">
+        <span>Annonces analysées</span>
+        <strong>8,240</strong>
+        <small>4 sources connectées</small>
+      </article>
+      <article class="kpi-card">
+        <span>Doublons détectés</span>
+        <strong>312</strong>
+        <small>Exact + fuzzy + sémantique</small>
+      </article>
+      <article class="kpi-card">
+        <span>Zones émergentes</span>
+        <strong>8</strong>
+        <small>Signal fort marché</small>
+      </article>
+
+      <article class="panel big">
+        <div class="panel-head">
+          <h3>Carte intelligente du marché</h3>
+          <select><option>Tunis</option><option>Sousse</option><option>Ariana</option></select>
+        </div>
+        <div class="map-mock">
+          <span class="pin p1"></span><span class="pin p2"></span><span class="pin p3"></span><span class="pin p4"></span>
+          <div class="map-card"><strong>Lac 2</strong><br>Prix +14% · Forte demande</div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><h3>Évolution des prix</h3><button>Exporter</button></div>
+        <div class="line-chart"><i></i></div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-head"><h3>Répartition des sources</h3></div>
+        <div class="donut"></div>
+        <ul class="legend"><li>Tayara</li><li>Mubawab</li><li>Remax</li><li>Tecnocasa</li></ul>
+      </article>
+
+      <article class="panel table-panel">
+        <div class="panel-head">
+          <h3>Dernières annonces suspectes</h3>
+          <button>Voir tout</button>
+        </div>
+        <table>
+          <thead><tr><th>Bien</th><th>Ville</th><th>Score</th><th>Risque</th></tr></thead>
+          <tbody>
+            <tr><td>Appartement S+2</td><td>Ariana</td><td>42%</td><td><span class="risk high">Élevé</span></td></tr>
+            <tr><td>Villa moderne</td><td>La Marsa</td><td>58%</td><td><span class="risk mid">Moyen</span></td></tr>
+            <tr><td>Studio centre</td><td>Tunis</td><td>76%</td><td><span class="risk low">Faible</span></td></tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <footer class="dash-footer">Estate Mind © 2026 · Dashboard SaaS IA immobilier</footer>
+  </main>
+
+  <button class="ai-button" onclick="document.body.classList.toggle('assistant-open')">
+  <img src="assets/icons/ai.png">
+</button>
+  <aside class="ai-panel">
+    <div class="ai-head">
+      <strong>Assistant IA Estate Mind</strong>
+      <button onclick="document.body.classList.remove('assistant-open')">×</button>
+    </div>
+    <div class="ai-chat">
+      <p class="bot">Bonjour 👋 Je peux expliquer un score, comparer deux zones ou générer un rapport.</p>
+      <p class="user">Pourquoi cette annonce est suspecte ?</p>
+      <p class="bot">Son prix/m² est inférieur au marché local, la description est incomplète et elle ressemble à deux annonces déjà publiées.</p>
+    </div>
+    <div class="ai-input"><input placeholder="Posez une question..." /><button>➜</button></div>
+  </aside>
+
+  <script>
+    function setPage(title, el){
+      document.getElementById('pageTitle').textContent = title;
+      document.querySelectorAll('.bo-item').forEach(a => a.classList.remove('active'));
+      el.classList.add('active');
+    }
+    function setTab(btn, type){
+      document.querySelectorAll('.dash-tabs button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const content = document.getElementById('tabContent');
+      content.classList.add('pulse');
+      setTimeout(()=>content.classList.remove('pulse'), 250);
+    }
+  </script>
+</body>
+</html>

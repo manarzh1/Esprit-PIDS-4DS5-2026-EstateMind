@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EstateMind — Tendances du marché</title>
+<link rel="stylesheet" href="common.css"/>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+.sarima-layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+.control-panel { background: rgba(255,255,255,0.82); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(255,255,255,0.95); border-radius: var(--radius-lg); padding: 24px; position: sticky; top: 80px; box-shadow: var(--shadow); }
+.control-title { font-size: 11px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.charts-area { display: flex; flex-direction: column; gap: 20px; }
+.metrics-bar { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 18px; }
+.metric-inline { font-size: 13px; color: var(--dim); }
+.metric-inline strong { color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; }
+.acf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.forecast-insight {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.forecast-insight::after { content: '📈'; position: absolute; right: 20px; top: 16px; font-size: 50px; opacity: 0.08; }
+.fi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); font-weight: 600; margin-bottom: 10px; }
+.fi-text { font-size: 14px; line-height: 1.7; color: rgba(255,255,255,0.85); }
+.fi-highlight { color: #FFB299; font-weight: 700; }
+.fi-stat { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.08); border-radius: 8px; padding: 8px 14px; font-size: 13px; font-weight: 600; margin-right: 10px; margin-top: 12px; }
+.adv-toggle { font-size: 12px; color: var(--accent); cursor: pointer; text-decoration: underline; display: block; margin-top: 14px; }
+.adv-params { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+.adv-params.open { display: block; }
+.order-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.order-item label { font-size: 10px; color: var(--dim); display: block; margin-bottom: 3px; font-weight: 600; text-transform: uppercase; }
+.order-item input { width: 100%; padding: 7px 8px; border: 1.5px solid var(--border); border-radius: 8px; background: var(--bg); font-size: 13px; text-align: center; font-family: 'JetBrains Mono', monospace; }
+.order-item input:focus { outline: none; border-color: var(--accent); }
+.period-selector { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 18px; }
+.period-btn { padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: white; color: var(--dim); transition: all 0.2s; font-family: 'Outfit', sans-serif; }
+.period-btn.active { border-color: var(--accent); background: var(--accent-lt); color: var(--accent); }
+</style>
+</head>
+<body class="dash-body">
+
+
+<!-- ===== UNIFIED BO NAV ===== -->
+<nav class="bo-nav">
+  <a class="bo-item" href="estimation.html">Price Estimation</a>
+  <a class="bo-item" href="recommandations.html">Recommandations</a>
+  <a class="bo-item active" href="sarima.html">Market Trends</a>
+  <a class="bo-item" href="xia.html">Intelligence XAI</a>
+</nav>
+
+
+<div class="main-content">
+  <header class="page-header">
+    <div>
+      <div class="page-title">Tendances <span>du marché</span></div>
+      <div class="page-subtitle">Évolution des prix par région — prévisions jusqu'en 2027</div>
+    </div>
+    <div class="header-actions"></div>
+  </header>
+
+  <div class="page-body">
+    <div class="sarima-layout">
+
+      <!-- PANNEAU CONTRÔLE -->
+      <div class="control-panel">
+        <div class="control-title">Paramètres de recherche</div>
+
+        <div class="form-group">
+          <label class="form-label">Région</label>
+          <select id="gouvernorat" class="form-control"></select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Type de bien</label>
+          <select id="variable" class="form-control">
+            <option value="PRIX_M2_MEDIAN">Tous types confondus</option>
+            <option value="PRIX_M2_APPT">Appartements</option>
+            <option value="PRIX_M2_MAISON">Maisons</option>
+            <option value="PRIX_M2_TERRAIN">Terrains</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Prévision sur : <strong id="horizonVal" style="color:var(--accent)">6 mois</strong></label>
+          <input type="range" id="horizon" min="2" max="12" value="6"
+            oninput="document.getElementById('horizonVal').textContent=this.value+' trimestre'+(this.value>1?'s':'')">
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;" onclick="runSarima()">
+          📊 Analyser les tendances
+        </button>
+
+        <span class="adv-toggle" onclick="toggleAdv()">⚙ Paramètres avancés</span>
+        <div class="adv-params" id="advParams">
+          <div style="font-size:11px;color:var(--dim);margin-bottom:10px;">Paramètres techniques (optionnel)</div>
+          <div class="order-grid">
+            <div class="order-item"><label>p</label><input type="number" id="p" value="1" min="0" max="5"></div>
+            <div class="order-item"><label>d</label><input type="number" id="d" value="1" min="0" max="2"></div>
+            <div class="order-item"><label>q</label><input type="number" id="q" value="1" min="0" max="5"></div>
+          </div>
+          <div class="order-grid" style="margin-top:8px;">
+            <div class="order-item"><label>P</label><input type="number" id="P" value="1" min="0" max="2"></div>
+            <div class="order-item"><label>D</label><input type="number" id="D" value="1" min="0" max="2"></div>
+            <div class="order-item"><label>Q</label><input type="number" id="Q" value="0" min="0" max="2"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ZONE GRAPHIQUES -->
+      <div class="charts-area">
+
+        <!-- SÉLECTEUR PÉRIODE -->
+        <div class="chart-wrapper">
+          <div class="chart-title">📈 Évolution des prix par région</div>
+          <div class="chart-subtitle">Comparez les prix actuels avec les estimations futures</div>
+          <div class="period-selector" id="periodSelector">
+            <button class="period-btn active" onclick="setPeriod(this,'today')">Aujourd'hui</button>
+            <button class="period-btn" onclick="setPeriod(this,'6m')">Dans 6 mois</button>
+            <button class="period-btn" onclick="setPeriod(this,'1y')">Dans 1 an</button>
+          </div>
+          <div class="loading-overlay" id="loadMain" style="display:none;">
+            <div class="spinner"></div>
+            <div class="loading-text">Analyse des tendances en cours…</div>
+          </div>
+          <div class="metrics-bar" id="metricsBar"></div>
+          <div id="chartForecast" style="height:380px;"></div>
+        </div>
+
+        <div class="acf-grid">
+          <div class="chart-wrapper">
+            <div class="chart-title">📊 Variations périodiques</div>
+            <div id="chartResiduals" style="height:220px;"></div>
+          </div>
+          <div class="chart-wrapper">
+            <div class="chart-title">📋 Estimations futures</div>
+            <div id="forecastTable"></div>
+          </div>
+        </div>
+
+        <div class="forecast-insight" id="sarimaInfo">
+          <div class="fi-label">💡 Comment utiliser cet outil</div>
+          <div class="fi-text">
+            Sélectionnez une région et un type de bien, puis cliquez sur <strong style="color:#FFB299">Analyser les tendances</strong> pour voir l'évolution historique des prix et les estimations futures. Idéal pour choisir le bon moment pour acheter.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+let lastResults = null;
+let currentPeriod = 'today';
+
+function toggleAdv() {
+  document.getElementById('advParams').classList.toggle('open');
+}
+
+// Generate n quarterly dates starting from the next quarter after today
+function futureQuarterDates(n) {
+  const now = new Date();
+  let y = now.getFullYear();
+  let m = now.getMonth(); // 0-indexed
+  // Advance to the start of the next quarter
+  if      (m < 3) { m = 3; }
+  else if (m < 6) { m = 6; }
+  else if (m < 9) { m = 9; }
+  else            { m = 0; y += 1; }
+  const dates = [];
+  for (let i = 0; i < n; i++) {
+    dates.push(`${y}-${String(m + 1).padStart(2, '0')}-01`);
+    m += 3;
+    if (m >= 12) { m -= 12; y += 1; }
+  }
+  return dates;
+}
+
+function setPeriod(el, period) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  currentPeriod = period;
+  if (lastResults) drawCharts(lastResults);
+}
+
+async function loadGouvernorats() {
+  const status = await checkStatus();
+  if (!status) return;
+  const sel = document.getElementById("gouvernorat");
+  status.gouvernorats.forEach(g => {
+    const o = document.createElement("option");
+    o.value = g; o.textContent = g;
+    sel.appendChild(o);
+  });
+}
+
+async function runSarima() {
+  const body = {
+    gouvernorat: document.getElementById("gouvernorat").value,
+    variable: document.getElementById("variable").value,
+    horizon: parseInt(document.getElementById("horizon").value),
+    p: parseInt(document.getElementById("p").value),
+    d: parseInt(document.getElementById("d").value),
+    q: parseInt(document.getElementById("q").value),
+    P: parseInt(document.getElementById("P").value),
+    D: parseInt(document.getElementById("D").value),
+    Q: parseInt(document.getElementById("Q").value),
+  };
+  document.getElementById("loadMain").style.display = "flex";
+  try {
+    const res = await apiPost("/train", body);
+    lastResults = res.data;
+    drawCharts(lastResults);
+    showToast(`Analyse terminée — ${lastResults.gouvernorat}`, "success");
+    sessionStorage.setItem("sarimaResults", JSON.stringify(lastResults));
+  } catch (e) {
+    showToast("Erreur d'analyse : " + e.message, "error");
+  } finally {
+    document.getElementById("loadMain").style.display = "none";
+  }
+}
+
+function drawCharts(d) {
+  // ── 1. Rebase forecast to real future quarters ───────────
+  const futureDates = futureQuarterDates(d.prevision.valeurs.length);
+  const forecast = { ...d.prevision, dates: futureDates };
+
+  const hausse = d.hausse_pct;
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+
+  // ── 2. Period targets ────────────────────────────────────
+  const date6m = new Date(now); date6m.setMonth(date6m.getMonth() + 6);
+  const date1y = new Date(now); date1y.setMonth(date1y.getMonth() + 12);
+
+  function closestIdx(targetDate) {
+    let minDiff = Infinity, idx = 0;
+    futureDates.forEach((ds, i) => {
+      const diff = Math.abs(new Date(ds) - targetDate);
+      if (diff < minDiff) { minDiff = diff; idx = i; }
+    });
+    return idx;
+  }
+
+  const endIdx = currentPeriod === '6m' ? closestIdx(date6m)
+               : currentPeriod === '1y' ? closestIdx(date1y)
+               : futureDates.length - 1;
+
+  const endVal   = forecast.valeurs[endIdx];
+  const pHausse  = ((endVal - d.derniere_valeur) / d.derniere_valeur * 100).toFixed(2);
+  const pHColor  = pHausse > 0 ? '#2f9c7e' : '#E74C3C';
+  const pLabel   = currentPeriod === '6m' ? 'Dans 6 mois' : currentPeriod === '1y' ? 'Dans 1 an' : 'Prévision finale';
+
+  // ── 3. Metrics bar ───────────────────────────────────────
+  document.getElementById("metricsBar").innerHTML = `
+    <div class="metric-inline">Prix actuel <strong>${fmt(d.derniere_valeur)} TND/m²</strong></div>
+    <div class="metric-inline">${pLabel} <strong>${fmt(endVal)} TND/m²</strong></div>
+    <div class="metric-inline">Évolution attendue <strong style="color:${pHColor}">${pHausse > 0 ? '+' : ''}${pHausse}%</strong></div>
+    <div class="metric-inline">Fiabilité <strong style="color:var(--accent)">${d.adf_pval < 0.05 ? 'Élevée' : 'Correcte'}</strong></div>
+  `;
+
+  // ── 4. X-axis range per period ───────────────────────────
+  const twoYearsAgo = new Date(now); twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+  const oneYearAgo  = new Date(now); oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+  let xRange;
+  if (currentPeriod === 'today') {
+    xRange = [twoYearsAgo.toISOString().slice(0, 10), futureDates[futureDates.length - 1]];
+  } else if (currentPeriod === '6m') {
+    xRange = [oneYearAgo.toISOString().slice(0, 10), date6m.toISOString().slice(0, 10)];
+  } else {
+    xRange = [oneYearAgo.toISOString().slice(0, 10), date1y.toISOString().slice(0, 10)];
+  }
+
+  // ── 5. Slice forecast traces to visible period ───────────
+  const vDates  = forecast.dates.slice(0, endIdx + 1);
+  const vVals   = forecast.valeurs.slice(0, endIdx + 1);
+  const vLower  = forecast.lower.slice(0, endIdx + 1);
+  const vUpper  = forecast.upper.slice(0, endIdx + 1);
+
+  const fColor = hausse > 0 ? '#2f9c7e' : '#ff9a4b';
+  const fFill  = hausse > 0 ? 'rgba(47,156,126,0.12)' : 'rgba(255,154,75,0.1)';
+
+  const traces = [
+    {
+      x: d.historique.dates, y: d.historique.valeurs,
+      mode: "lines", name: "Prix historiques",
+      line: { color: "#2B7BE5", width: 2.5 },
+    },
+    {
+      x: d.ajuste.dates, y: d.ajuste.valeurs,
+      mode: "lines", name: "Tendance lissée",
+      line: { color: "#A8A8A8", width: 1.5, dash: "dot" },
+    },
+    {
+      x: [...vDates, ...vDates.slice().reverse()],
+      y: [...vUpper, ...vLower.slice().reverse()],
+      fill: "toself", fillcolor: fFill,
+      line: { width: 0 }, name: "Fourchette estimée", showlegend: true,
+    },
+    {
+      x: vDates, y: vVals,
+      mode: "lines+markers", name: "Estimation future",
+      line: { color: fColor, width: 3 },
+      marker: { size: 8, color: fColor },
+    },
+  ];
+
+  const splitDate = d.historique.dates[d.historique.dates.length - 1];
+  const layout = {
+    ...CHART_LAYOUT,
+    xaxis: { range: xRange, type: 'date' },
+    yaxis: { title: "TND/m²", tickformat: ",.0f", gridcolor: "rgba(0,0,0,0.05)" },
+    shapes: [
+      { type: "line", x0: splitDate, x1: splitDate, y0: 0, y1: 1, yref: "paper",
+        line: { color: "#A8A8A8", width: 1, dash: "dash" } },
+      { type: "line", x0: todayStr, x1: todayStr, y0: 0, y1: 1, yref: "paper",
+        line: { color: "#ff9a4b", width: 2, dash: "dash" } },
+    ],
+    annotations: [
+      { x: splitDate, y: 0.98, yref: "paper", text: "Fin données",
+        showarrow: false, font: { size: 9, color: "#A8A8A8" }, xanchor: "left", yanchor: "top" },
+      { x: todayStr, y: 0.82, yref: "paper", text: "Aujourd'hui →",
+        showarrow: false, font: { size: 11, color: "#ff9a4b" }, xanchor: "left", yanchor: "top" },
+    ],
+  };
+  Plotly.newPlot("chartForecast", traces, layout, CHART_CONFIG);
+
+  // ── 6. Residuals ─────────────────────────────────────────
+  const histVals  = d.historique.valeurs;
+  const adjVals   = d.ajuste.valeurs;
+  const minLen    = Math.min(histVals.length, adjVals.length);
+  const residVals = histVals.slice(-minLen).map((v, i) => v - adjVals[adjVals.length - minLen + i]);
+  Plotly.newPlot("chartResiduals", [{
+    x: d.historique.dates.slice(-minLen), y: residVals,
+    type: "bar",
+    marker: { color: residVals.map(v => v >= 0 ? "#2f9c7e" : "#ff9a4b"), opacity: 0.8 },
+    name: "Variation",
+  }], {
+    ...CHART_LAYOUT,
+    yaxis: { title: "Écart (TND/m²)", gridcolor: "rgba(0,0,0,0.05)" },
+    showlegend: false,
+    margin: { t: 16, r: 10, b: 40, l: 56 },
+  }, CHART_CONFIG);
+
+  // ── 7. Forecast table ─────────────────────────────────────
+  let tableHtml = `<div style="overflow:auto;max-height:300px;"><table style="width:100%;font-size:12px;border-collapse:collapse;">
+    <thead><tr style="background:var(--bg2);position:sticky;top:0;">
+      <th style="padding:9px 10px;text-align:left;font-size:10px;letter-spacing:0.8px;color:var(--dim);">PÉRIODE</th>
+      <th style="padding:9px 10px;text-align:right;font-size:10px;letter-spacing:0.8px;color:var(--dim);">ESTIMATION</th>
+      <th style="padding:9px 10px;text-align:right;font-size:10px;letter-spacing:0.8px;color:var(--dim);">FOURCHETTE</th>
+    </tr></thead><tbody>`;
+  futureDates.forEach((date, i) => {
+    const odd = i % 2 === 1;
+    const variation = ((forecast.valeurs[i] - d.derniere_valeur) / d.derniere_valeur * 100).toFixed(1);
+    const vColor = variation > 0 ? '#2f9c7e' : '#E74C3C';
+    const highlighted = i === endIdx && currentPeriod !== 'today';
+    tableHtml += `<tr style="background:${highlighted ? 'rgba(47,156,126,0.08)' : odd ? 'var(--bg)' : 'transparent'}">
+      <td style="padding:8px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;${highlighted ? 'font-weight:800;color:#2f9c7e;' : ''}">${date.slice(0, 7)}</td>
+      <td style="padding:8px 10px;text-align:right;font-weight:600;color:var(--text);">${fmt(forecast.valeurs[i])} TND</td>
+      <td style="padding:8px 10px;text-align:right;font-size:11px;">
+        <span style="color:${vColor};font-weight:600;">${variation > 0 ? '+' : ''}${variation}%</span>
+        <span style="color:var(--dim)"> [${fmt(forecast.lower[i])}–${fmt(forecast.upper[i])}]</span>
+      </td>
+    </tr>`;
+  });
+  tableHtml += "</tbody></table></div>";
+  document.getElementById("forecastTable").innerHTML = tableHtml;
+
+  // ── 8. Insight block ──────────────────────────────────────
+  const periodText = currentPeriod === '6m' ? 'dans 6 mois' : currentPeriod === '1y' ? "d'ici 1 an" : "d'ici la fin de la période";
+  document.getElementById("sarimaInfo").innerHTML = `
+    <div class="fi-label">💡 Analyse — ${d.gouvernorat}</div>
+    <div class="fi-text">
+      Les prix dans cette région sont actuellement à <span class="fi-highlight">${fmt(d.derniere_valeur)} TND/m²</span>.
+      Selon les tendances du marché, une évolution de <span class="fi-highlight">${pHausse > 0 ? '+' : ''}${pHausse}%</span> est attendue ${periodText},
+      portant le prix estimé à <span class="fi-highlight">${fmt(endVal)} TND/m²</span>.
+      ${hausse > 3 ? " C'est le bon moment pour agir avant la hausse." : hausse < 0 ? " Les prix pourraient baisser — une opportunité d'attendre." : " Le marché est stable dans cette région."}
+    </div>
+    <div>
+      <span class="fi-stat">📍 ${d.gouvernorat}</span>
+      <span class="fi-stat" style="color:${pHColor}">${pHausse > 0 ? '↑' : '↓'} ${Math.abs(parseFloat(pHausse))}%</span>
+      <span class="fi-stat">${currentPeriod === 'today' ? futureDates.length + ' trimestres' : currentPeriod === '6m' ? '6 mois' : '12 mois'}</span>
+    </div>
+  `;
+}
+
+loadGouvernorats();
+</script>
+</body>
+</html>

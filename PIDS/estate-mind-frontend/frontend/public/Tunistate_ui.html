@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estate Mind — Plateforme juridique</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ================================================================
+   ESTATE MIND — DESIGN SYSTEM (aligné sur dashboard.html)
+   Palette : navy / green / mint / cream / orange / line / muted
+================================================================ */
+:root{
+  --bg:#fbf8f2;
+  --cream:#fbf8f2;
+  --surface:#ffffff;
+  --elevated:#fdfcf7;
+  --hover:#f4f7f4;
+  --line:#e6eaf0;
+  --line2:#d6dde6;
+  --navy:#071d33;
+  --navy2:#123b4a;
+  --muted:#6e7a8a;
+  --t1:var(--navy);
+  --t2:var(--muted);
+  --t3:#94a0ad;
+  --green:#2f9c7e;
+  --green-d:#1a6e57;
+  --mint:#dff5ec;
+  --or:#ff9a4b;
+  --or-d:#bf7618;
+  --or-soft:#fff1d9;
+  --red:#cc3b25;
+  --red-soft:#ffe4df;
+  --amber:#bf7618;
+  --blue:#4a5fc1;
+  --blue-soft:#e8f0fe;
+  --indigo:var(--green);
+  --violet:var(--green-d);
+  --cyan:#3aa5b8;
+  --pink:#cc6a8a;
+  --r:14px;
+  --r2:10px;
+  --shadow-sm:0 2px 12px rgba(7,29,51,.04);
+  --shadow-md:0 6px 24px rgba(7,29,51,.07);
+  --shadow-lg:0 18px 48px rgba(7,29,51,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:radial-gradient(circle at 80% 10%,rgba(47,156,126,.13),transparent 38%),radial-gradient(circle at 5% 90%,rgba(47,156,126,.07),transparent 30%),linear-gradient(160deg,#f3f8f4,#e9f3ed);
+  color:var(--t1);
+  font-family:Inter,'Segoe UI',Arial,sans-serif;
+  min-height:100vh;line-height:1.5;display:flex;flex-direction:column;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--t3)}
+
+/* ================================================================
+   TOPBAR (style dashboard.html)
+================================================================ */
+.topbar{
+  height:var(--topnav);background:var(--surface);
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;padding:0 22px;gap:18px;
+  position:sticky;top:0;z-index:200;
+  box-shadow:0 1px 0 rgba(7,29,51,.02);
+}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0}
+.logo-mark{
+  width:36px;height:36px;border-radius:11px;
+  background:linear-gradient(135deg,var(--green),var(--green-d));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:950;font-size:17px;
+  box-shadow:0 6px 16px rgba(47,156,126,.28);
+}
+.brand strong{font-size:16px;font-weight:950;color:var(--navy);letter-spacing:-.01em}
+.brand strong em{color:var(--or);font-style:normal}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.top-search{
+  display:flex;align-items:center;gap:8px;
+  background:var(--cream);border:1px solid var(--line);
+  border-radius:999px;padding:8px 14px;width:280px;
+  transition:.18s;
+}
+.top-search:focus-within{border-color:var(--green);background:#fff;box-shadow:0 0 0 4px rgba(47,156,126,.10)}
+.top-search svg{width:15px;height:15px;color:var(--muted);flex-shrink:0}
+.top-search input{border:0;background:transparent;outline:0;width:100%;font-size:13px;font-weight:600;color:var(--navy)}
+.top-search input::placeholder{color:var(--muted);font-weight:600}
+.top-icon-btn{
+  width:38px;height:38px;border-radius:11px;border:1px solid var(--line);
+  background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  position:relative;transition:.18s;
+}
+.top-icon-btn:hover{background:var(--cream);border-color:var(--line2)}
+.top-icon-btn svg{width:16px;height:16px;color:var(--navy)}
+.top-icon-btn .dot{position:absolute;top:8px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--or);border:2px solid #fff}
+.api-status{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--navy)}
+.api-dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.top-profile{display:flex;align-items:center;gap:10px;padding:5px 12px 5px 5px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer}
+.top-profile .av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center}
+.top-profile span{font-size:13px;font-weight:800;color:var(--navy)}
+
+/* ================================================================
+   BO-NAV (segmented nav like dashboard.html)
+================================================================ */
+.bo-nav{
+  display:flex;align-items:center;gap:6px;padding:10px 36px;
+  background:rgba(255,255,255,.55);
+  border-bottom:1px solid rgba(255,255,255,.7);
+  backdrop-filter:blur(12px);
+  overflow-x:auto;scrollbar-width:none;
+  position:sticky;top:0;z-index:190;
+}
+.bo-nav::-webkit-scrollbar{display:none}
+.bo-item{
+  flex:0 0 auto;display:flex;align-items:center;gap:8px;
+  padding:9px 16px;border-radius:14px;
+  font-size:13px;font-weight:800;color:#617082;
+  cursor:pointer;transition:.2s ease;
+  background:rgba(255,255,255,.4);
+  border:1px solid rgba(255,255,255,.5);
+  white-space:nowrap;
+}
+.bo-item:hover{background:rgba(255,255,255,.85);color:var(--navy);transform:translateY(-1px)}
+.bo-item.active{
+  background:linear-gradient(135deg,#2f9c7e,#37aa88);color:#fff;
+  box-shadow:0 10px 24px rgba(47,156,126,.28);border-color:transparent;
+}
+.bo-item svg{width:15px;height:15px;flex-shrink:0;opacity:.8}
+.bo-item.active svg{opacity:1;filter:brightness(0) invert(1)}
+.bo-item .nav-badge{
+  background:var(--red);color:#fff;border-radius:999px;
+  padding:2px 7px;font-size:10px;font-weight:950;margin-left:2px;
+}
+
+/* ================================================================
+   PAGE HEAD
+================================================================ */
+.dash-main{flex:1;padding:24px 36px 40px;max-width:none;width:100%}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.page-head .eyebrow{display:inline-block;font-size:10px;font-weight:950;letter-spacing:.10em;text-transform:uppercase;color:var(--green);margin-bottom:6px}
+.page-head h1{font-size:26px;font-weight:950;color:var(--navy);line-height:1.1;letter-spacing:-.01em}
+.page-head-right{display:flex;gap:10px;align-items:center}
+.btn-filter{
+  border:1px solid var(--line);background:#fff;color:var(--navy);
+  border-radius:11px;padding:9px 16px;font-size:12px;font-weight:900;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;transition:.18s;
+}
+.btn-filter:hover{background:var(--cream);border-color:var(--line2)}
+
+/* ================================================================
+   MODULE HERO
+================================================================ */
+.module-hero{
+  background:linear-gradient(135deg,#ffffff 0%,#f3faf6 60%,#e9f5ed 100%);
+  border:1px solid rgba(47,156,126,.18);
+  border-radius:24px;padding:24px 26px;margin-bottom:18px;
+  position:relative;overflow:hidden;
+  display:flex;justify-content:space-between;gap:24px;align-items:center;flex-wrap:wrap;
+  box-shadow:var(--shadow-md);
+}
+.module-hero:before{content:"";position:absolute;right:-80px;top:-80px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(47,156,126,.13),rgba(47,156,126,0) 70%);pointer-events:none}
+.module-hero .module-main{flex:1;min-width:280px;position:relative;z-index:1}
+.module-hero .module-kicker{display:inline-block;font-size:10px;font-weight:950;letter-spacing:.10em;text-transform:uppercase;color:var(--green);background:rgba(47,156,126,.10);padding:5px 11px;border-radius:999px;margin-bottom:10px}
+.module-hero h2{font-size:24px;font-weight:950;color:var(--navy);margin-bottom:8px;line-height:1.15}
+.module-hero p{font-size:13px;color:var(--muted);font-weight:700;line-height:1.6;max-width:640px}
+.module-score{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px 22px;
+  box-shadow:var(--shadow-sm);position:relative;z-index:1;min-width:140px;
+}
+.module-score .ms-val{font-size:30px;font-weight:950;color:var(--navy);line-height:1}
+.module-score .ms-lab{font-size:10px;font-weight:950;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.module-score .ms-pill{background:var(--mint);color:var(--green-d);border-radius:999px;padding:4px 10px;font-size:10px;font-weight:950;margin-top:4px}
+
+/* ================================================================
+   TAB ROW
+================================================================ */
+.tab-row{display:flex;gap:6px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px;margin-bottom:18px;width:max-content;max-width:100%;overflow-x:auto;box-shadow:var(--shadow-sm)}
+.tab-row::-webkit-scrollbar{display:none}
+.tab-btn{
+  border:0;background:transparent;color:var(--muted);
+  padding:9px 18px;border-radius:10px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;transition:.18s;
+}
+.tab-btn:hover{background:var(--cream);color:var(--navy)}
+.tab-btn.active{background:var(--navy);color:#fff;box-shadow:0 4px 14px rgba(7,29,51,.18)}
+
+/* ================================================================
+   PAGES
+================================================================ */
+.page{display:none;animation:fadeIn .25s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ================================================================
+   KPI CARDS (dashboard style)
+================================================================ */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.kpi-grid{grid-template-columns:1fr}}
+.kpi-card{
+  background:#fff;border:1px solid var(--line);border-radius:18px;
+  padding:18px 20px;position:relative;overflow:hidden;
+  box-shadow:var(--shadow-sm);transition:.2s;
+}
+.kpi-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.kpi-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--green);border-radius:0 4px 4px 0}
+.kpi-card.green:before{background:var(--green)}
+.kpi-card.indigo:before{background:var(--green)}
+.kpi-card.violet:before{background:var(--green-d)}
+.kpi-card.amber:before{background:var(--or)}
+.kpi-card.or:before{background:var(--or)}
+.kpi-card.cyan:before{background:var(--cyan)}
+.kpi-card.red:before{background:var(--red)}
+.kpi-icon{font-size:18px;margin-bottom:8px;opacity:.85}
+.kpi-label{font-size:10px;font-weight:950;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.kpi-value{font-size:26px;font-weight:950;color:var(--navy);line-height:1.05;margin-bottom:6px;letter-spacing:-.01em}
+.kpi-delta{font-size:11px;font-weight:800}
+.delta-up{color:var(--green-d)}
+.delta-ne{color:var(--muted)}
+.kpi-bar{margin-top:10px;height:5px;background:var(--line);border-radius:99px;overflow:hidden}
+.kpi-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),#71d5b1);transition:width .6s}
+.kpi-card.amber .kpi-fill{background:linear-gradient(90deg,var(--or),#ffc999)}
+.kpi-card.red .kpi-fill{background:linear-gradient(90deg,var(--red),#f07b66)}
+.kpi-card.violet .kpi-fill{background:linear-gradient(90deg,var(--green-d),var(--green))}
+
+/* ================================================================
+   PANELS
+================================================================ */
+.panel-grid{display:grid;gap:14px;margin-bottom:18px}
+.panel-grid.grid-2{grid-template-columns:1fr 1fr}
+.panel-grid.grid-3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:1050px){.panel-grid.grid-2,.panel-grid.grid-3{grid-template-columns:1fr}}
+.panel{
+  background:#fff;border:1px solid var(--line);border-radius:18px;
+  padding:18px 20px;box-shadow:var(--shadow-sm);
+}
+.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.panel-title{font-size:14px;font-weight:950;color:var(--navy);line-height:1.2}
+.panel-sub{font-size:11px;color:var(--muted);font-weight:700;margin-top:3px}
+.panel-btn{
+  border:1px solid var(--line);background:#fff;color:var(--navy);
+  border-radius:10px;padding:7px 13px;font-size:12px;font-weight:900;cursor:pointer;transition:.18s;
+}
+.panel-btn:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+.chart-wrap{position:relative;width:100%}
+
+/* ================================================================
+   DATA TABLE
+================================================================ */
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table thead th{text-align:left;font-size:10px;font-weight:950;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line)}
+.data-table tbody td{padding:12px;border-bottom:1px solid rgba(230,234,240,.65);color:var(--navy);font-weight:700}
+.data-table tbody tr:last-child td{border-bottom:0}
+.data-table tbody tr:hover{background:var(--cream)}
+
+/* ================================================================
+   BADGES
+================================================================ */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:950;letter-spacing:.02em}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.badge.green{background:var(--mint);color:var(--green-d)}
+.badge.red{background:var(--red-soft);color:var(--red)}
+.badge.amber{background:var(--or-soft);color:var(--or-d)}
+.badge.indigo{background:var(--mint);color:var(--green-d)}
+.badge.violet{background:var(--blue-soft);color:var(--blue)}
+.badge.cyan{background:#dff3f6;color:#2b7c8d}
+
+/* ================================================================
+   COMPLIANCE / FORMS
+================================================================ */
+.analyze-box{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px 24px;margin-bottom:18px;box-shadow:var(--shadow-sm)}
+.analyze-label{font-size:14px;font-weight:950;color:var(--navy);margin-bottom:4px}
+.analyze-hint{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:14px}
+.analyze-textarea{
+  width:100%;border:1px solid var(--line);border-radius:14px;background:var(--cream);
+  padding:14px 16px;font-size:13px;font-weight:600;color:var(--navy);resize:vertical;outline:0;font-family:inherit;
+  transition:.18s;
+}
+.analyze-textarea:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 4px rgba(47,156,126,.10)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.chip{
+  background:var(--cream);border:1px solid var(--line);
+  padding:7px 13px;border-radius:999px;font-size:12px;font-weight:800;color:var(--navy);
+  cursor:pointer;transition:.18s;
+}
+.chip:hover{background:var(--mint);border-color:rgba(47,156,126,.25);color:var(--green-d)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn-primary,.btn-success{
+  border:0;border-radius:12px;padding:11px 22px;font-size:13px;font-weight:900;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;transition:.18s;
+}
+.btn-primary{background:var(--navy);color:#fff;box-shadow:0 8px 20px rgba(7,29,51,.18)}
+.btn-primary:hover{background:var(--navy2);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-success{background:var(--green);color:#fff;box-shadow:0 8px 20px rgba(47,156,126,.25)}
+.btn-success:hover{background:var(--green-d);transform:translateY(-1px)}
+.btn-success:disabled{opacity:.5;cursor:not-allowed;transform:none;background:var(--line2);box-shadow:none}
+
+/* Result card */
+.result-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px 24px;box-shadow:var(--shadow-sm)}
+.result-card.vio{border-color:rgba(204,59,37,.30);background:linear-gradient(135deg,#fff,#fff5f3)}
+.result-card.war{border-color:rgba(191,118,24,.30);background:linear-gradient(135deg,#fff,#fffaf0)}
+.result-card.ok{border-color:rgba(47,156,126,.30);background:linear-gradient(135deg,#fff,#f3faf6)}
+.result-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.result-status{display:flex;align-items:center;gap:10px}
+.s-dot{width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 4px rgba(47,156,126,.12)}
+.s-label{font-size:14px;font-weight:950}
+.result-score{font-size:22px;font-weight:950;letter-spacing:-.01em}
+.r-query{font-size:13px;font-weight:700;color:var(--navy);background:var(--cream);border-radius:12px;padding:11px 14px;margin-bottom:14px;line-height:1.55;border-left:3px solid var(--green)}
+.r-bar-wrap{margin-bottom:14px}
+.r-bar-label{display:flex;justify-content:space-between;font-size:11px;font-weight:900;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.r-bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.r-fill{height:100%;border-radius:99px;transition:width .6s}
+.r-article{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.r-art-tag{background:var(--navy);color:#fff;border-radius:8px;padding:5px 11px;font-size:11px;font-weight:950;letter-spacing:.02em}
+.r-art-src{font-size:11px;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:.05em}
+.r-explanation{font-size:13px;font-weight:600;color:var(--navy);line-height:1.65;background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+.violations{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.vio-item{background:#fff;border:1px solid var(--line);border-left:3px solid var(--red);border-radius:12px;padding:11px 14px}
+.vio-item.war{border-left-color:var(--or)}
+.vio-item.ok{border-left-color:var(--green)}
+.vio-title{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:950;color:var(--navy);margin-bottom:4px;gap:8px}
+.vio-msg{font-size:12px;color:var(--muted);font-weight:700;line-height:1.55}
+.vio-art{font-size:10px;font-weight:900;color:var(--or);margin-top:5px;text-transform:uppercase;letter-spacing:.05em}
+
+/* loading dots */
+.ld-wrap{display:flex;align-items:center;gap:10px;padding:12px 0}
+.ld-dots{display:flex;gap:4px}
+.ld{width:7px;height:7px;border-radius:50%;background:var(--green);animation:ldb 1.2s infinite}
+.ld:nth-child(2){animation-delay:.2s}.ld:nth-child(3){animation-delay:.4s}
+@keyframes ldb{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+.ld-text{font-size:12px;font-weight:800;color:var(--muted)}
+
+/* ================================================================
+   CHATBOT
+================================================================ */
+.chat-layout{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-sm);height:calc(100vh - var(--topnav) - var(--subhdr) - 80px);min-height:520px;display:flex;flex-direction:column}
+.chat-main{display:flex;flex-direction:column;flex:1;min-height:0}
+.chat-topbar{padding:16px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(135deg,#fff,#f8fbf9)}
+.chat-ai-info{display:flex;align-items:center;gap:12px}
+.chat-ai-av{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff;font-weight:950;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 6px 16px rgba(47,156,126,.25)}
+.chat-ai-name{font-size:14px;font-weight:950;color:var(--navy)}
+.chat-ai-st{font-size:11px;color:var(--muted);font-weight:800;display:flex;align-items:center;gap:6px;margin-top:2px}
+.chat-online{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.chat-tags{display:flex;gap:6px;flex-wrap:wrap}
+.chat-tag{background:var(--mint);color:var(--green-d);border-radius:999px;padding:5px 11px;font-size:10px;font-weight:950;letter-spacing:.02em}
+.chat-messages{flex:1;overflow-y:auto;padding:20px 22px;background:var(--cream);display:flex;flex-direction:column;gap:14px;min-height:0}
+.msg{display:flex;gap:10px;align-items:flex-start;max-width:80%}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.msg-av{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.msg.user .msg-av{background:linear-gradient(135deg,var(--navy),var(--navy2))}
+.msg-bubble{background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 15px;font-size:13px;font-weight:600;color:var(--navy);line-height:1.6;box-shadow:var(--shadow-sm)}
+.msg.user .msg-bubble{background:var(--navy);color:#fff;border-color:var(--navy)}
+.msg-src{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.msg-src-tag{background:var(--mint);color:var(--green-d);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:900}
+.typing-bubble{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 16px;display:flex;gap:5px}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:ldb 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}.typing-dot:nth-child(3){animation-delay:.4s}
+.chat-input-bar{padding:14px 18px;border-top:1px solid var(--line);background:#fff;display:flex;gap:10px;align-items:center}
+.chat-in{flex:1;border:1px solid var(--line);border-radius:12px;padding:11px 16px;font-size:13px;font-weight:600;color:var(--navy);outline:0;background:var(--cream);font-family:inherit;transition:.18s}
+.chat-in:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 4px rgba(47,156,126,.10)}
+.chat-send{background:var(--green);color:#fff;border:0;border-radius:12px;padding:11px 18px;font-size:12px;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.18s;box-shadow:0 6px 16px rgba(47,156,126,.25)}
+.chat-send:hover{background:var(--green-d);transform:translateY(-1px)}
+.chat-send svg{width:14px;height:14px}
+
+/* ================================================================
+   FORMS
+================================================================ */
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(max-width:760px){.form-grid{grid-template-columns:1fr}}
+.form-field{display:flex;flex-direction:column;gap:6px}
+.form-label{font-size:11px;font-weight:950;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.form-input,.form-select,.form-textarea{
+  border:1px solid var(--line);background:var(--cream);
+  border-radius:12px;padding:11px 14px;font-size:13px;font-weight:600;color:var(--navy);
+  outline:0;font-family:inherit;transition:.18s;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--green);background:#fff;box-shadow:0 0 0 4px rgba(47,156,126,.10)}
+.form-textarea{resize:vertical;min-height:90px}
+.mb-4{margin-bottom:18px}
+.mt-3{margin-top:14px}
+.mt-2{margin-top:10px}
+
+/* ================================================================
+   TOGGLES
+================================================================ */
+.toggle-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.toggle-row:last-child{border-bottom:0}
+.toggle-info .tl{font-size:13px;font-weight:900;color:var(--navy);margin-bottom:3px}
+.toggle-info .ts{font-size:11px;color:var(--muted);font-weight:700;line-height:1.5}
+.toggle{width:42px;height:24px;border-radius:999px;background:var(--line2);border:0;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.toggle:before{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 2px 5px rgba(0,0,0,.18)}
+.toggle.on{background:var(--green)}
+.toggle.on:before{transform:translateX(18px)}
+
+/* ================================================================
+   EVALUATION BANNER
+================================================================ */
+.eval-banner{
+  background:linear-gradient(135deg,#071d33 0%,#123b4a 55%,#2f9c7e 130%);
+  color:#fff;border-radius:22px;padding:24px 26px;margin-bottom:18px;
+  display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap;
+  position:relative;overflow:hidden;
+  box-shadow:var(--shadow-lg);
+}
+.eval-banner:before{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.08)}
+.eb-left{display:flex;gap:16px;align-items:center;position:relative;z-index:1}
+.eb-icon{font-size:36px;flex-shrink:0}
+.eb-title{font-size:22px;font-weight:950;letter-spacing:-.01em;line-height:1.15}
+.eb-sub{font-size:12px;font-weight:700;opacity:.78;margin-top:4px}
+.eb-grade{text-align:center;position:relative;z-index:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);border-radius:18px;padding:14px 22px;backdrop-filter:blur(8px)}
+.eb-score{font-size:36px;font-weight:950;color:#fff;line-height:1}
+.eb-pill{display:inline-block;background:#fff;color:var(--green-d);border-radius:999px;padding:4px 12px;font-size:11px;font-weight:950;margin-top:6px}
+.eb-grade > div:nth-child(2){color:rgba(255,255,255,.7);font-size:11px;font-weight:700}
+
+/* ================================================================
+   PROGRESS BARS
+================================================================ */
+.prog-row{margin-bottom:14px}
+.prog-row:last-child{margin-bottom:0}
+.prog-head{display:flex;justify-content:space-between;font-size:12px;font-weight:900;color:var(--navy);margin-bottom:6px}
+.prog{height:7px;background:var(--line);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;transition:width .8s}
+
+/* ================================================================
+   EMPTY STATE
+================================================================ */
+.empty-state{padding:36px 20px;text-align:center;color:var(--muted)}
+.es-icon{font-size:34px;margin-bottom:8px;opacity:.6}
+.empty-state p{font-size:13px;line-height:1.6;font-weight:600}
+
+/* ================================================================
+   TOAST
+================================================================ */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:13px 22px;border-radius:14px;font-size:13px;font-weight:800;z-index:500;opacity:0;transition:.3s;pointer-events:none;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;max-width:90vw}
+.toast.show{opacity:1}
+.toast.ok{background:var(--green)}
+.toast.err{background:var(--red)}
+.toast-dot{width:8px;height:8px;border-radius:50%;background:#fff}
+
+/* ================================================================
+   FADE-UP ANIMATION
+================================================================ */
+.fade-up{animation:fup .45s ease both}
+.fade-up-d1{animation-delay:.05s}
+.fade-up-d2{animation-delay:.10s}
+.fade-up-d3{animation-delay:.15s}
+@keyframes fup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* responsive */
+@media(max-width:780px){
+  .top-search{width:160px}
+  .topbar{padding:0 14px;gap:10px}
+  .dash-main{padding:18px 14px 50px}
+  .page-head h1{font-size:22px}
+  .module-hero{padding:20px}
+  .module-hero h2{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ================================================================
+     TOPBAR (style dashboard.html)
+================================================================ -->
+
+<!-- ================================================================
+     BO-NAV (segmented horizontal nav)
+================================================================ -->
+<nav class="bo-nav">
+  <div class="bo-item active" onclick="nav(this,'overview')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    Vue d'ensemble
+  </div>
+  <div class="bo-item" onclick="nav(this,'compliance')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Conformité
+  </div>
+  <div class="bo-item" onclick="nav(this,'chatbot')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Assistant IA
+  </div>
+  <div class="bo-item" onclick="nav(this,'reports')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    Rapports PDF
+  </div>
+  <div class="bo-item" onclick="nav(this,'alerts')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+    Alertes
+    <span class="nav-badge" id="alertBadge">3</span>
+  </div>
+  <div class="bo-item" onclick="nav(this,'evaluation')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Évaluation
+  </div>
+</nav>
+
+<!-- ================================================================
+     MAIN
+================================================================ -->
+<main class="dash-main">
+
+  <!-- ============================================================
+       PAGE : VUE D'ENSEMBLE
+  ============================================================ -->
+  <section id="page-overview" class="page active">
+    <div class="page-head">
+      <div>
+        <span class="eyebrow">Smart Dashboard</span>
+        <h1 id="headerTitle">Vue d'ensemble</h1>
+      </div>
+      <div class="page-head-right">
+        <button class="btn-filter" onclick="location.reload()" style="cursor:pointer">↻ Rafraîchir</button>
+      </div>
+    </div>
+
+    <!-- Hero du module -->
+    <div class="module-hero fade-up">
+      <div class="module-main">
+        <span class="module-kicker">Legal Intelligence</span>
+        <h2>Moteur de conformité immobilière</h2>
+        <p>Analyse en temps réel des situations juridiques selon le Code des Droits Réels (CDR) et le Code de l'Aménagement du Territoire et de l'Urbanisme (CATU). Pipeline NLP hybride avec validation experte.</p>
+      </div>
+      <div class="module-score">
+        <div class="ms-val">95</div>
+        <div class="ms-lab">/100 · Fiabilité</div>
+        <div class="ms-pill">✓ Grade A</div>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card indigo fade-up fade-up-d1">
+        <div class="kpi-icon">⚖</div>
+        <div class="kpi-label">Score fiabilité</div>
+        <div class="kpi-value">95/100</div>
+        <div class="kpi-delta"><span class="delta-up">↑ Grade A</span></div>
+        <div class="kpi-bar"><div class="kpi-fill" style="width:95%"></div></div>
+      </div>
+      <div class="kpi-card green fade-up fade-up-d2">
+        <div class="kpi-icon">✅</div>
+        <div class="kpi-label">Règles validées</div>
+        <div class="kpi-value">62</div>
+        <div class="kpi-delta"><span class="delta-up">↑ 100% conformes</span></div>
+        <div class="kpi-bar"><div class="kpi-fill" style="width:100%"></div></div>
+      </div>
+      <div class="kpi-card red fade-up fade-up-d3">
+        <div class="kpi-icon">🚨</div>
+        <div class="kpi-label">Violations actives</div>
+        <div class="kpi-value" id="ov-violations">—</div>
+        <div class="kpi-delta"><span class="delta-ne" id="ov-viol-sub">En attente d'analyse</span></div>
+        <div class="kpi-bar"><div class="kpi-fill" id="ov-viol-bar" style="width:0%"></div></div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-icon">🔔</div>
+        <div class="kpi-label">Alertes déclenchées</div>
+        <div class="kpi-value">3</div>
+        <div class="kpi-delta"><span class="delta-ne">CDR + Urbanisme</span></div>
+        <div class="kpi-bar"><div class="kpi-fill" style="width:40%"></div></div>
+      </div>
+    </div>
+
+    <div class="panel-grid grid-2">
+      <div class="panel">
+        <div class="panel-head">
+          <div><div class="panel-title">Performance du modèle</div><div class="panel-sub">Métriques clés — Pipeline hybride</div></div>
+        </div>
+        <div class="chart-wrap" style="height:230px"><canvas id="ov-chart-perf"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div><div class="panel-title">Distribution des risques</div><div class="panel-sub">Par tranche · 62 règles analysées</div></div>
+        </div>
+        <div class="chart-wrap" style="height:230px"><canvas id="ov-chart-risk"></canvas></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div><div class="panel-title">Activité récente</div><div class="panel-sub">Dernières analyses de conformité</div></div>
+        <button class="panel-btn" onclick="nav(document.querySelectorAll('.bo-item')[1],'compliance')">+ Nouvelle analyse</button>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Situation</th><th>Statut</th><th>Score</th><th>Article</th><th>Date</th></tr></thead>
+        <tbody id="ov-recent-body">
+          <tr>
+            <td>Construction sans permis à Hammamet</td>
+            <td><span class="badge red"><span class="badge-dot"></span>Violation</span></td>
+            <td style="color:var(--red);font-weight:900">64/100</td>
+            <td style="color:var(--or);font-weight:800">Art. 23 CATU</td>
+            <td>Aujourd'hui</td>
+          </tr>
+          <tr>
+            <td>Sous-location sans accord bailleur</td>
+            <td><span class="badge red"><span class="badge-dot"></span>Violation</span></td>
+            <td style="color:var(--red);font-weight:900">65/100</td>
+            <td style="color:var(--or);font-weight:800">Art. 14 CDR</td>
+            <td>Aujourd'hui</td>
+          </tr>
+          <tr>
+            <td>Vente du gage par créancier</td>
+            <td><span class="badge green"><span class="badge-dot"></span>Conforme</span></td>
+            <td style="color:var(--green-d);font-weight:900">18/100</td>
+            <td style="color:var(--or);font-weight:800">Art. 264 CDR</td>
+            <td>Hier</td>
+          </tr>
+          <tr>
+            <td>Renonciation à mitoyenneté</td>
+            <td><span class="badge green"><span class="badge-dot"></span>Conforme</span></td>
+            <td style="color:var(--green-d);font-weight:900">17/100</td>
+            <td style="color:var(--or);font-weight:800">Art. 83 CDR</td>
+            <td>Hier</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE : ANALYSE CONFORMITÉ
+  ============================================================ -->
+  <section id="page-compliance" class="page">
+    <div class="page-head">
+      <div><span class="eyebrow">CDR + CATU Engine</span><h1>Analyse de conformité</h1></div>
+    </div>
+
+    <div class="analyze-box fade-up">
+      <div class="analyze-label">Décrivez votre situation juridique</div>
+      <div class="analyze-hint">Rédigez librement en français — l'analyse s'effectue via le pipeline Mistral + RAG juridique tunisien</div>
+      <textarea class="analyze-textarea" id="compInput" placeholder="Ex : Je souhaite construire une annexe sans permis de construire sur mon terrain à Tunis…" rows="4"></textarea>
+      <div class="chips">
+        <div class="chip" onclick="setQ('je veux construire sans permis')">🏗 Construire sans permis</div>
+        <div class="chip" onclick="setQ('preneur sous-louer appartement')">🏠 Sous-louer</div>
+        <div class="chip" onclick="setQ('creancier vendre le gage')">💼 Vendre un gage</div>
+        <div class="chip" onclick="setQ('creancier restituer le gage')">🔄 Restituer un gage</div>
+        <div class="chip" onclick="setQ('voisin renoncer mitoyennete')">🤝 Mitoyenneté</div>
+        <div class="chip" onclick="setQ('etat exproprier terrain')">📋 Expropriation</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" id="analyzeBtn" onclick="analyze()">
+          <span id="analyzeLabel">Analyser la situation</span>
+        </button>
+        <button class="btn-success" id="pdfBtn" onclick="genPDF()" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 10v6m0 0l-3-3m3 3l3-3M17 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8l-5-5z"/></svg>
+          Générer PDF
+        </button>
+      </div>
+    </div>
+
+    <div id="compResult" class="result-card fade-up">
+      <div class="result-top">
+        <div class="result-status">
+          <div class="s-dot" id="sDot" style="background:var(--line2)"></div>
+          <div class="s-label" id="sLabel" style="color:var(--muted)">En attente d'une situation</div>
+        </div>
+        <div class="result-score" id="sScore" style="color:var(--muted)">—</div>
+      </div>
+      <div class="r-query" id="rQuery">Entrez votre situation ci-dessus et cliquez sur Analyser.</div>
+      <div id="ldWrap" style="display:none">
+        <div class="ld-wrap"><div class="ld-dots"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div><div class="ld-text">Analyse en cours via Mistral + RAG juridique…</div></div>
+      </div>
+      <div class="r-bar-wrap">
+        <div class="r-bar-label"><span id="rBarLabel">Risque</span><span id="rBarPct">0%</span></div>
+        <div class="r-bar"><div class="r-fill" id="rFill" style="width:0%;background:var(--line2)"></div></div>
+      </div>
+      <div class="r-article" id="rArtRow">
+        <div class="r-art-tag" id="rArtTag">Art. ?</div>
+        <div class="r-art-src" id="rArtSrc">—</div>
+      </div>
+      <div class="r-explanation" id="rExp">L'analyse juridique apparaîtra ici automatiquement.</div>
+      <div id="violationsWrap" class="violations" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE : ASSISTANT IA (CHATBOT)
+  ============================================================ -->
+  <section id="page-chatbot" class="page">
+    <div class="page-head">
+      <div><span class="eyebrow">RAG Chatbot</span><h1>Assistant juridique IA</h1></div>
+    </div>
+    <div class="chat-layout">
+      <div class="chat-main">
+        <div class="chat-topbar">
+          <div class="chat-ai-info">
+            <div class="chat-ai-av">⚖</div>
+            <div>
+              <div class="chat-ai-name">Assistant juridique EstateMind</div>
+              <div class="chat-ai-st"><div class="chat-online"></div>En ligne · CDR + CATU actifs</div>
+            </div>
+          </div>
+          <div class="chat-tags">
+            <div class="chat-tag">CDR Loi n°65-5</div>
+            <div class="chat-tag">Code Urbanisme 2011</div>
+            <div class="chat-tag">Mistral RAG</div>
+          </div>
+        </div>
+        <div class="chat-messages" id="chatMsgs">
+          <div class="msg">
+            <div class="msg-av">⚖</div>
+            <div>
+              <div class="msg-bubble">Bonjour ! Je suis votre assistant spécialisé en droit immobilier tunisien. Je peux analyser des situations juridiques, expliquer des articles de loi et répondre à vos questions sur le CDR et le Code de l'Urbanisme.</div>
+              <div class="msg-src">
+                <div class="msg-src-tag">CDR Loi n°65-5</div>
+                <div class="msg-src-tag">Code Urbanisme 2011</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-bar">
+          <input class="chat-in" id="chatInput" placeholder="Posez votre question juridique en français…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}">
+          <button class="chat-send" onclick="sendChat()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Envoyer
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE : RAPPORTS PDF
+  ============================================================ -->
+  <section id="page-reports" class="page">
+    <div class="page-head">
+      <div><span class="eyebrow">Génération & envoi</span><h1>Rapports PDF</h1></div>
+    </div>
+
+    <div class="panel fade-up mb-4">
+      <div class="panel-head">
+        <div><div class="panel-title">Générer un rapport PDF</div><div class="panel-sub">Le rapport inclut le verdict juridique, les articles et les recommandations</div></div>
+      </div>
+      <div class="form-grid mb-4">
+        <div class="form-field" style="grid-column:span 2">
+          <label class="form-label">Situation juridique</label>
+          <textarea class="form-textarea" id="repSit" placeholder="Ex : Construction sans permis à Hammamet…"></textarea>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Destinataire</label>
+          <select class="form-select" id="repDest">
+            <option>Usage personnel</option>
+            <option>Banque</option>
+            <option>Notaire</option>
+            <option>Avocat</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Adresse e-mail</label>
+          <input class="form-input" type="email" id="repEmail" placeholder="vous@exemple.com">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="generateReport()">📄 Générer et envoyer le rapport</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div><div class="panel-title">Rapports générés</div><div class="panel-sub">Historique de la session</div></div>
+      </div>
+      <div id="reportsList">
+        <div class="empty-state">
+          <div class="es-icon">📄</div>
+          <p>Aucun rapport généré.<br>Remplissez le formulaire ci-dessus pour générer votre premier rapport.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE : ALERTES
+  ============================================================ -->
+  <section id="page-alerts" class="page">
+    <div class="page-head">
+      <div><span class="eyebrow">Configuration des notifications</span><h1>Alertes juridiques</h1></div>
+    </div>
+
+    <div class="panel fade-up mb-4">
+      <div class="panel-head">
+        <div><div class="panel-title">Notification e-mail</div><div class="panel-sub">Adresse de réception des alertes</div></div>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Adresse e-mail</label>
+        <input class="form-input" type="email" id="alertEmail" placeholder="vous@exemple.com" style="max-width:380px">
+      </div>
+    </div>
+
+    <div class="panel fade-up">
+      <div class="panel-head">
+        <div><div class="panel-title">Types d'alertes</div><div class="panel-sub">Configurez les événements qui déclenchent une notification</div></div>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="tl">Violations détectées (risque ≥ 70)</div>
+          <div class="ts">Déclenche une alerte dès qu'une situation présente un risque élevé</div>
+        </div>
+        <button class="toggle on" id="tg1" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="tl">Changements CDR (Loi n°65-5)</div>
+          <div class="ts">Mises à jour du Code des Droits Réels tunisien</div>
+        </div>
+        <button class="toggle on" id="tg2" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="tl">Changements Code Urbanisme (CATU)</div>
+          <div class="ts">Nouvelles dispositions sur les permis de construire et le zonage</div>
+        </div>
+        <button class="toggle on" id="tg3" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="tl">Résumé hebdomadaire</div>
+          <div class="ts">Rapport synthétique envoyé chaque lundi matin</div>
+        </div>
+        <button class="toggle" id="tg4" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="tl">Nouvelles règles juridiques</div>
+          <div class="ts">Alertes lors de l'intégration de nouvelles règles dans la base</div>
+        </div>
+        <button class="toggle" id="tg5" onclick="this.classList.toggle('on')"></button>
+      </div>
+      <div class="btn-row mt-3">
+        <button class="btn-primary" onclick="saveAlerts()">💾 Enregistrer la configuration</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE : ÉVALUATION MODÈLES
+  ============================================================ -->
+  <section id="page-evaluation" class="page">
+    <div class="page-head">
+      <div><span class="eyebrow">Pipeline Hybride · 62 règles</span><h1>Évaluation modèle</h1></div>
+    </div>
+
+    <div class="eval-banner fade-up">
+      <div class="eb-left">
+        <div class="eb-icon">🧪</div>
+        <div>
+          <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.78;margin-bottom:4px;font-weight:900">Pipeline Hybride NLP · CDR tunisien · Mistral</div>
+          <div class="eb-title">Dashboard Évaluation modèle juridique</div>
+          <div class="eb-sub">62 règles extraites · TF-IDF(1,3) + MiniLM + k=4 · 2026-05-08</div>
+        </div>
+      </div>
+      <div class="eb-grade">
+        <div class="eb-score">95</div>
+        <div>/100 · Score fiabilité</div>
+        <div class="eb-pill">✓ Grade A</div>
+      </div>
+    </div>
+
+    <div class="kpi-grid fade-up">
+      <div class="kpi-card green">
+        <div class="kpi-icon">🧠</div>
+        <div class="kpi-label">Hallucinations</div>
+        <div class="kpi-value">0.0%</div>
+        <div class="kpi-delta"><span class="delta-up">0/62 · Excellent</span></div>
+        <div class="kpi-bar"><div class="kpi-fill" style="width:0%"></div></div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-icon">✅</div>
+        <div class="kpi-label">Règles propres CDR</div>
+        <div class="kpi-value">100%</div>
+        <div class="kpi-delta"><span class="delta-up">62/62 validées</span></div>
+        <div class="kpi-bar"><div class="kpi-fill" style="width:100%"></div></div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-icon">🔄</div>
+        <div class="kpi-label">Doublons sémantiques</div>
+        <div class="kpi-value">4.8%</div>
+        <div class="kpi-delta"><span class="delta-ne">3 paires détectées</span></div>
+        <div class="kpi-bar"><div class="kpi-fill" style="width:5%"></div></div>
+      </div>
+      <div class="kpi-card indigo">
+        <div class="kpi-icon">⭐</div>
+        <div class="kpi-label">Quality Score</div>
+        <div class="kpi-value">8.3/10</div>
+        <div class="kpi-delta"><span class="delta-up">min 6 · max 9</span></div>
+        <div class="kpi-bar"><div class="kpi-fill" style="width:83%"></div></div>
+      </div>
+    </div>
+
+    <div class="kpi-grid fade-up">
+      <div class="kpi-card violet">
+        <div class="kpi-label">Total règles</div>
+        <div class="kpi-value">62</div>
+        <div class="kpi-delta"><span class="delta-ne">Après nettoyage</span></div>
+      </div>
+      <div class="kpi-card cyan">
+        <div class="kpi-label">Acteurs normalisés</div>
+        <div class="kpi-value">83.9%</div>
+        <div class="kpi-delta"><span class="delta-ne">ACTOR_MAP</span></div>
+      </div>
+      <div class="kpi-card or">
+        <div class="kpi-label">Score fiabilité</div>
+        <div class="kpi-value">95/100</div>
+        <div class="kpi-delta"><span class="delta-up">Grade A</span></div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-label">Pipeline</div>
+        <div class="kpi-value" style="font-size:20px">Hybride</div>
+        <div class="kpi-delta"><span class="delta-ne">TF-IDF + MiniLM</span></div>
+      </div>
+    </div>
+
+    <div class="panel-grid grid-3">
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Propres vs hallucinations</div><div class="panel-sub">0.0% inventées</div></div></div>
+        <div class="chart-wrap" style="height:200px"><canvas id="ev-donut"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Distribution par statut</div><div class="panel-sub">3 catégories</div></div></div>
+        <div class="chart-wrap" style="height:200px"><canvas id="ev-status"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Risk scores</div><div class="panel-sub">Par tranche</div></div></div>
+        <div class="chart-wrap" style="height:200px"><canvas id="ev-risk"></canvas></div>
+      </div>
+    </div>
+
+    <div class="panel-grid grid-2">
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Top acteurs</div><div class="panel-sub">Règles par profil juridique</div></div></div>
+        <div class="chart-wrap" style="height:220px"><canvas id="ev-actors"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Radar qualité</div><div class="panel-sub">Actuel vs objectif</div></div></div>
+        <div class="chart-wrap" style="height:220px"><canvas id="ev-radar"></canvas></div>
+      </div>
+    </div>
+
+    <div class="panel-grid grid-2">
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Métriques détaillées</div><div class="panel-sub">Couverture par axe qualité</div></div></div>
+        <div class="prog-row mt-2">
+          <div class="prog-head"><span>Précision des réponses</span><span style="color:var(--green-d)">100%</span></div>
+          <div class="prog"><div class="prog-fill" style="width:100%;background:linear-gradient(90deg,var(--green),#71d5b1)"></div></div>
+        </div>
+        <div class="prog-row">
+          <div class="prog-head"><span>Unicité (sans doublons)</span><span style="color:var(--green-d)">95.2%</span></div>
+          <div class="prog"><div class="prog-fill" style="width:95%;background:linear-gradient(90deg,var(--green),#71d5b1)"></div></div>
+        </div>
+        <div class="prog-row">
+          <div class="prog-head"><span>Couverture références</span><span style="color:var(--navy)">100%</span></div>
+          <div class="prog"><div class="prog-fill" style="width:100%;background:linear-gradient(90deg,var(--navy),var(--navy2))"></div></div>
+        </div>
+        <div class="prog-row">
+          <div class="prog-head"><span>Acteurs normalisés</span><span style="color:var(--cyan)">83.9%</span></div>
+          <div class="prog"><div class="prog-fill" style="width:84%;background:linear-gradient(90deg,var(--cyan),#7cc6d3)"></div></div>
+        </div>
+        <div class="prog-row">
+          <div class="prog-head"><span>Pertinence domaine</span><span style="color:var(--or-d)">96%</span></div>
+          <div class="prog"><div class="prog-fill" style="width:96%;background:linear-gradient(90deg,var(--or),#ffc999)"></div></div>
+        </div>
+        <div class="prog-row">
+          <div class="prog-head"><span>Cohérence réponses</span><span style="color:var(--green-d)">97%</span></div>
+          <div class="prog"><div class="prog-fill" style="width:97%;background:linear-gradient(90deg,var(--green-d),var(--green))"></div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div><div class="panel-title">Recommandations</div><div class="panel-sub">Plan d'amélioration continue</div></div></div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;gap:12px;align-items:flex-start;padding-bottom:14px;border-bottom:1px solid var(--line)">
+            <div style="width:28px;height:28px;border-radius:9px;background:var(--mint);color:var(--green-d);font-size:12px;font-weight:950;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(47,156,126,.22)">1</div>
+            <div style="font-size:13px;color:var(--navy);line-height:1.65;font-weight:600">Base Grade A. Reconduire la validation à chaque mise à jour des textes juridiques tunisiens.</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding-bottom:14px;border-bottom:1px solid var(--line)">
+            <div style="width:28px;height:28px;border-radius:9px;background:var(--mint);color:var(--green-d);font-size:12px;font-weight:950;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(47,156,126,.22)">2</div>
+            <div style="font-size:13px;color:var(--navy);line-height:1.65;font-weight:600">Réduire les 3 paires de doublons sémantiques (4.8%) pour améliorer la précision RAG.</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start;padding-bottom:14px;border-bottom:1px solid var(--line)">
+            <div style="width:28px;height:28px;border-radius:9px;background:var(--mint);color:var(--green-d);font-size:12px;font-weight:950;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(47,156,126,.22)">3</div>
+            <div style="font-size:13px;color:var(--navy);line-height:1.65;font-weight:600">Enrichir les acteurs normalisés (83.9% → 90%) pour une meilleure personnalisation des conseils.</div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="width:28px;height:28px;border-radius:9px;background:var(--mint);color:var(--green-d);font-size:12px;font-weight:950;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(47,156,126,.22)">4</div>
+            <div style="font-size:13px;color:var(--navy);line-height:1.65;font-weight:600">Étendre l'évaluation anti-hallucination à l'ensemble des 62 règles avec des cas edge-case.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-dot"></div>
+  <span id="toastMsg">—</span>
+</div>
+
+<!-- ================================================================
+     JAVASCRIPT (logique préservée à 100%)
+================================================================ -->
+<script>
+'use strict';
+
+const API = 'http://localhost:8000';
+const PAGES = {
+  overview:   { title: "Vue d'ensemble",        eyebrow: "Smart Dashboard" },
+  compliance: { title: "Analyse de conformité", eyebrow: "CDR + CATU Engine" },
+  chatbot:    { title: "Assistant juridique IA", eyebrow: "RAG Chatbot" },
+  reports:    { title: "Rapports PDF",           eyebrow: "Génération & envoi" },
+  alerts:     { title: "Alertes juridiques",     eyebrow: "Configuration des notifications" },
+  evaluation: { title: "Évaluation modèle",      eyebrow: "Pipeline Hybride · 62 règles" }
+};
+let currentPage = 'overview';
+let lastAnalysis = null;
+let chartsReady = { overview: false, evaluation: false };
+let reportHistory = [];
+
+function nav(el, page) {
+  document.querySelectorAll('.bo-item').forEach(n => n.classList.remove('active'));
+  if (el && el.classList) el.classList.add('active');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const pg = document.getElementById('page-' + page);
+  if (pg) pg.classList.add('active');
+  currentPage = page;
+  if (page === 'overview' && !chartsReady.overview) { initOverviewCharts(); chartsReady.overview = true; }
+  if (page === 'evaluation' && !chartsReady.evaluation) { initEvalCharts(); chartsReady.evaluation = true; }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+const STATUS_COLOR = { VIOLATION:'#cc3b25', WARNING:'#bf7618', COMPLIANT:'#2f9c7e', UNKNOWN:'#94a0ad' };
+const STATUS_LABEL = { VIOLATION:'Violation détectée', WARNING:'Conditions à vérifier', COMPLIANT:'Conforme', UNKNOWN:'Indéterminé' };
+const STATUS_CLASS = { VIOLATION:'vio', WARNING:'war', COMPLIANT:'ok', UNKNOWN:'' };
+const FILL_GRAD = {
+  VIOLATION: 'linear-gradient(90deg,#cc3b25,#f07b66)',
+  WARNING:   'linear-gradient(90deg,#bf7618,#ffb25f)',
+  COMPLIANT: 'linear-gradient(90deg,#2f9c7e,#71d5b1)',
+  UNKNOWN:   'var(--line2)'
+};
+
+function setQ(q){ document.getElementById('compInput').value = q; document.getElementById('compInput').focus(); }
+
+function setLoading(v) {
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  document.getElementById('analyzeLabel').textContent = 'Analyse en cours…';
+  document.getElementById('sDot').style.background = 'var(--green)';
+  document.getElementById('sLabel').textContent = 'Analyse en cours…';
+  document.getElementById('sLabel').style.color = 'var(--green)';
+  document.getElementById('sScore').textContent = '—';
+  document.getElementById('sScore').style.color = 'var(--muted)';
+  document.getElementById('rQuery').textContent = '"' + v + '"';
+  document.getElementById('ldWrap').style.display = 'block';
+  document.getElementById('rFill').style.width = '0%';
+  document.getElementById('rBarPct').textContent = '0%';
+  document.getElementById('rArtTag').textContent = 'Art. ?';
+  document.getElementById('rArtSrc').textContent = '—';
+  document.getElementById('rExp').textContent = '';
+  document.getElementById('violationsWrap').style.display = 'none';
+  document.getElementById('compResult').className = 'result-card';
+  document.getElementById('pdfBtn').disabled = true;
+}
+
+function setResult(status, risk, art, src, explanation, violations) {
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = false;
+  document.getElementById('analyzeLabel').textContent = 'Analyser la situation';
+  document.getElementById('ldWrap').style.display = 'none';
+  const co = STATUS_COLOR[status] || '#94a0ad';
+  const lb = STATUS_LABEL[status] || status;
+  const cl = STATUS_CLASS[status] || '';
+  const fg = FILL_GRAD[status] || 'var(--line2)';
+  document.getElementById('sDot').style.background = co;
+  document.getElementById('sLabel').textContent = lb;
+  document.getElementById('sLabel').style.color = co;
+  document.getElementById('sScore').textContent = risk + ' / 100';
+  document.getElementById('sScore').style.color = co;
+  document.getElementById('compResult').className = 'result-card ' + cl;
+  document.getElementById('rFill').style.width = risk + '%';
+  document.getElementById('rFill').style.background = fg;
+  document.getElementById('rBarPct').textContent = risk + '%';
+  document.getElementById('rArtTag').textContent = art || 'Art. ?';
+  document.getElementById('rArtSrc').textContent = src || '—';
+  document.getElementById('rExp').textContent = explanation || '';
+  const vw = document.getElementById('violationsWrap');
+  if (violations && violations.length) {
+    vw.innerHTML = violations.map(v => `
+      <div class="vio-item ${v.severity === 'WARNING' ? 'war' : v.severity === 'OK' ? 'ok' : ''}">
+        <div class="vio-title">${typeof v.rule === 'object' ? (v.rule.action || v.rule.actor || 'Règle') : (v.rule || 'Règle')}<span class="badge ${v.severity === 'WARNING' ? 'amber' : v.severity === 'OK' ? 'green' : 'red'}">${v.severity || 'VIOLATION'}</span></div>
+        <div class="vio-msg">${v.message || v.explanation || ''}</div>
+        ${v.article ? `<div class="vio-art">Art. ${v.article} · ${v.source || ''}</div>` : ''}
+      </div>`).join('');
+    vw.style.display = 'flex';
+  } else { vw.style.display = 'none'; }
+  document.getElementById('pdfBtn').disabled = false;
+  lastAnalysis = { status, risk, art, src, explanation };
+  updateOverviewViolations(status, risk);
+  addToRecentActivity(document.getElementById('compInput').value, status, risk, art);
+}
+
+function setApiError() {
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = false;
+  document.getElementById('analyzeLabel').textContent = 'Analyser la situation';
+  document.getElementById('ldWrap').style.display = 'none';
+  document.getElementById('sDot').style.background = '#cc3b25';
+  document.getElementById('sLabel').textContent = 'Service indisponible';
+  document.getElementById('sLabel').style.color = '#cc3b25';
+  document.getElementById('rExp').textContent = "L'API n'est pas connectée. Démarrez le serveur avec : python api.py";
+  toast('API non connectée — démarrez python api.py', 'err');
+}
+
+function analyze() {
+  const v = document.getElementById('compInput').value.trim();
+  if (!v) { document.getElementById('compInput').focus(); return; }
+  setLoading(v);
+  fetch(API + '/analyze-text', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: v, use_llm: true, threshold: 0.45 })
+  })
+  .then(r => r.json())
+  .then(d => {
+    const c = d.compliance || d;
+    const st = c.global_status || 'UNKNOWN';
+    const risk = Math.round(c.risk_score || 0);
+    const vio = c.violations || [];
+    const rag = d.rag_fallback || {};
+    let art = 'Art. ?', src = '', exp = '';
+    if (vio.length) {
+      art = 'Art. ' + (vio[0].article || '?');
+      src = 'CDR Loi n°65-5';
+      exp = (vio[0].message || '').replace(/[🚨⚠️✅❓ℹ️\[\]]/g, '').trim();
+    } else if (rag.articles && rag.articles.length) {
+      art = rag.articles[0]; src = rag.law || ''; exp = (rag.explanation || '').trim();
+    } else if (c.explanations && c.explanations.length) {
+      exp = (c.explanations[0] || '').replace(/[🚨⚠️✅❓ℹ️\[\]]/g, '').trim();
+    }
+    if (exp.length > 300) exp = exp.slice(0, 300) + '…';
+    setResult(st, risk, art, src, exp, vio);
+  })
+  .catch(() => setApiError());
+}
+
+function genPDF() {
+  const sit = document.getElementById('compInput').value.trim();
+  if (!sit) { toast("Analysez d'abord une situation.", 'err'); return; }
+  document.getElementById('repSit').value = sit;
+  nav(document.querySelectorAll('.bo-item')[3], 'reports');
+  toast('Renseignez votre email et cliquez sur Générer.', 'info');
+}
+
+function generateReport() {
+  const sit = document.getElementById('repSit').value.trim();
+  const dest = document.getElementById('repDest').value;
+  const email = document.getElementById('repEmail').value.trim();
+  if (!sit) { toast('Décrivez la situation juridique.', 'err'); return; }
+  if (!email || !email.includes('@')) { toast('Adresse e-mail invalide.', 'err'); return; }
+  toast('Génération du rapport PDF…', 'info');
+  // Utilise lastAnalysis pour garantir la cohérence des scores
+  const analysisToUse = lastAnalysis || null;
+  fetch(API + '/generate-report', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      situation: sit, destinataire: dest, email,
+      risk_score: analysisToUse ? analysisToUse.risk : undefined,
+      status: analysisToUse ? analysisToUse.status : undefined
+    })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success || d.filename) {
+      toast('✅ Rapport généré — envoi à ' + email, 'ok');
+      // Toujours utiliser lastAnalysis pour le score affiché (cohérence)
+      addReport(sit, email, d.filename || 'rapport.pdf', analysisToUse);
+      fetch(API + '/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: email, subject: 'Rapport juridique EstateMind', body: 'Rapport de conformité : ' + sit, attachment: d.filename || '' })
+      }).catch(() => {});
+    } else { toast('⚠️ Erreur lors de la génération.', 'err'); }
+  })
+  .catch(() => { toast('API non connectée.', 'err'); addReport(sit, email, 'rapport_' + Date.now() + '.pdf', lastAnalysis); });
+}
+
+function addReport(sit, email, filename, analysis) {
+  const status = analysis ? analysis.status : 'UNKNOWN';
+  const risk = analysis ? analysis.risk : '—';
+  const badgeClass = status === 'VIOLATION' ? 'red' : status === 'WARNING' ? 'amber' : 'green';
+  const badgeLabel = status === 'VIOLATION' ? 'Violation' : status === 'WARNING' ? 'Avertissement' : 'Conforme';
+  const now = new Date().toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  reportHistory.unshift({ sit, email, filename, status, risk, badgeClass, badgeLabel, now });
+  renderReports();
+}
+
+function renderReports() {
+  const el = document.getElementById('reportsList');
+  if (!reportHistory.length) {
+    el.innerHTML = '<div class="empty-state"><div class="es-icon">📄</div><p>Aucun rapport généré.</p></div>';
+    return;
+  }
+  el.innerHTML = `<table class="data-table">
+    <thead><tr><th>Situation</th><th>Statut</th><th>Score</th><th>Email</th><th>Date</th><th>Action</th></tr></thead>
+    <tbody>${reportHistory.map(r => `
+      <tr>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.sit}</td>
+        <td><span class="badge ${r.badgeClass}"><span class="badge-dot"></span>${r.badgeLabel}</span></td>
+        <td style="font-weight:900;color:var(--or-d)">${r.risk}/100</td>
+        <td>${r.email}</td>
+        <td>${r.now}</td>
+        <td><button class="panel-btn" onclick="toast('Téléchargement : ${r.filename}','ok')">⬇ Télécharger</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function sendChat() {
+  const inp = document.getElementById('chatInput');
+  const v = inp.value.trim();
+  if (!v) return;
+  appendMsg('user', v);
+  inp.value = '';
+  const tid = 'typing_' + Date.now();
+  appendTyping(tid);
+  fetch(API + '/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ question: v, use_rag: true })
+  })
+  .then(r => r.json())
+  .then(d => { removeTyping(tid); appendMsg('bot', d.answer || 'Réponse reçue.', d.sources || []); })
+  .catch(() => { removeTyping(tid); appendMsg('bot', 'Service IA indisponible. Démarrez le serveur avec python api.py.', []); });
+}
+
+function appendMsg(role, text, sources) {
+  const msgs = document.getElementById('chatMsgs');
+  const d = document.createElement('div');
+  d.className = 'msg ' + (role === 'user' ? 'user' : '');
+  const srcHtml = (sources && sources.length)
+    ? `<div class="msg-src">${sources.map(s => `<div class="msg-src-tag">${s}</div>`).join('')}</div>`
+    : (role === 'bot' ? '<div class="msg-src"><div class="msg-src-tag">CDR Loi n°65-5</div><div class="msg-src-tag">CATU 2011</div></div>' : '');
+  d.innerHTML = `<div class="msg-av">${role === 'user' ? 'AB' : '⚖'}</div>
+    <div><div class="msg-bubble">${text}</div>${srcHtml}</div>`;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function appendTyping(id) {
+  const msgs = document.getElementById('chatMsgs');
+  const d = document.createElement('div');
+  d.className = 'msg'; d.id = id;
+  d.innerHTML = `<div class="msg-av">⚖</div><div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  msgs.appendChild(d);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+function removeTyping(id) { const el = document.getElementById(id); if (el) el.remove(); }
+
+function saveAlerts() {
+  const email = document.getElementById('alertEmail').value.trim();
+  if (!email || !email.includes('@')) { toast('Adresse e-mail invalide.', 'err'); return; }
+  const payload = {
+    email,
+    high_risk:    document.getElementById('tg1').classList.contains('on'),
+    cdr_changes:  document.getElementById('tg2').classList.contains('on'),
+    catu_changes: document.getElementById('tg3').classList.contains('on'),
+    weekly:       document.getElementById('tg4').classList.contains('on'),
+    new_rules:    document.getElementById('tg5').classList.contains('on')
+  };
+  fetch(API + '/configure-alerts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+  .then(() => toast('✅ Alertes configurées pour ' + email, 'ok'))
+  .catch(() => toast('✅ Configuration sauvegardée.', 'ok'));
+  document.getElementById('alertBadge').style.display = 'none';
+}
+
+function updateOverviewViolations(status, risk) {
+  const el = document.getElementById('ov-violations');
+  const sub = document.getElementById('ov-viol-sub');
+  const bar = document.getElementById('ov-viol-bar');
+  if (status === 'VIOLATION') {
+    el.textContent = '1'; el.style.color = 'var(--red)';
+    sub.textContent = 'Risque ' + risk + '/100';
+    bar.style.width = risk + '%';
+  } else if (status === 'COMPLIANT') {
+    el.textContent = '0'; el.style.color = 'var(--green-d)';
+    sub.textContent = 'Aucune violation';
+    bar.style.width = '0%';
+  }
+}
+
+function addToRecentActivity(sit, status, risk, art) {
+  const tbody = document.getElementById('ov-recent-body');
+  const badgeClass = status === 'VIOLATION' ? 'red' : status === 'WARNING' ? 'amber' : 'green';
+  const badgeLabel = STATUS_LABEL[status] || status;
+  const scoreColor = status === 'VIOLATION' ? 'var(--red)' : status === 'WARNING' ? 'var(--or-d)' : 'var(--green-d)';
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${sit.length > 50 ? sit.slice(0,50)+'…' : sit}</td>
+    <td><span class="badge ${badgeClass}"><span class="badge-dot"></span>${badgeLabel}</span></td>
+    <td style="color:${scoreColor};font-weight:900">${risk}/100</td>
+    <td style="color:var(--or);font-weight:800">${art}</td>
+    <td>À l'instant</td>`;
+  tbody.insertBefore(tr, tbody.firstChild);
+  if (tbody.children.length > 6) tbody.removeChild(tbody.lastChild);
+}
+
+function toast(msg, type) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.className = 'toast ' + (type || 'info');
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+/* CHARTS — palette dashboard.html */
+const C = {
+  navy:'#071d33', green:'#2f9c7e', greenD:'#1a6e57', mint:'#dff5ec',
+  text:'#6e7a8a', grid:'rgba(7,29,51,.06)',
+  or:'#ff9a4b', red:'#cc3b25', amber:'#bf7618',
+  cyan:'#3aa5b8', pink:'#cc6a8a', blue:'#4a5fc1'
+};
+const BASE = { responsive: true, maintainAspectRatio: false };
+const G = id => document.getElementById(id);
+
+function initOverviewCharts() {
+  new Chart(G('ov-chart-perf'), {
+    type: 'bar',
+    data: {
+      labels: ['Fiabilité','Précision','Unicité','Référence','Acteurs','Domaine'],
+      datasets: [{ data: [95,100,95,100,84,96], backgroundColor:[C.green,C.greenD,C.cyan,C.navy,C.amber,C.or], borderRadius:8, borderSkipped:false }]
+    },
+    options: { ...BASE, plugins:{ legend:{display:false} }, scales:{
+      x:{ grid:{display:false}, ticks:{color:C.text,font:{size:11,weight:'700'}} },
+      y:{ max:100, grid:{color:C.grid}, ticks:{color:C.text,font:{size:11}} }
+    }}
+  });
+  new Chart(G('ov-chart-risk'), {
+    type: 'doughnut',
+    data: {
+      labels: ['0-25 (Faible)','26-50 (Modéré)','51-70 (Élevé)','71+ (Critique)'],
+      datasets: [{ data: [16,35,9,2], backgroundColor:[C.green,C.cyan,C.amber,C.red], borderColor:'#fff', borderWidth:3 }]
+    },
+    options: { ...BASE, cutout:'64%', plugins:{ legend:{ position:'bottom', labels:{color:C.text,font:{size:11,weight:'700'},usePointStyle:true,padding:14} } } }
+  });
+}
+
+function initEvalCharts() {
+  new Chart(G('ev-donut'), {
+    type:'doughnut',
+    data:{ labels:['Propres','Hallucinations'], datasets:[{ data:[62,0], backgroundColor:[C.green,C.red], borderColor:'#fff', borderWidth:3 }] },
+    options:{ ...BASE, cutout:'65%', plugins:{ legend:{ position:'bottom', labels:{color:C.text,font:{size:11,weight:'700'},usePointStyle:true,padding:14} } } }
+  });
+  new Chart(G('ev-status'), {
+    type:'bar',
+    data:{ labels:['interdit','obligation','permis'], datasets:[{ data:[4,35,23], backgroundColor:[C.red,C.amber,C.green], borderRadius:8, borderSkipped:false }] },
+    options:{ ...BASE, plugins:{ legend:{display:false} }, scales:{ x:{grid:{display:false},ticks:{color:C.text}}, y:{grid:{color:C.grid},ticks:{color:C.text}} } }
+  });
+  new Chart(G('ev-risk'), {
+    type:'bar',
+    data:{ labels:['0-25','26-50','51-70','71-85','86-100'], datasets:[{ data:[16,35,4,4,3], backgroundColor:[C.green,C.cyan,C.amber,C.or,C.red], borderRadius:8, borderSkipped:false }] },
+    options:{ ...BASE, plugins:{ legend:{display:false} }, scales:{ x:{grid:{display:false},ticks:{color:C.text}}, y:{grid:{color:C.grid},ticks:{color:C.text}} } }
+  });
+  new Chart(G('ev-actors'), {
+    type:'bar',
+    data:{ labels:['Propriétaire','Locataire','Créancier','Notaire','État','Voisin'], datasets:[{ data:[18,12,9,7,9,7], backgroundColor:C.green, borderRadius:8, borderSkipped:false }] },
+    options:{ ...BASE, indexAxis:'y', plugins:{legend:{display:false}}, scales:{ x:{grid:{color:C.grid},ticks:{color:C.text}}, y:{grid:{display:false},ticks:{color:C.text,font:{weight:'700'}}} } }
+  });
+  new Chart(G('ev-radar'), {
+    type:'radar',
+    data:{
+      labels:['Précision','Unicité','Références','Acteurs','Domaine','Cohérence'],
+      datasets:[
+        { label:'Actuel', data:[100,95,100,84,96,97], backgroundColor:'rgba(47,156,126,.18)', borderColor:C.green, borderWidth:2, pointBackgroundColor:C.green },
+        { label:'Objectif', data:[100,100,100,95,100,100], backgroundColor:'rgba(7,29,51,.05)', borderColor:C.navy, borderWidth:2, pointBackgroundColor:C.navy, borderDash:[4,4] }
+      ]
+    },
+    options:{ ...BASE, plugins:{ legend:{ position:'bottom', labels:{color:C.text,font:{size:11,weight:'700'},usePointStyle:true,padding:14} } }, scales:{ r:{ angleLines:{color:C.grid}, grid:{color:C.grid}, pointLabels:{color:C.text,font:{size:10,weight:'700'}}, ticks:{display:false}, suggestedMin:0, suggestedMax:100 } } }
+  });
+}
+
+/* INIT */
+document.addEventListener('DOMContentLoaded', () => {
+  initOverviewCharts();
+  chartsReady.overview = true;
+});
+</script>
+</body>
+</html>

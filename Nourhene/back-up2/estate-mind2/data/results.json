@@ -1,0 +1,220 @@
+{
+  "kpis": {
+    "biens_analyses": 8496,
+    "roi_moyen_projete": 6.7,
+    "budget": 200000000,
+    "horizon": 3,
+    "goal": "airbnb",
+    "risk": "high",
+    "recommandations_buy": 2517
+  },
+  "recommendations": [
+    {
+      "property_type": "appartement",
+      "city": "Rades",
+      "price_value": 220000.0,
+      "surface_m2": 90.0,
+      "roi_gross": 0.0731,
+      "projected_roi": 0.0751,
+      "decision": "BUY",
+      "final_score": 1.0,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "Nabeul",
+      "price_value": 405000.0,
+      "surface_m2": 129.0,
+      "roi_gross": 0.0723,
+      "projected_roi": 0.0739,
+      "decision": "BUY",
+      "final_score": 0.9998,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "La Marsa",
+      "price_value": 420000.0,
+      "surface_m2": 123.0,
+      "roi_gross": 0.0722,
+      "projected_roi": 0.0748,
+      "decision": "BUY",
+      "final_score": 0.9997,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "Sfax Ville",
+      "price_value": 320000.0,
+      "surface_m2": 123.0,
+      "roi_gross": 0.0721,
+      "projected_roi": 0.0741,
+      "decision": "BUY",
+      "final_score": 0.9997,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "Rades",
+      "price_value": 190000.0,
+      "surface_m2": 100.0,
+      "roi_gross": 0.0721,
+      "projected_roi": 0.0733,
+      "decision": "BUY",
+      "final_score": 0.9996,
+      "xai_explanation": "Cette propriété est recommandée car :\n• Roi Norm très favorable\n• User Match Score très favorable\n• Projected Roi très favorable\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "Sousse Ville",
+      "price_value": 170000.0,
+      "surface_m2": 70.0,
+      "roi_gross": 0.0721,
+      "projected_roi": 0.0747,
+      "decision": "BUY",
+      "final_score": 0.9994,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "Nabeul",
+      "price_value": 237000.0,
+      "surface_m2": 60.0,
+      "roi_gross": 0.072,
+      "projected_roi": 0.0739,
+      "decision": "BUY",
+      "final_score": 0.9993,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "Menzel Jemil",
+      "price_value": 350000.0,
+      "surface_m2": 108.0,
+      "roi_gross": 0.0719,
+      "projected_roi": 0.0739,
+      "decision": "BUY",
+      "final_score": 0.9992,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "Hammamet",
+      "price_value": 360000.0,
+      "surface_m2": 66.0,
+      "roi_gross": 0.0719,
+      "projected_roi": 0.0739,
+      "decision": "BUY",
+      "final_score": 0.9991,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "La Marsa",
+      "price_value": 440000.0,
+      "surface_m2": 190.0,
+      "roi_gross": 0.0719,
+      "projected_roi": 0.0745,
+      "decision": "BUY",
+      "final_score": 0.9991,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "Akouda",
+      "price_value": 366000.0,
+      "surface_m2": 65.0,
+      "roi_gross": 0.0718,
+      "projected_roi": 0.0749,
+      "decision": "BUY",
+      "final_score": 0.9989,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "El Mourouj",
+      "price_value": 200000.0,
+      "surface_m2": 111.0,
+      "roi_gross": 0.0718,
+      "projected_roi": 0.0737,
+      "decision": "BUY",
+      "final_score": 0.9989,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "Ariana Ville",
+      "price_value": 295000.0,
+      "surface_m2": 109.0,
+      "roi_gross": 0.0718,
+      "projected_roi": 0.0737,
+      "decision": "BUY",
+      "final_score": 0.9987,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "unknown",
+      "price_value": 260000.0,
+      "surface_m2": 92.0,
+      "roi_gross": 0.0718,
+      "projected_roi": 0.0736,
+      "decision": "BUY",
+      "final_score": 0.9986,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    },
+    {
+      "property_type": "appartement",
+      "city": "Raoued",
+      "price_value": 348000.0,
+      "surface_m2": 88.0,
+      "roi_gross": 0.0717,
+      "projected_roi": 0.0738,
+      "decision": "BUY",
+      "final_score": 0.9984,
+      "xai_explanation": "Cette propriété est recommandée car :\n",
+      "rl_selected": false
+    }
+  ],
+  "top_cities": [
+    {
+      "city": "El Ain",
+      "roi": 0.0726
+    },
+    {
+      "city": "El Kabaria",
+      "roi": 0.0717
+    },
+    {
+      "city": "Menzel Jemil",
+      "roi": 0.0715
+    },
+    {
+      "city": "Kalâa Kebira",
+      "roi": 0.0712
+    },
+    {
+      "city": "Raf Raf",
+      "roi": 0.0712
+    }
+  ],
+  "backtest": {
+    "mae": 0.003,
+    "mape": 4.8,
+    "precision_top5": 80
+  }
+}
