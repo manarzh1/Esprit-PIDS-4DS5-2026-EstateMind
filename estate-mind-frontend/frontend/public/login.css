@@ -110,10 +110,9 @@
 
 .login-body .login-left{
   background:
-    linear-gradient(90deg, rgba(7,29,51,0.55), rgba(7,29,51,0.25)),
+    linear-gradient(90deg, rgba(7,29,51,0.28), rgba(7,29,51,0.03)),
     url('assets/login-bg.png') center/cover no-repeat !important;
 }
-
 .login-body .login-right{
   background:
     radial-gradient(circle at 72% 18%, rgba(47,156,126,0.10), transparent 30%),

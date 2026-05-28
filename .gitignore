@@ -18,3 +18,15 @@ Modeling/data/reports/
 .DS_Store
 Thumbs.db
 
+node_modules/
+.env
+.venv/
+__pycache__/
+*.pyc
+
+.next/
+dist/
+build/
+
+videos/*.mp4
+*.mp4

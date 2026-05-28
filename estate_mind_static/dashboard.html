@@ -4,57 +4,77 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard — Estate Mind</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="common.css" />
+  <link rel="stylesheet" href="dashboard.css" />
 </head>
 <body class="dash-body">
-  <aside class="dash-sidebar" id="sidebar">
-    <div class="dash-brand">
-      <span class="logo-mark">⌂</span>
-      <strong>Estate Mind</strong>
-    </div>
+<main class="dash-main">
+    
 
-    <button class="collapse-btn" onclick="document.body.classList.toggle('sidebar-collapsed')">☰</button>
+    
+    <!-- ================= BO NAVIGATION ================= -->
 
-    <nav class="dash-nav">
-      <a class="active" onclick="setPage('BO 1 — Intelligence des annonces', this)">🔎 <span>BO 1 · Annonces</span></a>
-      <a onclick="setPage('BO 2 — Intelligence territoriale', this)">🗺️ <span>BO 2 · Territoires</span></a>
-      <a onclick="setPage('BO 3 — Prévision marché', this)">📈 <span>BO 3 · Prévisions</span></a>
-      <a onclick="setPage('BO 4 — Réglementaire', this)">⚖️ <span>BO 4 · Réglementaire</span></a>
-      <a onclick="setPage('BO 5 — Clients & vendeurs', this)">👥 <span>BO 5 · CRM</span></a>
-      <a onclick="setPage('BO 6 — Rapports IA', this)">📊 <span>BO 6 · Rapports</span></a>
-    </nav>
+<section class="bo-nav" aria-label="Business objectives navigation">
 
-    <div class="sidebar-card">
-      <img src="assets/avatar-advisor.png" alt="">
-      <p>Besoin d’un insight rapide ?</p>
-      <button>Demander à l’IA</button>
-    </div>
-  </aside>
+  <div class="bo-item active" onclick="setPage('BO 1 — Intelligence des annonces', this)">
+    <img src="assets/icons/search2.png" alt="">
+    <span>Market Reliability</span>
+  </div>
 
-  <main class="dash-main">
-    <header class="dash-header">
+  <div class="bo-item" onclick="setPage('BO 2 — Intelligence territoriale', this)">
+    <img src="assets/icons/map2.png" alt="">
+    <span>Territorial Dynamics</span>
+  </div>
+
+  <div class="bo-item" onclick="setPage('BO 3 — Prévision marché', this)">
+    <img src="assets/icons/chart2.png" alt="">
+    <span>Price Estimation</span>
+  </div>
+
+  <div class="bo-item" onclick="setPage('BO 4 — Décisions d’investissement', this)">
+    <img src="assets/icons/report2.png" alt="">
+    <span>Investment Decisions</span>
+  </div>
+
+  <div class="bo-item" onclick="setPage('BO 5 — Conformité légale', this)">
+    <img src="assets/icons/shield2.png" alt="">
+    <span>Legal Compliance</span>
+  </div>
+
+  <div class="bo-item" onclick="setPage('BO 6 — Plateforme & opérations', this)">
+    <img src="assets/icons/ai2.png" alt="">
+    <span>Platform Operations</span>
+  </div>
+
+</section>
+    
+<header class="dash-header">
       <div>
-        <span class="eyebrow">Dashboard intelligent</span>
-        <h1 id="pageTitle">BO 1 — Intelligence des annonces</h1>
+        <span class="eyebrow" style="background:#1e4d3a;color:#fff;font-size:11px;padding:5px 11px;letter-spacing:.1em">SMART DASHBOARD</span>
+        <h1 id="pageTitle" style="font-size:28px;margin-top:6px">BO1 — Market Reliability</h1>
       </div>
 
       <div class="header-actions">
-        <div class="dash-search">🔍 <input placeholder="Rechercher une annonce, ville, score..." /></div>
-        <button class="icon-btn">🔔</button>
+        <div class="dash-search">
+  <img src="assets/icons/house.png" class="icon">
+  <input placeholder="Rechercher une annonce, ville, score..." />
+</div>
+
+<button class="icon-btn">
+  <img src="assets/icons/bell.png" class="icon">
+</button>
         <div class="profile">
           <img src="assets/avatar-director.png" alt="">
           <span>Admin</span>
-          <b>⌄</b>
+          <b></b>
         </div>
       </div>
     </header>
-
-    <section class="dash-tabs">
-      <button class="active" onclick="setTab(this, 'overview')">Vue globale</button>
-      <button onclick="setTab(this, 'map')">Carte</button>
-      <button onclick="setTab(this, 'models')">Modèles IA</button>
-      <button onclick="setTab(this, 'data')">Données</button>
-      <button onclick="setTab(this, 'alerts')">Alertes</button>
+<section class="dash-tabs" id="tabsContainer">
+      <button class="active" onclick="setTab(this,'overview')">Overview</button>
+      <button onclick="setTab(this,'search')">Search</button>
+      <button onclick="setTab(this,'opportunities')">Opportunities</button>
+      <button onclick="setTab(this,'portfolio')">Portfolio</button>
     </section>
 
     <section class="dash-grid" id="tabContent">
@@ -120,7 +140,9 @@
     <footer class="dash-footer">Estate Mind © 2026 · Dashboard SaaS IA immobilier</footer>
   </main>
 
-  <button class="ai-button" onclick="document.body.classList.toggle('assistant-open')">✦</button>
+  <button class="ai-button" onclick="document.body.classList.toggle('assistant-open')">
+  <img src="assets/icons/ai.png">
+</button>
   <aside class="ai-panel">
     <div class="ai-head">
       <strong>Assistant IA Estate Mind</strong>
@@ -137,7 +159,7 @@
   <script>
     function setPage(title, el){
       document.getElementById('pageTitle').textContent = title;
-      document.querySelectorAll('.dash-nav a').forEach(a => a.classList.remove('active'));
+      document.querySelectorAll('.bo-item').forEach(a => a.classList.remove('active'));
       el.classList.add('active');
     }
     function setTab(btn, type){
